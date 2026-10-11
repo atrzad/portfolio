@@ -1,6 +1,6 @@
 # Portfólio — Glaydson de Oliveira Araujo
 
-Site pessoal em português com estética hacker, cyberpunk e um pouco de sci-fi, toda em pixel art. A experiência é toda na rolagem: o portão de uma garagem sobe e a página segue direto para a tela grande de um terminal com a árvore de habilidades e os projetos; depois vêm uma página de zine em xerox e os contatos num papel amassado sobre a mesa. HTML, CSS e JavaScript (módulos ES) servidos por Node.js, sem dependências de produção e sem etapa de build.
+Site pessoal em português com estética hacker, cyberpunk e um pouco de sci-fi, toda em pixel art. A experiência é toda na rolagem: o portão de uma garagem sobe e a página segue direto para a tela grande de um terminal com a árvore de habilidades em forma de roda (áreas, linguagens e projetos); depois vêm uma página de zine em xerox e os contatos num papel amassado sobre a mesa. HTML, CSS e JavaScript (módulos ES) servidos por Node.js, sem dependências de produção e sem etapa de build.
 
 ## Site publicado
 
@@ -26,19 +26,20 @@ npm run qa      # Chromium: portão, árvore, modal, teclado, celular, movimento
 
 ## Editar
 
-- `dist/data.js`: **fonte única dos dados**: habilidades, ligações da árvore, projetos (com `skills` e `motivation`) e contatos. Projeto com `skills: []` fica fora da árvore, numa fileira abaixo do terminal.
+- `dist/data.js`: **fonte única dos dados**: linguagens (com a sigla usada na roda do celular), as três áreas da roda (Full-stack, Automação e Android, cada uma com as linguagens que usa), projetos (com `area`, `langs` e `motivation`) e contatos. Projeto com `area: null` fica fora da roda, numa fileira abaixo do terminal; quem está numa área só pode usar linguagens dessa área (o `npm test` confere).
+- `npm run miniaturas`: gera, a partir das capturas, as miniaturas leves (360 × 240, para a ficha e os cartões do celular) e as versões de 720 px usadas no modal em telas pequenas. A captura original fica para a imagem ampliada.
 - `npm run versao`: carimba `?v=<hash do conteúdo>` nas referências a `./assets/` do HTML e do CSS, para o navegador nunca mostrar uma imagem antiga em cache (o `npm run arte` já roda isso; o `npm test` avisa se faltar).
 - `npm run seo`: regenera, a partir de `data.js`, a lista de projetos oculta visualmente no `index.html` (para leitores de tela e indexação). O `npm test` avisa se ela ficar desatualizada.
 - `dist/index.html`: estrutura das cenas (abertura/portão, garagem com terminal, zine "sobre", mesa de contatos).
 - `dist/style.css`: visual; blocos marcados por etapa (`etapa:hero`, `etapa:portao`, `etapa:arvore`, `etapa:mesa`).
 - `dist/js/portao.js`: o portão sobe com a rolagem; aberto, o palco se solta e a próxima tela já é o terminal. Só `transform` e `opacity` mudam por quadro, e o ouvinte de rolagem só trabalha com o portão na tela.
 - `dist/js/som.js`: som opcional (Web Audio, desligado por padrão): ruído mecânico do portão.
-- `dist/js/arvore.js`: árvore SVG (trilhas de PCB, graticula de osciloscópio, sincronia na tela), lista para celular e modal com glitch. Passar de um projeto para outro só acende outro caminho: a tela não pisca.
+- `dist/js/arvore.js`: árvore em roda com **duas telas separadas**. No desktop, a roda em SVG (centro → áreas → linguagens → projetos, com trilhas de placa redonda: raio, arco e via) tem uma ficha ao lado; hover ou foco acendem o caminho até o centro, põem uma mira no nó e mostram na ficha a miniatura, as linguagens, a stack e a sincronia (quantas linguagens da área o projeto usa). No toque, o primeiro toque seleciona e o segundo abre. No celular (até 900 px), a tela é outra: roda compacta de enfeite, abas grandes por área, linguagens como filtro e cartões com miniatura. As duas telas abrem o mesmo modal com glitch, e a tela não pisca ao trocar de nó.
 - `dist/js/mesa.js`: LEDs que só piscam com a mesa na tela e aviso dourado "SINAL ACESO" (uma vez).
 - `scripts/arte/cenas.mjs` e `scripts/arte/simbolos.mjs`: a arte é desenhada em SVG e renderizada em **pixel art** por `npm run arte` (detalhes em "Direção de arte"). No site, as imagens são ampliadas com `image-rendering: pixelated`. Silhuetas e símbolos são genéricos: sem marcas, logotipos ou pessoas reais.
 - `dist/assets/screenshots/`: capturas reais otimizadas em WebP, mostradas no modal.
 
-Acessibilidade: tudo funciona por teclado (losangos da árvore são focáveis; Enter abre; Escape fecha e devolve o foco), foco visível em verde-ácido, rótulos ARIA e `prefers-reduced-motion` desliga portão animado, glitch, ruído de VHS e LEDs piscando. Em telas até 760 px a árvore vira lista vertical com os mesmos dados. O CSP do servidor bloqueia estilos inline, então valores dinâmicos são aplicados via CSSOM no JavaScript.
+Acessibilidade: tudo funciona por teclado (losangos da árvore são focáveis; Enter abre; Escape fecha e devolve o foco), foco visível em verde-ácido, rótulos ARIA e `prefers-reduced-motion` desliga portão animado, glitch, ruído de VHS e LEDs piscando. Em telas até 900 px a roda dá lugar à tela do celular (abas e filtros são botões com `aria-pressed`, e um resumo com `aria-live` diz quantos projetos aparecem). O CSP do servidor bloqueia estilos inline, então valores dinâmicos são aplicados via CSSOM no JavaScript.
 
 As motivações dos projetos foram escritas a partir do problema que cada um trata; ajuste-as em `data.js` com a sua história real.
 
@@ -67,16 +68,16 @@ A estética é cyberpunk e meio sci-fi, com acenos discretos ao que inspira o au
 
 | Referência | Onde aparece |
 |---|---|
-| Soulslike / FromSoftware | dica do início como mensagem laranja no chão ("experimente rolar"); aviso dourado "SINAL ACESO" ao chegar no contato; motivação dos projetos como inscrição dourada |
+| Soulslike / FromSoftware | dica do início como mensagem laranja no chão ("experimente rolar"); aviso dourado "SINAL ACESO" ao chegar no contato; motivação dos projetos como inscrição dourada; roda de habilidades com mira de seleção e ficha, como nos menus de jogo |
 | Hollow Knight, Blasphemous | claro-escuro: uma luz forte por cena e o resto em sombra; vermelho-carmim e dourado como acentos; fonte gótica em pixel |
 | Silent Hill | neblina baixa no portão; parede de azulejos sob luz fluorescente no Sobre; interior iluminado só pela tela |
 | Samurai Jack, Vagabond, Vinland Saga | selo de tinta "G A"; decalque de drakkar "RUMO A OESTE" no terminal; pixação de letras rúnicas no portão |
 | BLAME! | cartaz MANAUS 2099 com a megaestrutura sem fim, dentro da garagem |
 | Godzilla | cartaz KAIJU NA ORLA, dentro da garagem |
-| Evangelion | nós hexagonais da árvore; "SINC." na tela (quanto das habilidades o projeto usa); console do terminal com faixa de perigo |
+| Evangelion | áreas em nós hexagonais; "SINC." na tela (quantas linguagens da área o projeto usa); console do terminal com faixa de perigo |
 | Dredge | cartão-postal "pesca noturna" na mesa, com uma luz que não devia estar ali |
 | Pós-punk, new wave, nu metal, rap metal, experimental | lambe-lambe "SOM PESADO" no portão; flyer com linhas de sinal de pulsar na garagem; fita cassete com os gêneros na mesa |
-| Engenharia Eletrônica e programação | ligações da árvore como trilhas de PCB (as dos projetos ficam como conexões não roteadas); graticula de osciloscópio na tela; VU de sinal no terminal; esquema a giz (resistor 220R, LED, capacitor) na parede atrás dele; caixa de medição com aviso de alta tensão e placa da Zona Franca, onde fica o polo de eletrônicos de Manaus; protoboard na mesa; "VCC 5V" na abertura |
+| Engenharia Eletrônica e programação | ligações da roda como trilhas de uma placa redonda (cada linguagem corre na própria faixa, com via nas dobras); mostrador graduado em volta do núcleo; VU de sinal no terminal; esquema a giz (resistor 220R, LED, capacitor) na parede atrás dele; caixa de medição com aviso de alta tensão e placa da Zona Franca, onde fica o polo de eletrônicos de Manaus; protoboard na mesa; "VCC 5V" na abertura |
 
 
 ## Fontes e escopo

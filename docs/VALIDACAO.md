@@ -46,3 +46,13 @@ Instância Tailscale em userspace publicada em https://glaydson-porfolio.tail9ff
 - Arte refeita em pontilhado ordenado com paleta própria por cena (referências na tabela "Direção de arte" do README). Imagens novas: parede atrás do terminal, parede de azulejos e página de zine; o interior da garagem, o papel e o selo deixaram de se repetir (cada imagem aparece uma vez, conferido pelo `npm test`).
 - Rodapé sem a frase "Feito em Manaus. Toda garagem guarda um reino esquecido."
 - `npm run qa` passou com as checagens novas (portão abre inteiro, sem restos da animação depois da abertura, terminal a menos de 1,35 tela do fim do portão e inteiro na janela, nenhuma animação na tela ao trocar de projeto, rodapé sem a frase), em 320, 390, 768 e 1440 px, com texto a 200%, movimento reduzido e sem erros de JavaScript, HTTP ou CSP. As mesmas checagens falham na versão anterior.
+
+## Roda de habilidades e tela do celular — 11/10/2026
+
+- A árvore virou uma roda: do centro saem as áreas Full-stack, Automação e Android; em cada área, as linguagens que ela usa (conferidas nos repositórios locais e nas estatísticas de linguagem do GitHub); na borda, os 16 projetos, ligados às linguagens que usam. As ferramentas nativas para Linux (Ayo Desk, Ayo Kanban, Repo Manager) ficam em Automação, e o Ayo Música, em Android.
+- Desktop: hover ou foco acendem o caminho até o centro, põem uma mira no nó e preenchem a ficha ao lado (miniatura, linguagens, stack e sincronia); no toque, o primeiro toque seleciona e o segundo abre.
+- Celular (até 900 px): tela própria, com roda compacta de enfeite, abas por área, linguagens como filtro e cartões com miniatura.
+- Miniaturas: 17 capturas em 360 × 240 (62 KB no total) e versões de 720 px para o modal em telas pequenas.
+- Corrigido: a captura no modal herdava a altura de 960 px do atributo `height` e aparecia gigante e cortada, principalmente no celular; agora mantém a proporção, com tamanho de miniatura. O botão de som some quando o portão termina de abrir.
+- Corrigido durante o trabalho: uma chave sobrando no CSS derrubava a regra da parede do Sobre (sem fundo e com rolagem lateral no celular); o `npm test` agora confere as chaves do CSS.
+- `npm run qa` passou: roda com 3 áreas, 9 nós de linguagem e 16 projetos; hover em projeto (caminho de 5 ligações, mira, ficha com miniatura leve e "SINC. 50%"), em linguagem e em área; ficha volta à legenda ao sair; tela sem animação ao trocar de nó; toque em 1024 px (primeiro toque seleciona, segundo abre); celular em 320, 390 e 768 px com abas, filtro, resumo, miniaturas carregadas, modal com a imagem média sem estourar a tela e sem rolagem lateral; movimento reduzido e sem erros de JavaScript, HTTP ou CSP.
