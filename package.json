@@ -1,1 +1,17 @@
-{"name":"glaydson-portfolio","version":"1.0.0","private":true,"type":"module","scripts":{"start":"node server.mjs","check":"node --check server.mjs && node --check dist/app.js","test":"node scripts/check.mjs"},"engines":{"node":">=22"}}
+{
+  "name": "glaydson-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "check": "node --check server.mjs && for f in dist/app.js dist/data.js dist/js/*.js; do node --check $f; done",
+    "test": "node scripts/check.mjs",
+    "seo": "node scripts/build-seo.mjs",
+    "arte": "node scripts/arte.mjs",
+    "qa": "node scripts/qa.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
