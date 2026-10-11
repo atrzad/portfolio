@@ -1,11 +1,15 @@
-// Cenas do site geradas como SVG e depois renderizadas em WebP por scripts/arte.mjs.
-// Cada cena devolve { nome, w, h, alfa, svg }. O sorteio é determinístico (semente fixa).
+// Cenas do site geradas como SVG e depois renderizadas em pixel art por scripts/arte.mjs.
+// Cada cena devolve { nome, w, h, alfa, paleta, svg } e, se precisar, grade (escala da grade de pixels)
+// e rigor (quanto o pontilhado evita misturar cores distantes). O sorteio é determinístico.
+//
+// Referências gráficas: adventures japoneses de PC-98 (640 × 400, 16 cores por cena, pontilhado no lugar
+// de degradê), o claro-escuro de Blasphemous (uma fonte de luz forte por cena), letreiro pintado à mão,
+// lambe-lambe e pixação na rua, futurismo de fita cassete no terminal e xerox de flyer pós-punk no zine.
+// Cada objeto aparece uma vez só no site inteiro.
+//
+// Iluminação: os objetos são pintados com a cor-base (albedo) e depois multiplicados por um mapa de luz;
+// o que emite luz (lâmpadas, neon, tela, LEDs) é desenhado por cima, sem ser escurecido.
 import { simbolos } from './simbolos.mjs';
-
-export const cor = {
-  preto: '#0a0a0a', fosforo: '#39ff6a', vermelho: '#ff2a2a', magenta: '#ff2bd6',
-  ciano: '#22e6ff', cinza: '#8d8f8c', ferrugem: '#8a3f1d', papel: '#cfc6ae'
-};
 
 function sorteio(semente) {
   let a = semente >>> 0;
@@ -16,445 +20,502 @@ function sorteio(semente) {
 }
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const n = v => +v.toFixed(1);
 const usar = (id, x, y, w, h, fill, extra = '') => `<use href="#${id}" x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" color="${fill}" ${extra}/>`;
-const texto = (t, x, y, { fonte = 'BlackOps', tam = 40, fill = cor.vermelho, rot = 0, ancora = 'start', extra = '' } = {}) =>
-  `<text x="${x}" y="${y}" font-family="${fonte}" font-size="${tam}" fill="${fill}" text-anchor="${ancora}" transform="rotate(${rot} ${x} ${y})" ${extra}>${esc(t)}</text>`;
+const texto = (t, x, y, { fonte = 'Letreiro', tam = 40, fill = '#111', rot = 0, ancora = 'start', extra = '' } = {}) =>
+  `<text x="${x}" y="${y}" font-family="${fonte}" font-size="${tam}" fill="${fill}" text-anchor="${ancora}"${rot ? ` transform="rotate(${rot} ${x} ${y})"` : ''} ${extra}>${esc(t)}</text>`;
+// Um recorte (clip-path) isola o grupo: por isso ele vai no mesmo elemento da mistura, nunca num grupo por fora.
+const multiplicar = (conteudo, recorte) => `<g style="mix-blend-mode:multiply"${recorte ? ` clip-path="url(#${recorte})"` : ''}>${conteudo}</g>`;
+const somar = conteudo => `<g style="mix-blend-mode:screen">${conteudo}</g>`;
+const radial = (id, paradas, { cx = .5, cy = .5, r = .5, fx, fy, unidades = '' } = {}) =>
+  `<radialGradient id="${id}" cx="${cx}" cy="${cy}" r="${r}"${fx != null ? ` fx="${fx}" fy="${fy}"` : ''}${unidades ? ` gradientUnits="${unidades}"` : ''}>${paradas.map(([o, c, a = 1]) => `<stop offset="${o}" stop-color="${c}" stop-opacity="${a}"/>`).join('')}</radialGradient>`;
+const linear = (id, paradas, { x1 = 0, y1 = 0, x2 = 0, y2 = 1, unidades = '' } = {}) =>
+  `<linearGradient id="${id}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"${unidades ? ` gradientUnits="${unidades}"` : ''}>${paradas.map(([o, c, a = 1]) => `<stop offset="${o}" stop-color="${c}" stop-opacity="${a}"/>`).join('')}</linearGradient>`;
 
 function filtros() {
   return `
-  <filter id="tinta" x="-10%" y="-10%" width="120%" height="120%">
-    <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="7" result="t"/>
-    <feDisplacementMap in="SourceGraphic" in2="t" scale="7" xChannelSelector="R" yChannelSelector="G" result="d"/>
-    <feTurbulence type="fractalNoise" baseFrequency=".55" numOctaves="2" seed="2" result="s"/>
-    <feColorMatrix in="s" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -3.2 0 0 0 2.25" result="furos"/>
-    <feComposite in="d" in2="furos" operator="in" result="gasta"/>
-    <feGaussianBlur in="gasta" stdDeviation="2.2" result="nevoa"/>
-    <feComponentTransfer in="nevoa" result="nevoa2"><feFuncA type="linear" slope=".45"/></feComponentTransfer>
-    <feMerge><feMergeNode in="nevoa2"/><feMergeNode in="gasta"/></feMerge>
-  </filter>
-  <filter id="papelf" x="-5%" y="-5%" width="110%" height="110%">
-    <feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="2" seed="4" result="t"/>
-    <feDisplacementMap in="SourceGraphic" in2="t" scale="10" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
+  <filter id="borrao" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5"/></filter>
+  <filter id="borraoG" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>
   <filter id="ferrugem" x="0" y="0" width="100%" height="100%">
-    <feTurbulence type="fractalNoise" baseFrequency=".011 .028" numOctaves="4" seed="11"/>
-    <feColorMatrix type="matrix" values="0 0 0 0 .52  0 0 0 0 .23  0 0 0 0 .09  4.2 0 0 0 -2.15"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".005 .016" numOctaves="3" seed="11"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 .55  0 0 0 0 .27  0 0 0 0 .13  5 0 0 0 -2.9"/>
   </filter>
-  <filter id="ferrugem2" x="0" y="0" width="100%" height="100%">
-    <feTurbulence type="fractalNoise" baseFrequency=".02 .05" numOctaves="4" seed="23"/>
-    <feColorMatrix type="matrix" values="0 0 0 0 .22  0 0 0 0 .09  0 0 0 0 .04  5 0 0 0 -2.75"/>
+  <filter id="mancha" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency=".008 .03" numOctaves="4" seed="31"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  2.6 0 0 0 -1.25"/>
   </filter>
-  <filter id="grao" x="0" y="0" width="100%" height="100%">
-    <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="5"/>
-    <feColorMatrix type="saturate" values="0"/>
+  <filter id="concreto" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency=".09" numOctaves="3" seed="5"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.6 0 0 0 -.62"/>
   </filter>
-  <filter id="sujeira" x="0" y="0" width="100%" height="100%">
-    <feTurbulence type="fractalNoise" baseFrequency=".006 .02" numOctaves="5" seed="31"/>
-    <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  2.4 0 0 0 -1.05"/>
-  </filter>
-  <filter id="madeira" x="0" y="0" width="100%" height="100%">
-    <feTurbulence type="fractalNoise" baseFrequency=".004 .09" numOctaves="4" seed="17"/>
-    <feColorMatrix type="matrix" values="0 0 0 0 .14  0 0 0 0 .07  0 0 0 0 .03  2.2 0 0 0 -.75"/>
-  </filter>
-  <filter id="sombra" x="-20%" y="-20%" width="150%" height="150%">
-    <feOffset in="SourceAlpha" dx="16" dy="20" result="o"/>
-    <feFlood flood-color="#000" flood-opacity=".72"/><feComposite in2="o" operator="in" result="s"/>
-    <feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
-  </filter>
-  <filter id="sombraP" x="-20%" y="-20%" width="150%" height="150%">
-    <feOffset in="SourceAlpha" dx="6" dy="8" result="o"/>
-    <feFlood flood-color="#000" flood-opacity=".7"/><feComposite in2="o" operator="in" result="s"/>
-    <feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
-  </filter>
-  <pattern id="pontos" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.7" fill="#111"/></pattern>
-  <pattern id="pontosV" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.6" fill="${cor.vermelho}"/></pattern>
-  <pattern id="listras" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="14" fill="#111"/></pattern>`;
+  <filter id="gasto" x="-5%" y="-5%" width="110%" height="110%">
+    <feTurbulence type="fractalNoise" baseFrequency=".07" numOctaves="2" seed="2" result="s"/>
+    <feColorMatrix in="s" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -3 0 0 0 2" result="furos"/>
+    <feComposite in="SourceGraphic" in2="furos" operator="in"/>
+  </filter>`;
 }
 
-const grao = (w, h, op = .22) => `<rect width="${w}" height="${h}" filter="url(#grao)" opacity="${op}" style="mix-blend-mode:overlay"/>`;
+function svg(w, h, corpo, defs = '') {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs>${filtros()}${simbolos}${defs}</defs>${corpo}</svg>`;
+}
 
 function papelRasgado(r, x, y, w, h, fill, rot = 0, conteudo = '') {
   const pts = [];
-  const passo = 18;
-  for (let i = 0; i <= w; i += passo) pts.push([x + i, y + r.entre(-4, 4)]);
-  for (let i = 0; i <= h; i += passo) pts.push([x + w + r.entre(-4, 4), y + i]);
-  for (let i = w; i >= 0; i -= passo) pts.push([x + i, y + h + r.entre(-4, 4)]);
-  for (let i = h; i >= 0; i -= passo) pts.push([x + r.entre(-4, 4), y + i]);
-  const cx = x + w / 2, cy = y + h / 2;
-  return `<g transform="rotate(${rot} ${cx} ${cy})" filter="url(#sombraP)"><polygon points="${pts.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ')}" fill="${fill}"/>${conteudo}</g>`;
+  const passo = 16;
+  for (let i = 0; i <= w; i += passo) pts.push([x + i, y + r.entre(-5, 5)]);
+  for (let i = 0; i <= h; i += passo) pts.push([x + w + r.entre(-5, 5), y + i]);
+  for (let i = w; i >= 0; i -= passo) pts.push([x + i, y + h + r.entre(-5, 5)]);
+  for (let i = h; i >= 0; i -= passo) pts.push([x + r.entre(-5, 5), y + i]);
+  return `<g transform="rotate(${rot} ${x + w / 2} ${y + h / 2})"><polygon points="${pts.map(p => p.map(n).join(',')).join(' ')}" fill="${fill}"/>${conteudo}</g>`;
 }
 
-function fita(x, y, w, rot) {
-  return `<rect x="${x}" y="${y}" width="${w}" height="22" fill="#d8d2b8" opacity=".62" transform="rotate(${rot} ${x + w / 2} ${y + 11})"/>`;
-}
-
-function escorrido(r, x, y, largura, fill, n = 5) {
+function escorrido(r, x, y, largura, fill, quantos = 4, maximo = 70) {
   let s = '';
-  for (let i = 0; i < n; i++) {
-    const xx = x + r() * largura, comp = r.entre(14, 70), esp = r.entre(2, 4.5);
-    s += `<rect x="${xx.toFixed(1)}" y="${y}" width="${esp.toFixed(1)}" height="${comp.toFixed(1)}" fill="${fill}"/><circle cx="${(xx + esp / 2).toFixed(1)}" cy="${(y + comp).toFixed(1)}" r="${(esp * .8).toFixed(1)}" fill="${fill}"/>`;
+  for (let i = 0; i < quantos; i++) {
+    const xx = x + r() * largura, comp = r.entre(14, maximo), esp = r.entre(3, 5);
+    s += `<rect x="${n(xx)}" y="${y}" width="${n(esp)}" height="${n(comp)}" fill="${fill}"/><circle cx="${n(xx + esp / 2)}" cy="${n(y + comp)}" r="${n(esp * .75)}" fill="${fill}"/>`;
   }
   return s;
 }
 
-function arranhoes(r, w, h, n, fill = '#d9d9d0', op = .22) {
-  let s = `<g stroke="${fill}" stroke-width="1" opacity="${op}" fill="none">`;
-  for (let i = 0; i < n; i++) {
-    const x = r() * w, y = r() * h, dx = r.entre(-80, 80), dy = r.entre(-20, 20);
-    s += `<path d="M${x.toFixed(0)} ${y.toFixed(0)} q${(dx / 2).toFixed(0)} ${(dy * 2).toFixed(0)} ${dx.toFixed(0)} ${dy.toFixed(0)}"/>`;
-  }
-  return s + '</g>';
+// ───────────────────────── Rua à noite: fachada e portão dividem a paleta e a luz ─────────────────────────
+const paletaRua = [
+  '#07080c', '#10131b', '#1a1f2b', '#262d3b', '#363f50', '#4d5767', '#6d7684', '#9aa1a8',
+  '#5e5248', '#8c7660', '#c49e72', '#f0c78a', '#fff1d0',
+  '#4a2a1a', '#7a3e1f', '#b8662c',
+  '#a3201b', '#e2b93b', '#1f4f9c', '#39ff6a', '#145c2e', '#d8c9a4'
+];
+// Duas arandelas de sódio na viga: as poças de luz são as mesmas no portão e na fachada.
+export const vao = { x: 160, y: 140, w: 1280, h: 860 };
+const lampadas = [{ x: 420, y: 112 }, { x: 1180, y: 112 }];
+
+function mapaLuzRua(id, w, h, dx, dy) {
+  const defs = lampadas.map((l, i) => radial(`${id}${i}`, [[0, '#fff4dc'], [.2, '#f7cd92'], [.45, '#c49470'], [.72, '#6a6f86', 0], [1, '#6a6f86', 0]],
+    { cx: l.x - dx, cy: l.y - dy, r: 700, unidades: 'userSpaceOnUse' })).join('');
+  const luz = multiplicar(`<rect width="${w}" height="${h}" fill="#434c62"/>${somar(lampadas.map((_, i) => `<rect width="${w}" height="${h}" fill="url(#${id}${i})"/>`).join(''))}`);
+  return { defs, luz };
 }
 
-function svg(w, h, corpo) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs>${filtros()}${simbolos}</defs>${corpo}</svg>`;
-}
-
-// Megaestrutura brutalista sem fim, com passarelas, cabos e uma figura minúscula para dar escala.
-function megaestrutura() {
-  let m = `<rect x="106" y="136" width="208" height="248" fill="#141414"/><polygon points="226,136 246,136 300,384 176,384" fill="#d8d8cc" opacity=".07"/>`;
-  for (const [x, y, w, c] of [[106, 150, 30, '#2a2a2a'], [140, 136, 20, '#3b3b3b'], [166, 168, 38, '#303030'], [214, 136, 16, '#454545'], [236, 158, 34, '#2c2c2c'], [276, 136, 38, '#383838']]) {
-    m += `<rect x="${x}" y="${y}" width="${w}" height="${384 - y}" fill="${c}"/>`;
-    for (let yy = y + 12; yy < 380; yy += 18) m += `<rect x="${x}" y="${yy}" width="${w}" height="2" fill="#1a1a1a"/>`;
-  }
-  m += `<rect x="106" y="252" width="208" height="5" fill="#5a5a5a"/><rect x="140" y="306" width="124" height="4" fill="#505050"/><rect x="200" y="214" width="114" height="3" fill="#4a4a4a"/>`;
-  m += `<path d="M120 150 C140 200 160 210 176 200 M230 176 C250 230 262 236 286 226 M150 320 C170 350 200 352 230 330" fill="none" stroke="#0a0a0a" stroke-width="1.6"/>`;
-  for (const [x, y] of [[150, 190], [250, 190], [290, 280], [180, 330], [120, 230]]) m += `<rect x="${x}" y="${y}" width="3" height="3" fill="${cor.fosforo}"/>`;
-  return m + `<rect x="208" y="243" width="3" height="9" fill="#050505"/><circle cx="209.5" cy="241.5" r="2" fill="#050505"/>`;
-}
-
-// Linhas empilhadas de sinal de pulsar (flyer pós-punk); cada linha tapa as de trás.
-function pulsar(r, x0, y0, largura, linhas, passo) {
-  let p = '';
-  const meio = x0 + largura / 2;
-  for (let i = 0; i < linhas; i++) {
-    const base = y0 + i * passo, pts = [];
-    for (let x = x0; x <= x0 + largura; x += 3) {
-      const env = Math.exp(-((x - meio) ** 2) / (2 * 20 ** 2));
-      pts.push(`${x},${(base - env * 24 * (.45 + r() * .55) - r() * 1.4).toFixed(1)}`);
-    }
-    p += `<polygon points="${x0},${base + 2} ${pts.join(' ')} ${x0 + largura},${base + 2}" fill="#0d0d0d"/><polyline points="${pts.join(' ')}" fill="none" stroke="#e9e9e2" stroke-width="1.1"/>`;
-  }
-  return p;
-}
-
-// Esquema de circuito a giz (fonte, resistor 220R, LED, capacitor e terra).
-function esquemaGiz(x, y) {
-  const t = (dx, dy) => `${x + dx} ${y + dy}`;
-  return `<g fill="none" stroke="#e8e6dc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity=".55" filter="url(#papelf)">
-    <path d="M${t(0, 40)} H${t(20, 40).split(' ')[0]} M${t(4, 48)} H${t(16, 48).split(' ')[0]}"/>
-    <path d="M${t(10, 40)} V${y + 15} H${x + 40} L${t(46, 7)} L${t(54, 23)} L${t(62, 7)} L${t(70, 23)} L${t(78, 7)} L${t(86, 23)} L${t(92, 15)} H${x + 130}"/>
-    <path d="M${t(130, 5)} V${y + 25} L${t(148, 15)} Z M${t(148, 5)} V${y + 25}"/>
-    <path d="M${t(150, 2)} L${t(160, -8)} M${t(156, -8)} L${t(160, -8)} L${t(160, -4)} M${t(157, 8)} L${t(167, -2)} M${t(163, -2)} L${t(167, -2)} L${t(167, 2)}"/>
-    <path d="M${t(148, 15)} H${x + 190} V${y + 40} M${t(178, 40)} H${x + 202} M${t(178, 48)} H${x + 202} M${t(190, 48)} V${y + 80}"/>
-    <path d="M${t(10, 48)} V${y + 80} H${x + 190} M${t(178, 86)} H${x + 202} M${t(183, 92)} H${x + 197} M${t(187, 98)} H${x + 193}"/>
-  </g>
-  <g opacity=".55">${texto('+5V', x - 26, y + 36, { fonte: 'Marker', tam: 14, fill: '#e8e6dc' })}${texto('R1 220R', x + 44, y - 4, { fonte: 'Marker', tam: 14, fill: '#e8e6dc' })}${texto('D1', x + 128, y + 44, { fonte: 'Marker', tam: 14, fill: '#e8e6dc' })}${texto('C1 10uF', x + 208, y + 50, { fonte: 'Marker', tam: 14, fill: '#e8e6dc' })}</g>`;
+// Pixação: letras altas e angulosas (a pixação paulistana bebe em capas de metal e em runas).
+const PIXO = {
+  A: 'M6 180 V56 L32 6 L58 56 V180 M6 106 H58 M58 180 L72 166',
+  Y: 'M4 6 L32 86 L60 6 M32 86 V180 M32 180 L18 166',
+  O: 'M8 28 L32 6 L56 28 V154 L32 178 L8 154 Z',
+  '0': 'M8 28 L32 6 L56 28 V154 L32 178 L8 154 Z M14 148 L50 34',
+  '3': 'M6 14 H54 L28 86 H54 V156 L34 178 H6'
+};
+function pixo(palavra, x, y, escala, cor, r) {
+  const passo = 82;
+  const letras = [...palavra].map((c, i) => `<path d="${PIXO[c]}" transform="translate(${i * passo} 0)"/>`).join('');
+  const fim = palavra.length * passo - 10;
+  const traco = `<path d="M-14 198 H${fim} L${fim + 14} 184 M${fim / 2} 198 L${fim / 2 + 10} 212"/>`;
+  const corpo = letras + traco;
+  return `<g transform="translate(${x} ${y}) scale(${escala})" fill="none" stroke-linecap="square" stroke-linejoin="miter">
+    <g stroke="${cor}" stroke-width="32" opacity=".2" filter="url(#borrao)">${corpo}</g>
+    <g stroke="${cor}" stroke-width="14">${corpo}</g>
+  </g>${escorrido(r, x + 30 * escala, y + 176 * escala, palavra.length * passo * escala * .8, cor, 3, 46)}`;
 }
 
 // ───────────────────────── Portão (encaixa no vão da fachada) ─────────────────────────
 export function portao() {
   const w = 1280, h = 860, r = sorteio(2003);
-  let s = `<rect width="${w}" height="${h}" fill="#3a3e41"/>`;
-  for (let y = 0; y < h - 50; y += 44) {
-    s += `<rect y="${y}" width="${w}" height="7" fill="#5a5f63"/><rect y="${y + 7}" width="${w}" height="3" fill="#6d7276"/>`;
-    s += `<rect y="${y + 21}" width="${w}" height="2" fill="#2f3235"/><rect y="${y + 33}" width="${w}" height="11" fill="#222528"/>`;
+  const { defs: defsLuz, luz } = mapaLuzRua('lp', w, h, vao.x, vao.y);
+  const defs = defsLuz + linear('lamina', [[0, '#e2e5e8'], [.12, '#bfc4ca'], [.5, '#a3a8af'], [.82, '#7d828a'], [.9, '#44474d'], [1, '#2c2e33']])
+    + linear('fresta', [[0, '#39ff6a', 0], [1, '#39ff6a', .9]])
+    + linear('gotejo', [[0, '#7a3e1f', .9], [1, '#7a3e1f', 0]]);
+  let s = `<rect width="${w}" height="${h}" fill="#5a5e64"/>`;
+  for (let y = 0; y < h - 50; y += 45) s += `<rect y="${y}" width="${w}" height="45" fill="url(#lamina)"/>`;
+  // ferrugem: manchas e escorridos que descem das emendas
+  s += `<rect width="${w}" height="${h}" filter="url(#ferrugem)" opacity=".7"/>`;
+  for (let i = 0; i < 30; i++) {
+    const x = r() * w, y = Math.floor(r() * 16) * 45 + 38;
+    s += `<rect x="${n(x)}" y="${y}" width="${n(r.entre(4, 8))}" height="${n(r.entre(40, 170))}" fill="url(#gotejo)"/>`;
   }
-  s += `<rect width="${w}" height="${h}" filter="url(#ferrugem)" opacity=".5"/>`;
-  s += `<rect width="${w}" height="${h}" filter="url(#ferrugem2)" opacity=".7"/>`;
-  for (let i = 0; i < 40; i++) {
-    const x = r() * w;
-    s += `<rect x="${x.toFixed(0)}" y="${r.entre(0, 300).toFixed(0)}" width="${r.entre(1, 5).toFixed(1)}" height="${r.entre(120, 600).toFixed(0)}" fill="#120a06" opacity="${r.entre(.12, .35).toFixed(2)}"/>`;
-  }
-  // grafite
-  let g = '';
-  // colagem de zine à esquerda
-  g += papelRasgado(r, 40, 52, 250, 330, cor.papel, -4,
-    `<rect x="52" y="64" width="226" height="306" fill="url(#pontos)" opacity=".35"/>
-     ${usar('androide', 70, 92, 180, 222, '#111', 'style="--corte:#cfc6ae"')}
-     ${texto('ZINE Nº 03', 60, 358, { tam: 26, fill: '#111' })}
-     ${texto('BITS · NEON · RUA', 62, 86, { fonte: 'Pixel', tam: 14, fill: cor.vermelho })}`);
-  g += papelRasgado(r, 210, 320, 190, 150, cor.vermelho, 6,
-    `${usar('olho', 245, 334, 120, 70, '#111', 'style="--corte:#ff2a2a"')}
-     ${texto('VIGIADO', 305, 432, { fonte: 'Pixel', tam: 18, fill: '#111', ancora: 'middle' })}
-     ${texto('24/7', 305, 456, { fonte: 'Pixel', tam: 18, fill: '#111', ancora: 'middle' })}`);
-  g += papelRasgado(r, 30, 420, 200, 120, '#151515', -7,
-    `${texto('SEM', 46, 470, { tam: 34, fill: cor.fosforo })}${texto('SINAL', 46, 512, { tam: 40, fill: cor.fosforo })}`);
-  g += fita(70, 40, 90, -12) + fita(240, 300, 80, 18) + fita(40, 410, 70, -20);
-  // faixa central
-  g += `<g filter="url(#tinta)">${usar('planeta', 565, 26, 150, 108, cor.ciano, 'style="--corte:#3a3e41"')}
-    ${texto('HIGH TECH', 390, 205, { tam: 70, fill: cor.magenta, rot: -2 })}
-    ${texto('LOW LIFE', 535, 270, { tam: 78, fill: cor.vermelho, rot: -2 })}
-    ${escorrido(r, 545, 264, 400, cor.vermelho, 9)}${escorrido(r, 400, 205, 400, cor.magenta, 6)}</g>`;
-  // ronin, parabólica e sinal à direita
-  g += `<g filter="url(#tinta)">${usar('ronin', 965, 100, 210, 315, cor.fosforo, 'style="--corte:#3a3e41"')}
-    ${usar('estrela', 1150, 70, 60, 60, cor.vermelho)}${usar('raio', 920, 90, 46, 80, cor.ciano)}
-    ${usar('parabolica', 1010, 430, 210, 176, cor.ciano, 'style="--corte:#3a3e41"')}
-    ${usar('sinal', 1180, 350, 80, 72, cor.magenta)}
-    ${texto('root@garagem:~# _', 860, 655, { fonte: 'Pixel', tam: 30, fill: cor.fosforo })}</g>`;
-  // punho gigante e silhuetas embaixo
-  g += `<g filter="url(#tinta)">${usar('chip', 540, 520, 230, 230, cor.vermelho, 'style="--corte:#3a3e41"')}
-    ${usar('drone', 300, 600, 220, 173, cor.magenta, 'style="--corte:#3a3e41"')}
-    ${usar('lata', 250, 690, 46, 92, cor.fosforo)}
-    ${usar('ovni', 820, 690, 170, 112, cor.magenta, 'style="--corte:#3a3e41"')}
-    ${usar('cctv', 112, 580, 120, 80, cor.ciano, 'style="--corte:#3a3e41"')}
-    ${texto('AYO', 1040, 790, { fonte: 'Marker', tam: 96, fill: cor.fosforo, rot: -8 })}
-    ${texto('2099', 80, 760, { fonte: 'Marker', tam: 58, fill: '#d6d6cf', rot: 6 })}
-    ${texto('GLWYD 03', 820, 392, { fonte: 'Marker', tam: 34, fill: cor.ciano, rot: -8 })}
-    ${escorrido(r, 1040, 760, 220, cor.fosforo, 7)}</g>`;
-  g += `<g filter="url(#tinta)" opacity=".92">${texto('ÁREA RESTRITA · NÍVEL 3', 640, 796, { tam: 30, fill: '#e2e2da', ancora: 'middle' })}</g>`;
-  s += g;
-  s += arranhoes(r, w, h, 120);
-  // barra inferior, puxador e cadeado
-  s += `<rect y="${h - 50}" width="${w}" height="50" fill="#26292b"/><rect y="${h - 50}" width="${w}" height="5" fill="#4b5054"/>`;
-  s += `<rect x="560" y="${h - 40}" width="160" height="16" rx="5" fill="#16181a"/>`;
-  s += usar('cadeado', 618, h - 96, 44, 60, '#9a8d6a', 'style="--corte:#2a2219"');
-  s += `<rect width="${w}" height="${h}" filter="url(#sujeira)" opacity=".85"/>`;
-  s += grao(w, h, .3);
-  return { nome: 'portao', w, h, alfa: false, svg: svg(w, h, s) };
+  s += `<rect width="${w}" height="${h}" filter="url(#mancha)" opacity=".22"/>`;
+  // lambe-lambe de show colado à esquerda, com restos de um cartaz antigo por baixo
+  s += papelRasgado(r, 40, 300, 200, 300, '#2f7f8f', 3);
+  s += papelRasgado(r, 52, 312, 196, 296, '#e6dfcc', -2, `
+    <rect x="62" y="324" width="176" height="10" fill="#141414"/>
+    ${texto('SOM', 150, 432, { fonte: 'Lambe', tam: 118, fill: '#141414', ancora: 'middle' })}
+    ${texto('PESADO', 150, 500, { fonte: 'Lambe', tam: 64, fill: '#b3201e', ancora: 'middle' })}
+    <rect x="62" y="516" width="176" height="4" fill="#141414"/>
+    ${texto('SEXTA · 23H', 150, 552, { fonte: 'Lambe', tam: 30, fill: '#141414', ancora: 'middle' })}
+    ${texto('ENTRADA PELA LATERAL', 150, 582, { fonte: 'Pixel', tam: 13, fill: '#141414', ancora: 'middle' })}`);
+  s += `<polygon points="196,300 248,296 250,372 226,346 214,360" fill="#5a5e64" opacity=".9"/>`;
+  // pixação atravessando o meio do portão
+  s += pixo('AYO', 470, 246, 1, '#121212', r);
+  s += pixo('03', 742, 330, .58, '#121212', r);
+  // estêncil de aviso, gasto
+  s += `<g opacity=".3" filter="url(#borrao)">${texto('ÁREA RESTRITA · NÍVEL 3', 640, 752, { fonte: 'BlackOps', tam: 50, fill: '#ffffff', ancora: 'middle' })}</g>
+    ${texto('ÁREA RESTRITA · NÍVEL 3', 640, 752, { fonte: 'BlackOps', tam: 50, fill: '#ffffff', ancora: 'middle' })}`;
+  // barra inferior, puxador e cadeado de latão
+  s += `<rect y="${h - 50}" width="${w}" height="50" fill="#45484e"/><rect y="${h - 50}" width="${w}" height="6" fill="#9aa0a6"/>`;
+  s += `<rect x="560" y="${h - 38}" width="160" height="16" rx="6" fill="#26282c"/><rect x="566" y="${h - 36}" width="148" height="4" fill="#6b7077"/>`;
+  s += `<path d="M626 ${h - 66} V${h - 86} C626 ${h - 112} 654 ${h - 112} 654 ${h - 86} V${h - 66}" fill="none" stroke="#5c5f64" stroke-width="8"/>
+    <rect x="612" y="${h - 70}" width="56" height="46" rx="6" fill="#c19a4e"/><rect x="616" y="${h - 66}" width="48" height="8" fill="#e8c77a"/><circle cx="640" cy="${h - 46}" r="6" fill="#3a2a10"/><rect x="637" y="${h - 44}" width="6" height="12" fill="#3a2a10"/>`;
+  // poeira mais escura no pé do portão
+  s += `<rect y="${h - 220}" width="${w}" height="220" fill="url(#pe)"/>`;
+  const pe = linear('pe', [[0, '#1a1410', 0], [1, '#1a1410', .35]]);
+  s += luz;
+  // luz verde do CRT vazando por baixo do portão fechado
+  s += `<rect y="${h - 10}" width="${w}" height="10" fill="url(#fresta)"/>`;
+  return { nome: 'portao', w, h, alfa: false, paleta: paletaRua, svg: svg(w, h, s, defs + pe) };
 }
 
 // ───────────────────────── Fachada com o vão do portão (transparente) ─────────────────────────
-export const vao = { x: 160, y: 140, w: 1280, h: 860 };
 export function fachada() {
   const w = 1600, h = 1000, r = sorteio(77);
+  const { defs: defsLuz, luz } = mapaLuzRua('lf', w, h, 0, 0);
+  const defs = defsLuz
+    + radial('neon', [[0, '#39ff6a', .7], [.5, '#39ff6a', .3], [1, '#39ff6a', 0]])
+    + radial('cone', [[0, '#ffe2a8', .5], [.6, '#ffb860', .14], [1, '#ffb860', 0]], { cy: 0, r: 1 })
+    + linear('escorre', [[0, '#1d1d1d', .7], [1, '#1d1d1d', 0]]);
+  const furo = `M0 0 H${w} V${h} H0 Z M${vao.x} ${vao.y} V${vao.y + vao.h} H${vao.x + vao.w} V${vao.y} Z`;
   let blocos = '';
   for (let y = 0, linha = 0; y < h; y += 52, linha++) {
-    for (let x = linha % 2 ? -60 : 0; x < w; x += 122) {
-      const tom = Math.round(r.entre(64, 86));
-      blocos += `<rect x="${x + 2}" y="${y + 2}" width="118" height="48" fill="rgb(${tom},${tom - 2},${tom - 6})"/>`;
+    for (let x = linha % 2 ? -61 : 0; x < w; x += 122) {
+      const tom = Math.round(r.entre(150, 178));
+      blocos += `<rect x="${x + 2}" y="${y + 2}" width="118" height="48" fill="rgb(${tom},${tom + 1},${tom + 4})"/>`;
     }
   }
-  const furo = `M0 0 H${w} V${h} H0 Z M${vao.x} ${vao.y} V${vao.y + vao.h} H${vao.x + vao.w} V${vao.y} Z`;
-  let s = `<defs><clipPath id="parede"><path d="${furo}" clip-rule="evenodd"/></clipPath></defs>
-  <g clip-path="url(#parede)"><rect width="${w}" height="${h}" fill="#262624"/>${blocos}
-  <rect width="${w}" height="${h}" filter="url(#sujeira)"/>
-  <rect width="${w}" height="${h}" filter="url(#ferrugem2)" opacity=".6"/>`;
-  // pichações nas laterais
-  s += `<g filter="url(#tinta)">
-    ${texto('LAN HOUSE', 40, 560, { fonte: 'Marker', tam: 54, fill: cor.magenta, rot: -90 })}
-    ${texto('ONLINE', 120, 560, { fonte: 'Marker', tam: 52, fill: cor.fosforo, rot: -90 })}
-    ${usar('perigo', 30, 650, 90, 81, cor.vermelho, 'style="--corte:#4a4946"')}
-    ${usar('cctv', 18, 168, 104, 70, cor.ciano, 'style="--corte:#4a4946"')}
-    ${usar('planeta', 1470, 190, 100, 72, cor.ciano, 'style="--corte:#4a4946"')}
-    ${texto('ZONA', 1560, 360, { fonte: 'BlackOps', tam: 44, fill: cor.vermelho, rot: 90 })}
-    ${texto('FRANCA', 1490, 380, { fonte: 'BlackOps', tam: 44, fill: cor.fosforo, rot: 90 })}
-    ${usar('sinal', 1470, 836, 90, 81, cor.magenta)}
-  </g>`;
-  s += papelRasgado(r, 1456, 640, 120, 160, cor.papel, 5,
-    `${texto('PROCURA-SE', 1516, 662, { fonte: 'Pixel', tam: 11, fill: '#111', ancora: 'middle' })}${usar('androide', 1476, 668, 80, 99, '#111', 'style="--corte:#cfc6ae"')}${texto('ANDROIDE', 1516, 788, { tam: 17, fill: cor.vermelho, ancora: 'middle' })}`);
-  s += arranhoes(r, w, h, 80);
-  s += grao(w, h, .28);
+  let s = `<defs><clipPath id="parede"><path d="${furo}" clip-rule="evenodd"/></clipPath></defs><g clip-path="url(#parede)">`;
+  s += `<rect width="${w}" height="${h}" fill="#7c7f84"/>${blocos}`;
+  s += `<rect width="${w}" height="${h}" filter="url(#mancha)" opacity=".22"/>`;
+  // escorridos de água sob a viga
+  for (let i = 0; i < 18; i++) { const x = r.entre(140, 1460); s += `<rect x="${n(x)}" y="140" width="${n(r.entre(6, 22))}" height="${n(r.entre(60, 220))}" fill="url(#escorre)"/>`; }
+  // ── lado esquerdo: câmera de vigilância, placa de lan house e caixa de medição com aviso de alta tensão
+  s += `<rect x="20" y="186" width="14" height="44" fill="#55595e"/><path d="M34 206 H58 L68 214" fill="none" stroke="#55595e" stroke-width="7"/>
+    <path d="M60 192 L128 204 L126 228 L58 218 Z" fill="#eceef0"/><path d="M60 192 L128 204 L127 210 L59 199 Z" fill="#ffffff"/><path d="M128 200 L142 202 L140 232 L126 230 Z" fill="#a9adb2"/><circle cx="134" cy="216" r="6" fill="#141414"/>`;
+  s += `<rect x="30" y="262" width="96" height="390" fill="#2a2a2a"/><rect x="36" y="268" width="84" height="378" fill="#f6d65a"/><rect x="42" y="274" width="72" height="366" fill="none" stroke="#a3201b" stroke-width="3"/>
+    ${texto('LAN HOUSE', 96, 630, { tam: 52, fill: '#5a1410', rot: -90 })}${texto('LAN HOUSE', 92, 626, { tam: 52, fill: '#c4241e', rot: -90 })}`;
+  s += `<rect x="28" y="770" width="104" height="132" fill="#8d9196"/><rect x="28" y="770" width="104" height="6" fill="#b8bcc0"/><rect x="40" y="790" width="80" height="44" fill="#26282c"/>
+    <rect x="48" y="800" width="64" height="12" fill="#d8d4c4"/><rect x="52" y="803" width="7" height="6" fill="#141414"/><rect x="62" y="803" width="7" height="6" fill="#141414"/><rect x="72" y="803" width="7" height="6" fill="#141414"/><rect x="82" y="803" width="7" height="6" fill="#a3201b"/>
+    <path d="M80 846 L106 890 L54 890 Z" fill="#e2b93b" stroke="#141414" stroke-width="4" stroke-linejoin="round"/><path d="M83 856 L72 874 L80 874 L76 886 L89 868 L81 868 Z" fill="#141414"/>`;
+  // ── lado direito: placa de rua, eletroduto e cartaz de procura-se
+  s += `<rect x="1456" y="170" width="136" height="86" rx="5" fill="#f4f2ea"/><rect x="1461" y="175" width="126" height="76" rx="4" fill="#2a63c4"/>
+    ${texto('ZONA', 1524, 207, { fonte: 'Pixel', tam: 24, fill: '#f4f2ea', ancora: 'middle' })}${texto('FRANCA', 1524, 237, { fonte: 'Pixel', tam: 24, fill: '#f4f2ea', ancora: 'middle' })}`;
+  s += `<rect x="1520" y="240" width="14" height="760" fill="#8a8e93"/><rect x="1520" y="240" width="4" height="760" fill="#b8bcc0"/>`;
+  for (const y of [300, 520, 760, 940]) s += `<rect x="1514" y="${y}" width="26" height="10" fill="#55595e"/>`;
+  s += `<rect x="1502" y="440" width="50" height="58" fill="#8d9196"/><rect x="1502" y="440" width="50" height="5" fill="#b8bcc0"/><circle cx="1527" cy="470" r="6" fill="#55595e"/>`;
+  s += papelRasgado(r, 1454, 572, 130, 188, '#e2dccb', 4, `
+    ${texto('PROCURA-SE', 1519, 602, { fonte: 'Lambe', tam: 26, fill: '#141414', ancora: 'middle' })}
+    ${usar('androide', 1478, 610, 82, 102, '#141414', 'style="--corte:#e2dccb"')}
+    ${texto('ANDROIDE', 1519, 742, { fonte: 'Lambe', tam: 28, fill: '#a3201b', ancora: 'middle' })}`);
+  // fios soltos da rua
+  s += `<g fill="none" stroke="#141414" stroke-linecap="round"><path d="M0 46 C300 96 520 40 800 70 S1300 30 1600 80" stroke-width="6"/><path d="M0 88 C120 120 140 180 150 250" stroke-width="5"/><path d="M1600 120 C1540 150 1500 190 1480 260" stroke-width="5"/></g>`;
   s += `</g>`;
-  // batente de aço, viga e luminária
-  s += `<rect x="${vao.x - 26}" y="${vao.y - 26}" width="26" height="${vao.h + 26}" fill="#1d1f20"/><rect x="${vao.x + vao.w}" y="${vao.y - 26}" width="26" height="${vao.h + 26}" fill="#1d1f20"/>`;
-  s += `<rect x="${vao.x - 26}" y="${vao.y - 60}" width="${vao.w + 52}" height="60" fill="#232526"/><rect x="${vao.x - 26}" y="${vao.y - 60}" width="${vao.w + 52}" height="5" fill="#46494b"/>`;
-  for (let x = vao.x - 12; x < vao.x + vao.w + 20; x += 64) s += `<circle cx="${x}" cy="${vao.y - 30}" r="4" fill="#5a5d5f"/>`;
-  s += `<g filter="url(#tinta)">${texto('GARAGEM 03', 800, vao.y - 18, { tam: 34, fill: '#d6d3c4', ancora: 'middle' })}</g>`;
-  s += `<rect x="740" y="0" width="120" height="30" fill="#151515"/><rect x="752" y="30" width="96" height="18" fill="${cor.fosforo}"/><path d="M752 48 L700 ${vao.y - 60} L900 ${vao.y - 60} L848 48 Z" fill="${cor.fosforo}" opacity=".12"/>`;
-  s += `<path d="M0 60 C200 90 300 40 520 70 S900 50 1100 80 S1450 40 1600 70" fill="none" stroke="#0c0c0c" stroke-width="7"/>`;
-  s += `<path d="M0 34 C260 70 420 20 700 46" fill="none" stroke="#3a0f0f" stroke-width="5"/>`;
-  return { nome: 'fachada', w, h, alfa: true, svg: svg(w, h, s) };
+  // ── batente de aço, viga com rebites, letreiro pintado à mão e as duas arandelas
+  s += `<rect x="${vao.x - 26}" y="${vao.y - 26}" width="26" height="${vao.h + 26}" fill="#4a4e54"/><rect x="${vao.x - 26}" y="${vao.y - 26}" width="5" height="${vao.h + 26}" fill="#7d8186"/>`;
+  s += `<rect x="${vao.x + vao.w}" y="${vao.y - 26}" width="26" height="${vao.h + 26}" fill="#3e4247"/>`;
+  s += `<rect x="${vao.x - 26}" y="${vao.y - 62}" width="${vao.w + 52}" height="62" fill="#5a5e64"/><rect x="${vao.x - 26}" y="${vao.y - 62}" width="${vao.w + 52}" height="6" fill="#9aa0a6"/><rect x="${vao.x - 26}" y="${vao.y - 8}" width="${vao.w + 52}" height="8" fill="#2a2c30"/>`;
+  for (let x = vao.x - 10; x < vao.x + vao.w + 20; x += 58) s += `<circle cx="${x}" cy="${vao.y - 32}" r="4" fill="#9aa0a6"/><circle cx="${x + 1}" cy="${vao.y - 31}" r="2" fill="#3a3d42"/>`;
+  s += `<rect x="604" y="${vao.y - 58}" width="392" height="54" fill="#2a0e0b"/><rect x="608" y="${vao.y - 56}" width="384" height="48" fill="#a3271f"/><rect x="614" y="${vao.y - 51}" width="372" height="38" fill="none" stroke="#e8dcc0" stroke-width="2"/>
+    ${texto('GARAGEM 03', 803, vao.y - 18, { tam: 34, fill: '#2a0e0b', ancora: 'middle' })}${texto('GARAGEM 03', 800, vao.y - 21, { tam: 34, fill: '#efe3c4', ancora: 'middle' })}`;
+  for (const l of lampadas) s += `<rect x="${l.x - 30}" y="${l.y - 26}" width="60" height="22" fill="#26282c"/><rect x="${l.x - 24}" y="${l.y - 6}" width="48" height="10" fill="#3a3d42"/>`;
+  s += luz.replace('<g style="mix-blend-mode:multiply">', multiplicar('', 'parede').replace('</g>', ''));
+  // o que emite luz não é escurecido: lentes das arandelas, cone de luz, neon e LED da câmera
+  for (const l of lampadas) s += `<path d="M${l.x - 70} ${l.y + 4} L${l.x + 70} ${l.y + 4} L${l.x + 26} ${l.y - 4} L${l.x - 26} ${l.y - 4} Z" fill="url(#cone)" transform="translate(0 0)"/><rect x="${l.x - 22}" y="${l.y + 2}" width="44" height="6" fill="#fff3d6"/>`;
+  s += `<g clip-path="url(#parede)">`;
+  for (let i = 0; i < 60; i++) {
+    const l = r.um(lampadas), x = l.x + r.entre(-260, 260), y = r.entre(20, 130);
+    if (x > vao.x - 30 && x < vao.x + vao.w + 30 && y > vao.y - 70) continue;
+    s += `<path d="M${n(x)} ${n(y)} l-5 16" stroke="#ffe2a8" stroke-width="2" opacity="${n(r.entre(.3, .6))}"/>`;
+  }
+  s += `<ellipse cx="80" cy="704" rx="90" ry="50" fill="url(#neon)"/>${texto('ONLINE', 80, 716, { fonte: 'Pixel', tam: 26, fill: '#b8ffcb', ancora: 'middle' })}
+    <rect x="22" y="726" width="116" height="3" fill="#39ff6a"/><circle cx="134" cy="216" r="3" fill="#ff3b30"/></g>`;
+  return { nome: 'fachada', w, h, alfa: true, paleta: paletaRua, svg: svg(w, h, s, defs) };
 }
 
-// ───────────────────────── Interior da garagem (fundo da TV) ─────────────────────────
+// ───────────────────────── Interior da garagem (aparece atrás do portão) ─────────────────────────
+// Só a tela do terminal acende o cômodo; pela porta entra um resto da luz de sódio da rua.
 export function garagem() {
   const w = 1600, h = 1000, r = sorteio(1983);
-  const tons = ['#6b2f22', '#7a3a28', '#5a2a20', '#6e3526', '#4e231b', '#7f4030'];
-  let s = `<rect width="${w}" height="${h}" fill="#1f1714"/>`;
-  for (let y = 0, linha = 0; y < 870; y += 36, linha++) {
-    for (let x = linha % 2 ? -42 : 0; x < w; x += 86) {
-      s += `<rect x="${x + 3}" y="${y + 3}" width="80" height="30" fill="${r.um(tons)}"/>`;
-      if (r() < .08) s += `<rect x="${x + 3}" y="${y + 3}" width="80" height="30" fill="#1a1210" opacity=".55"/>`;
-    }
+  const tela = { x: 676, y: 492, w: 248, h: 156 };
+  const defs = radial('crt', [[0, '#e6fff0'], [.12, '#9cf0b0'], [.32, '#3f9a5a'], [.6, '#173a24'], [1, '#0b130e', 0]], { cx: 800, cy: 600, r: 760, unidades: 'userSpaceOnUse' })
+    + linear('sodioChao', [[0, '#ffb45c', 0], [1, '#ffb45c', .55]])
+    + radial('halo', [[0, '#7dff9e', .55], [.5, '#39ff6a', .18], [1, '#39ff6a', 0]])
+    + linear('vidro', [[0, '#b8ffcb'], [1, '#39ff6a']]);
+  let s = `<rect width="${w}" height="${h}" fill="#3a2a22"/>`;
+  // parede de tijolos e reboco descascado
+  const tons = ['#8a4a34', '#7a4030', '#93533b', '#6e3a2b', '#9a5a40'];
+  for (let y = 0, linha = 0; y < 770; y += 34, linha++) for (let x = linha % 2 ? -40 : 0; x < w; x += 82) s += `<rect x="${x + 3}" y="${y + 3}" width="76" height="28" fill="${r.um(tons)}"/>`;
+  s += `<path d="M690 0 C700 50 660 90 712 128 C756 160 730 196 790 214 L842 210 C880 172 860 130 902 104 C930 76 900 40 916 0 Z" fill="#9c958a"/>`;
+  s += `<rect width="${w}" height="770" filter="url(#mancha)" opacity=".35"/>`;
+  // piso de cimento
+  s += `<rect y="770" width="${w}" height="230" fill="#77746e"/><rect y="770" width="${w}" height="8" fill="#9a968e"/><rect y="770" width="${w}" height="230" filter="url(#mancha)" opacity=".3"/>`;
+  // cartaz do kaiju na orla (Godzilla) e cartaz da megaestrutura (BLAME!)
+  s += papelRasgado(r, 236, 190, 210, 280, '#e8e2d0', -3, `<rect x="250" y="204" width="182" height="200" fill="#2a2a2a"/>
+    <rect x="250" y="330" width="182" height="74" fill="#1a1a1a"/>${usar('kaiju', 300, 214, 120, 128, '#d8d2c0', 'style="--corte:#2a2a2a"')}
+    ${[[252, 360, 22], [276, 346, 18], [296, 366, 26], [324, 352, 16], [342, 340, 24], [368, 358, 20], [390, 346, 28], [420, 362, 12]].map(([x, y, l]) => `<rect x="${x}" y="${y}" width="${l}" height="${404 - y}" fill="#0e0e0e"/>`).join('')}
+    ${texto('KAIJU NA ORLA', 341, 446, { fonte: 'Lambe', tam: 34, fill: '#1a1a1a', ancora: 'middle' })}`);
+  let mega = '';
+  for (const [x, y, l] of [[1166, 196, 34], [1204, 180, 22], [1230, 210, 46], [1280, 176, 26], [1310, 200, 30]]) {
+    mega += `<rect x="${x}" y="${y}" width="${l}" height="${400 - y}" fill="#3c3c3c"/>`;
+    for (let yy = y + 10; yy < 398; yy += 16) mega += `<rect x="${x}" y="${yy}" width="${l}" height="3" fill="#202020"/>`;
   }
-  s += `<rect width="${w}" height="870" filter="url(#sujeira)"/>`;
-  // piso
-  s += `<rect y="860" width="${w}" height="140" fill="#1b1b1a"/><rect y="860" width="${w}" height="6" fill="#2d2c2a"/><rect y="860" width="${w}" height="140" filter="url(#ferrugem2)" opacity=".6"/>`;
-  // brilho do CRT na parede (faixas duras, sem degradê suave)
-  for (const [raio, op] of [[420, .035], [330, .045], [250, .055], [180, .065]]) s += `<ellipse cx="780" cy="540" rx="${raio * 1.3}" ry="${raio}" fill="${cor.fosforo}" opacity="${op}"/>`;
-  // monitor de terminal aceso no centro (a luz de CRT que vaza pelo portão); na seção da árvore o terminal grande fica por cima
-  s += `<g filter="url(#sombra)"><rect x="630" y="650" width="340" height="210" fill="#4a3220"/><rect x="630" y="650" width="340" height="210" filter="url(#madeira)"/>
-    <path d="M630 720 H970 M630 790 H970 M700 650 V860 M900 650 V860" stroke="#2a1b10" stroke-width="6"/>
-    <rect x="650" y="420" width="300" height="214" rx="8" fill="#2c2b29"/><rect x="672" y="440" width="256" height="166" fill="${cor.fosforo}" opacity=".85"/>
-    <rect x="770" y="612" width="60" height="10" fill="#111"/><circle cx="930" cy="620" r="4" fill="${cor.fosforo}"/>
-    <rect x="690" y="636" width="220" height="14" fill="#1b1b1b"/><path d="M700 643 H900" stroke="#555" stroke-width="3" stroke-dasharray="8 4"/></g>`;
-  for (let y = 444; y < 604; y += 4) s += `<rect x="672" y="${y}" width="256" height="1.5" fill="#052a10" opacity=".55"/>`;
-  s += `<g stroke="#052a10" stroke-width="2.5" fill="none" opacity=".75"><path d="M800 525 L745 488 M800 525 L855 486 M800 525 L800 585 M745 488 L725 548 M855 486 L880 540"/><path d="M684 456 H760" stroke-width="3"/></g>`;
-  // cartazes
-  s += papelRasgado(r, 90, 120, 240, 330, '#0e0e0e', -3,
-    `<rect x="100" y="130" width="220" height="310" fill="none" stroke="${cor.magenta}" stroke-width="6"/>
-     ${megaestrutura()}
-     ${texto('MANAUS 2099', 210, 412, { tam: 32, fill: cor.ciano, ancora: 'middle' })}
-     ${texto('MEGAESTRUTURA · -3000', 210, 432, { fonte: 'Pixel', tam: 12, fill: '#e6e6dc', ancora: 'middle' })}`);
-  s += papelRasgado(r, 360, 400, 170, 240, cor.papel, 4,
-    `<rect x="370" y="410" width="150" height="220" fill="url(#pontosV)" opacity=".45"/>
-     ${usar('perigo', 395, 428, 100, 90, '#111', 'style="--corte:#cfc6ae"')}
-     ${texto('PERIGO', 445, 568, { tam: 32, fill: '#111', ancora: 'middle' })}
-     ${texto('ALTA TENSÃO', 445, 598, { tam: 19, fill: cor.vermelho, ancora: 'middle' })}`);
-  s += papelRasgado(r, 1260, 110, 250, 340, '#101010', 2,
-    `<polygon points="1344,198 1342,208 1268,152 1274,122" fill="${cor.magenta}" opacity=".85"/>
-     ${usar('kaiju', 1318, 168, 150, 160, cor.ciano, 'style="--corte:#101010"')}
-     ${usar('predios', 1270, 250, 230, 138, '#1c1c1c', 'style="--corte:#e8c45a"')}
-     ${texto('KAIJU', 1385, 416, { tam: 36, fill: cor.fosforo, ancora: 'middle' })}
-     ${texto('NA ORLA', 1385, 440, { tam: 22, fill: cor.fosforo, ancora: 'middle' })}`);
-  s += papelRasgado(r, 1090, 450, 190, 260, '#0d0d0d', -5,
-    `<rect x="1098" y="458" width="174" height="244" fill="none" stroke="${cor.vermelho}" stroke-width="3"/>
-     ${pulsar(r, 1110, 492, 150, 20, 5.6)}
-     ${texto('SEXTA · 23H', 1185, 624, { fonte: 'Pixel', tam: 12, fill: '#e9e9e2', ancora: 'middle' })}
-     ${texto('PÓS-PUNK', 1185, 654, { tam: 26, fill: cor.vermelho, ancora: 'middle' })}
-     ${texto('NEW WAVE · NU METAL', 1185, 676, { fonte: 'Pixel', tam: 11, fill: '#e9e9e2', ancora: 'middle' })}
-     ${texto('EXPERIMENTAL', 1185, 694, { fonte: 'Pixel', tam: 11, fill: cor.ciano, ancora: 'middle' })}`);
-  s += papelRasgado(r, 40, 480, 150, 110, cor.papel, 7,
-    `${texto('CONEXÃO', 115, 525, { tam: 22, fill: '#111', ancora: 'middle' })}${texto('56K', 115, 562, { tam: 34, fill: cor.vermelho, ancora: 'middle' })}`);
-  s += papelRasgado(r, 1420, 500, 150, 100, cor.magenta, -6,
-    `${texto('SINC.', 1495, 545, { tam: 26, fill: '#111', ancora: 'middle' })}${texto('400%', 1495, 584, { tam: 36, fill: '#111', ancora: 'middle' })}`);
-  s += fita(150, 108, 80, -10) + fita(1340, 98, 90, 8) + fita(400, 390, 70, 12) + fita(1130, 440, 70, -14);
-  // grafite direto no tijolo
-  s += `<g filter="url(#tinta)">${usar('planeta', 560, 56, 120, 86, cor.ciano, 'style="--corte:#4e231b"')}${texto('AYO', 980, 130, { fonte: 'Marker', tam: 70, fill: cor.magenta, rot: -6 })}
-    ${usar('estrela', 680, 90, 40, 40, cor.vermelho)}${texto('> sistema online_', 600, 220, { fonte: 'Pixel', tam: 22, fill: cor.fosforo, rot: -2 })}</g>`;
-  s += esquemaGiz(1000, 300);
-  // prateleira e equipamentos à esquerda
-  s += `<g filter="url(#sombra)"><rect x="30" y="640" width="330" height="14" fill="#3b2a1c"/>
-    <rect x="44" y="590" width="150" height="50" fill="#1c1c1c"/><rect x="54" y="600" width="70" height="10" fill="#0a0a0a"/><circle cx="170" cy="615" r="9" fill="#2e2e2e"/><rect x="54" y="622" width="10" height="5" fill="${cor.vermelho}"/>
-    <rect x="204" y="560" width="140" height="80" fill="#262626"/><circle cx="240" cy="600" r="18" fill="#141414"/><circle cx="300" cy="600" r="18" fill="#141414"/><rect x="215" y="570" width="118" height="8" fill="${cor.fosforo}" opacity=".7"/>
-    <rect x="60" y="690" width="200" height="190" fill="#151515"/><circle cx="160" cy="760" r="58" fill="#0b0b0b"/><circle cx="160" cy="760" r="22" fill="#222"/><circle cx="160" cy="845" r="20" fill="#0b0b0b"/></g>`;
-  // rack e caixa à direita
-  s += `<g filter="url(#sombra)"><rect x="1330" y="640" width="200" height="240" fill="#161616"/>`;
-  for (let i = 0; i < 6; i++) s += `<rect x="1342" y="${652 + i * 36}" width="176" height="28" fill="#222"/><rect x="1350" y="${662 + i * 36}" width="6" height="6" fill="${i % 2 ? cor.fosforo : cor.vermelho}"/><rect x="1364" y="${663 + i * 36}" width="90" height="4" fill="#0b0b0b"/>`;
-  s += `<rect x="1140" y="760" width="160" height="120" fill="#202020"/><rect x="1152" y="772" width="136" height="84" fill="#0c1a10"/><rect x="1160" y="780" width="60" height="6" fill="${cor.fosforo}" opacity=".6"/></g>`;
-  // cabos pendurados
-  s += `<g fill="none" stroke-linecap="round">
-    <path d="M0 40 C300 160 520 30 800 120 S1300 30 1600 150" stroke="#0a0a0a" stroke-width="8"/>
-    <path d="M200 0 C260 200 420 260 640 300" stroke="#0d0d0d" stroke-width="6"/>
-    <path d="M1600 260 C1400 300 1200 240 980 330" stroke="#3a0e0e" stroke-width="6"/>
-    <path d="M260 880 C400 820 560 900 700 840" stroke="#0a0a0a" stroke-width="7"/>
-    <path d="M1330 880 C1200 830 1080 900 900 850" stroke="#102a16" stroke-width="6"/></g>`;
-  s += `<rect width="${w}" height="${h}" fill="url(#vinheta)"/>`;
-  s = s.replace('<rect width="1600" height="1000" fill="url(#vinheta)"/>',
-    `<radialGradient id="vinheta" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".78"/></radialGradient><rect width="${w}" height="${h}" fill="url(#vinheta)"/>`);
-  s += grao(w, h, .3);
-  return { nome: 'garagem', w, h, alfa: false, svg: svg(w, h, s) };
+  mega += `<rect x="1160" y="300" width="190" height="5" fill="#6a6a6a"/><rect x="1236" y="296" width="3" height="9" fill="#0a0a0a"/>`;
+  s += papelRasgado(r, 1150, 170, 212, 290, '#1a1a1a', 2, `<rect x="1160" y="180" width="192" height="222" fill="#5a5a5a"/>${mega}
+    ${texto('MANAUS 2099', 1256, 432, { fonte: 'Lambe', tam: 34, fill: '#d8d2c0', ancora: 'middle' })}${texto('MEGAESTRUTURA · NÍVEL -3000', 1256, 450, { fonte: 'Pixel', tam: 11, fill: '#a8a294', ancora: 'middle' })}`);
+  // flyer pós-punk com o sinal do pulsar, acima da bancada
+  let pulsar = '';
+  for (let i = 0; i < 14; i++) {
+    const base = 318 + i * 6, pts = [];
+    for (let x = 990; x <= 1080; x += 3) { const env = Math.exp(-((x - 1035) ** 2) / (2 * 13 ** 2)); pts.push(`${x},${n(base - env * 18 * (.45 + r() * .55) - r() * 1.2)}`); }
+    pulsar += `<polygon points="990,${base + 2} ${pts.join(' ')} 1080,${base + 2}" fill="#141414"/><polyline points="${pts.join(' ')}" fill="none" stroke="#e8e2d0" stroke-width="1.6"/>`;
+  }
+  s += papelRasgado(r, 980, 290, 110, 150, '#141414', 4, `${pulsar}${texto('SEXTA · 23H', 1035, 428, { fonte: 'Pixel', tam: 11, fill: '#e8e2d0', ancora: 'middle' })}`);
+  // prateleira à esquerda: rádio, caixa de som e estação de solda
+  s += `<rect x="200" y="590" width="330" height="14" fill="#6b4a2e"/><rect x="214" y="604" width="10" height="40" fill="#4a3220"/><rect x="506" y="604" width="10" height="40" fill="#4a3220"/>
+    <rect x="216" y="520" width="150" height="70" rx="6" fill="#4a4c50"/><circle cx="252" cy="556" r="22" fill="#26282c"/><circle cx="330" cy="556" r="22" fill="#26282c"/><rect x="272" y="530" width="38" height="12" fill="#9aa0a6"/><path d="M236 520 L262 496 H320 L346 520" fill="none" stroke="#6b6e73" stroke-width="5"/>
+    <rect x="384" y="500" width="120" height="90" fill="#2a2c30"/><circle cx="444" cy="540" r="30" fill="#141414"/><circle cx="444" cy="540" r="11" fill="#3a3c40"/><rect x="392" y="576" width="104" height="6" fill="#141414"/>
+    <rect x="236" y="720" width="250" height="50" fill="#3a3c40"/><rect x="250" y="732" width="80" height="22" fill="#141414"/><circle cx="420" cy="744" r="12" fill="#6b6e73"/><path d="M460 720 C470 690 500 690 512 660" fill="none" stroke="#3a3c40" stroke-width="6"/>`;
+  // rack à direita
+  s += `<rect x="1130" y="500" width="200" height="300" fill="#2a2c30"/><rect x="1130" y="500" width="200" height="8" fill="#55595e"/>`;
+  for (let i = 0; i < 7; i++) s += `<rect x="1142" y="${518 + i * 38}" width="176" height="30" fill="#3d4045"/><rect x="1196" y="${528 + i * 38}" width="100" height="5" fill="#1a1b1e"/>`;
+  // bancada com o terminal pequeno: a mesma tela que a próxima seção mostra de perto
+  s += `<rect x="500" y="700" width="600" height="22" fill="#7a5634"/><rect x="500" y="700" width="600" height="5" fill="#a3784a"/><rect x="520" y="722" width="20" height="230" fill="#4a3220"/><rect x="1060" y="722" width="20" height="230" fill="#4a3220"/>
+    <rect x="560" y="722" width="200" height="90" fill="#5e4229"/><rect x="560" y="764" width="200" height="4" fill="#3a2818"/><rect x="646" y="740" width="28" height="6" fill="#a3784a"/><rect x="646" y="782" width="28" height="6" fill="#a3784a"/>`;
+  s += `<path d="M640 470 L960 470 L976 486 V690 L960 700 H640 L624 690 V486 Z" fill="#4a4d52"/><rect x="${tela.x - 10}" y="${tela.y - 10}" width="${tela.w + 20}" height="${tela.h + 20}" fill="#1a1b1e"/>
+    <rect x="640" y="660" width="320" height="30" fill="#3a3c40"/><rect x="652" y="668" width="60" height="14" fill="#e09a1c"/><path d="M652 682 L666 668 M664 682 L678 668 M676 682 L690 668 M688 682 L702 668" stroke="#2a1c06" stroke-width="5"/>
+    <rect x="620" y="690" width="360" height="10" fill="#2a2c30"/><rect x="700" y="704" width="200" height="12" rx="3" fill="#3a3c40"/>`;
+  // cadeira de frente para a bancada, de costas para quem chega
+  s += `<path d="M720 760 H880 L872 880 H728 Z" fill="#26282c"/><rect x="716" y="880" width="168" height="26" rx="6" fill="#2f3135"/><rect x="792" y="906" width="16" height="50" fill="#1e1f22"/>
+    <path d="M730 980 L800 956 L870 980" fill="none" stroke="#1e1f22" stroke-width="10"/><circle cx="730" cy="984" r="8" fill="#141414"/><circle cx="870" cy="984" r="8" fill="#141414"/><circle cx="800" cy="990" r="8" fill="#141414"/>`;
+  // cabos: do teto, da bancada para o rack e pelo chão
+  s += `<g fill="none" stroke="#1a1b1e" stroke-linecap="round"><path d="M0 60 C300 170 520 40 800 130 S1300 40 1600 160" stroke-width="9"/><path d="M800 0 V150" stroke-width="4"/>
+    <path d="M960 660 C1040 640 1080 600 1130 560" stroke-width="7"/><path d="M640 690 C560 760 420 800 300 900 S120 980 0 960" stroke-width="7"/><path d="M1080 950 C1180 900 1260 940 1330 800" stroke-width="6"/></g>
+    <path d="M790 150 H810 L816 178 C816 196 784 196 784 178 Z" fill="#3a3c40"/>`;
+  // luz: só o CRT acende o cômodo, mais um resto de sódio no chão perto da porta
+  s += multiplicar(`<rect width="${w}" height="${h}" fill="#0b130e"/>${somar(`<rect width="${w}" height="${h}" fill="url(#crt)"/><polygon points="40,${h} 1560,${h} 1340,860 260,860" fill="url(#sodioChao)"/>`)}`);
+  // o que emite luz
+  s += `<rect x="${tela.x}" y="${tela.y}" width="${tela.w}" height="${tela.h}" fill="#062a12"/><ellipse cx="800" cy="570" rx="230" ry="150" fill="url(#halo)"/>`;
+  const nos = [[800, 570], [740, 530], [860, 530], [710, 590], [890, 590], [760, 625], [840, 625], [800, 515]];
+  s += `<g stroke="#39ff6a" stroke-width="2.5" fill="none">${nos.slice(1).map(([x, y]) => `<path d="M800 570 L${x} ${y}"/>`).join('')}${nos.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9" fill="#0b3a17"/>`).join('')}</g>`;
+  for (const [x, y] of [[700, 510], [905, 515], [690, 630], [910, 632], [800, 642]]) s += `<rect x="${x - 4}" y="${y - 4}" width="8" height="8" fill="#ff3b30" transform="rotate(45 ${x} ${y})"/>`;
+  for (let y = tela.y; y < tela.y + tela.h; y += 4) s += `<rect x="${tela.x}" y="${y}" width="${tela.w}" height="1.5" fill="#000" opacity=".35"/>`;
+  s += `<circle cx="944" cy="676" r="5" fill="#39ff6a"/>`;
+  for (let i = 0; i < 7; i++) s += `<rect x="1150" y="${526 + i * 38}" width="7" height="7" fill="${i % 3 ? '#39ff6a' : '#ff3b30'}"/><rect x="1162" y="${526 + i * 38}" width="7" height="7" fill="${i % 2 ? '#39ff6a' : '#1a1b1e'}"/>`;
+  s += `<rect x="226" y="526" width="8" height="5" fill="#ff3b30"/><rect x="258" y="736" width="40" height="8" fill="#39ff6a"/>`;
+  return { nome: 'garagem', w, h, alfa: false, paleta: paletaGaragem, svg: svg(w, h, s, defs) };
 }
+const paletaGaragem = [
+  '#030604', '#07100a', '#0d1b11', '#16301c', '#22492b', '#33683e', '#4f9160', '#7cc98d', '#c6f5cf', '#39ff6a',
+  '#1f0f0b', '#3a1a10', '#5e2c18', '#7a5a2e', '#d39a4a', '#c4161c', '#e09a1c'
+];
 
 // ───────────────────────── Terminal grande (tela transparente) ─────────────────────────
+// Futurismo de fita cassete (os consoles de Alien, de 1979, e os painéis de Evangelion): chapa de grafite
+// parafusada, faixa de perigo, etiquetas de rotuladora, VU de sinal, botões rotativos e LED de energia.
 // A tela recebe a árvore de habilidades em HTML/SVG; no CSS ela fica em left 5.75%, top 8.077%, 88.5% × 76.923%.
 export const telaTerm = { x: 92, y: 84, w: 1416, h: 800, chanfro: 14 };
 export function terminal() {
   const w = 1600, h = 1040, r = sorteio(2026), t = telaTerm, c = t.chanfro;
   const furo = `M0 0 H${w} V${h} H0 Z M${t.x + c} ${t.y} H${t.x + t.w - c} L${t.x + t.w} ${t.y + c} V${t.y + t.h - c} L${t.x + t.w - c} ${t.y + t.h} H${t.x + c} L${t.x} ${t.y + t.h - c} V${t.y + c} Z`;
-  let s = `<defs><clipPath id="corpoT"><path d="${furo}" clip-rule="evenodd"/></clipPath><clipPath id="cascaT"><rect x="16" y="16" width="1568" height="972" rx="30"/></clipPath></defs>`;
-  s += `<g clip-path="url(#corpoT)">`;
-  s += `<rect x="16" y="16" width="1568" height="972" rx="30" fill="#2c2b29"/><rect x="16" y="16" width="1568" height="14" rx="7" fill="#48453f"/><rect x="16" y="944" width="1568" height="44" fill="#1f1e1c"/>`;
-  s += `<rect x="${t.x - 34}" y="${t.y - 34}" width="${t.w + 68}" height="${t.h + 68}" rx="14" fill="#191817"/><rect x="${t.x - 10}" y="${t.y - 10}" width="${t.w + 20}" height="${t.h + 20}" rx="6" fill="#070707"/>`;
-  // queixo: saídas de ar, placa, botões e LED de energia
-  for (let x = 60; x < 300; x += 18) s += `<rect x="${x}" y="932" width="9" height="40" fill="#121110"/>`;
-  s += `<rect x="650" y="928" width="300" height="44" fill="#111"/>` + texto('TTY 03 · GARAGEM', 800, 958, { fonte: 'Pixel', tam: 20, fill: cor.fosforo, ancora: 'middle' });
-  s += `<circle cx="1390" cy="950" r="13" fill="#141414"/><circle cx="1436" cy="950" r="13" fill="#141414"/><rect x="1388" y="938" width="4" height="10" fill="#77756e"/><rect x="1434" y="938" width="4" height="10" fill="#77756e"/>`;
-  s += `<circle cx="1510" cy="950" r="8" fill="${cor.fosforo}"/>` + texto('PWR', 1530, 957, { fonte: 'Pixel', tam: 13, fill: '#8d8b84' });
-  // adesivos hacker
-  const adesivo = (x, y, w2, h2, fill, rot, conteudo) => `<g transform="rotate(${rot} ${x + w2 / 2} ${y + h2 / 2})" filter="url(#sombraP)"><rect x="${x}" y="${y}" width="${w2}" height="${h2}" rx="6" fill="${fill}"/>${conteudo}</g>`;
-  s += adesivo(40, 26, 250, 46, '#e9e4d2', -3, texto('SOFTWARE LIVRE', 165, 59, { tam: 26, fill: '#111', ancora: 'middle' }));
-  s += `<g filter="url(#sombraP)"><circle cx="150" cy="948" r="42" fill="${cor.vermelho}"/>${usar('alien', 128, 917, 44, 55, '#111', 'style="--corte:#ff2a2a"')}</g>`;
-  s += adesivo(330, 922, 230, 50, '#111', 2, texto('0xDEADBEEF', 445, 957, { fonte: 'Pixel', tam: 24, fill: cor.ciano, ancora: 'middle' }));
-  s += adesivo(980, 920, 214, 54, cor.magenta, -3, usar('drakkar', 986, 924, 66, 44, '#111', 'style="--corte:#ff2bd6"') + texto('RUMO A OESTE', 1124, 954, { fonte: 'Pixel', tam: 13, fill: '#111', ancora: 'middle' }));
-  s += adesivo(1210, 926, 160, 46, '#111', -2, texto('</> ONLINE', 1290, 957, { fonte: 'Pixel', tam: 20, fill: cor.fosforo, ancora: 'middle' }));
-  s += `<g filter="url(#tinta)">${usar('planeta', 316, 26, 64, 46, cor.ciano, 'style="--corte:#2c2b29"')}${texto('AYO', 586, 982, { fonte: 'Marker', tam: 34, fill: cor.fosforo, rot: -6 })}${usar('estrela', 24, 500, 30, 30, cor.magenta)}</g>`;
-  s += fita(20, 380, 70, -70) + fita(1500, 110, 60, 30);
-  s += arranhoes(r, w, h, 70);
-  s += `<g clip-path="url(#cascaT)">${grao(w, h, .3)}</g>`;
+  const casca = 'M44 16 H1556 L1584 44 V978 L1556 1006 H44 L16 978 V44 Z';
+  const defs = `<clipPath id="corpoT"><path d="${furo}" clip-rule="evenodd"/></clipPath><clipPath id="cascaT"><path d="${casca}"/></clipPath>`
+    + linear('chapa', [[0, '#7d838a'], [.08, '#60666d'], [.55, '#50555c'], [1, '#3e4248']])
+    + linear('ambiente', [[0, '#e8ecf0'], [.5, '#a9b0ba'], [1, '#6b7280']])
+    + radial('vu', [[0, '#fff6dc'], [1, '#d8cba4']], { cy: .9, r: .9 });
+  let s = `<g clip-path="url(#corpoT)">`;
+  s += `<path d="${casca}" fill="url(#chapa)"/><path d="M44 16 H1556 L1572 32 H28 Z" fill="#aeb3b8"/><rect x="16" y="910" width="1568" height="96" fill="#2c2f34"/><rect x="16" y="910" width="1568" height="4" fill="#e09a1c"/>`;
+  // moldura funda em volta da tela, com chanfro
+  s += `<rect x="${t.x - 26}" y="${t.y - 26}" width="${t.w + 52}" height="${t.h + 46}" rx="8" fill="#26292d"/><rect x="${t.x - 26}" y="${t.y - 26}" width="${t.w + 52}" height="6" fill="#16181b"/>
+    <rect x="${t.x - 12}" y="${t.y - 12}" width="${t.w + 24}" height="${t.h + 24}" rx="4" fill="#0b0c0d"/>`;
+  // parafusos nos cantos da chapa
+  for (const [x, y] of [[40, 50], [1560, 50], [40, 960], [1560, 960], [800, 40]]) s += `<circle cx="${x}" cy="${y}" r="10" fill="#3c4046"/><circle cx="${x}" cy="${y}" r="7" fill="#aeb3b8"/><path d="M${x - 5} ${y + 3} L${x + 5} ${y - 3}" stroke="#3c4046" stroke-width="3"/>`;
+  // faixa superior: perigo, etiquetas de rotuladora e o decalque do drakkar
+  s += `<rect x="70" y="26" width="200" height="34" fill="#e09a1c"/>`;
+  for (let x = 54; x < 270; x += 26) s += `<path d="M${x} 60 L${x + 16} 26 H${x + 28} L${x + 12} 60 Z" fill="#17181b"/>`;
+  s += `<rect x="62" y="22" width="216" height="42" fill="none" stroke="#17181b" stroke-width="5"/>`;
+  const dymo = (x, y, larg, fita, letra, rotulo, rot = 0) => `<g transform="rotate(${rot} ${x + larg / 2} ${y + 18})"><rect x="${x}" y="${y}" width="${larg}" height="36" rx="3" fill="${fita}"/><rect x="${x}" y="${y}" width="${larg}" height="5" fill="#fff" opacity=".18"/>${texto(rotulo, x + larg / 2, y + 26, { fonte: 'Pixel', tam: 20, fill: letra, ancora: 'middle', extra: 'letter-spacing="2"' })}</g>`;
+  s += dymo(310, 25, 262, '#17181b', '#f0ebdc', 'SOFTWARE LIVRE', -1);
+  s += `${usar('drakkar', 1300, 22, 66, 44, '#dfe2e4', 'style="--corte:#60666d"')}${texto('RUMO A OESTE', 1376, 52, { fonte: 'Pixel', tam: 15, fill: '#dfe2e4' })}`;
+  // painel inferior: alto-falante, etiqueta 0xDEADBEEF, placa do modelo, VU, botões e energia
+  for (let y = 930; y < 992; y += 12) for (let x = 64; x < 300; x += 12) s += `<rect x="${x}" y="${y}" width="6" height="6" fill="#0e0f11"/>`;
+  s += dymo(336, 942, 238, '#b3161b', '#f0ebdc', '0xDEADBEEF');
+  s += `<rect x="640" y="934" width="320" height="56" rx="4" fill="#0e0f11"/><rect x="644" y="938" width="312" height="48" rx="3" fill="#aeb3b8"/><rect x="644" y="938" width="312" height="6" fill="#dfe2e4"/>
+    ${texto('TTY 03 · GARAGEM', 800, 971, { fonte: 'Pixel', tam: 22, fill: '#17181b', ancora: 'middle' })}`;
+  s += `<rect x="1040" y="926" width="190" height="70" rx="4" fill="#0e0f11"/><rect x="1048" y="932" width="174" height="58" rx="3" fill="url(#vu)"/>`;
+  for (let i = 0; i <= 10; i++) {
+    const ang = Math.PI * (1.15 + i * .07), ext = i % 5 ? 52 : 46;
+    s += `<path d="M${n(1135 + Math.cos(ang) * 62)} ${n(988 + Math.sin(ang) * 62)} L${n(1135 + Math.cos(ang) * ext)} ${n(988 + Math.sin(ang) * ext)}" stroke="${i > 7 ? '#b3161b' : '#17181b'}" stroke-width="3"/>`;
+  }
+  s += `<path d="M1135 986 L1170 946" stroke="#17181b" stroke-width="3"/><circle cx="1135" cy="986" r="5" fill="#17181b"/>${texto('SINAL', 1060, 984, { fonte: 'Pixel', tam: 11, fill: '#17181b' })}`;
+  for (const [x, rot, rotulo] of [[1290, -40, 'BRILHO'], [1380, 30, 'CONTR.']]) {
+    s += `<circle cx="${x}" cy="956" r="24" fill="#0e0f11"/><circle cx="${x}" cy="956" r="19" fill="#5a5f66"/><circle cx="${x}" cy="954" r="15" fill="#7f858c"/><path d="M${x} 956 L${x} 938" stroke="#f0ebdc" stroke-width="4" transform="rotate(${rot} ${x} 956)"/>
+      ${texto(rotulo, x, 997, { fonte: 'Pixel', tam: 11, fill: '#aeb3b8', ancora: 'middle' })}`;
+  }
+  s += `<rect x="1452" y="932" width="40" height="54" rx="4" fill="#0e0f11"/><rect x="1460" y="938" width="24" height="22" rx="2" fill="#aeb3b8"/>${texto('PWR', 1532, 997, { fonte: 'Pixel', tam: 11, fill: '#aeb3b8', ancora: 'middle' })}`;
+  // luz: ambiente frio de cima; a tela acende de verde a borda funda (o resto da chapa só pega o ambiente)
+  s += multiplicar(`<rect width="${w}" height="${h}" fill="url(#ambiente)"/>`, 'cascaT');
+  s += `<g clip-path="url(#cascaT)" style="mix-blend-mode:screen"><rect x="${t.x - 16}" y="${t.y - 16}" width="${t.w + 32}" height="${t.h + 32}" rx="10" fill="none" stroke="#39ff6a" stroke-width="22" opacity=".12" filter="url(#borraoG)"/></g>`;
+  s += `<circle cx="1532" cy="958" r="9" fill="#39ff6a"/><circle cx="1532" cy="958" r="16" fill="#39ff6a" opacity=".25"/>`;
   s += `</g>`;
-  s += `<rect x="250" y="988" width="220" height="40" fill="#111"/><rect x="1130" y="988" width="220" height="40" fill="#111"/>`;
-  return { nome: 'terminal', w, h, alfa: true, svg: svg(w, h, s) };
+  // pés de borracha
+  s += `<rect x="240" y="1006" width="220" height="26" rx="6" fill="#17181b"/><rect x="1140" y="1006" width="220" height="26" rx="6" fill="#17181b"/>`;
+  return { nome: 'terminal', w, h, alfa: true, paleta: paletaTerminal, svg: svg(w, h, s, defs) };
+}
+const paletaTerminal = [
+  '#060607', '#0e0f11', '#17181b', '#222428', '#2f3236', '#40444a', '#5a5f66', '#7f858c', '#aeb3b8', '#dfe2e4',
+  '#2a1c06', '#e09a1c', '#ffd27a', '#39ff6a', '#0f4a22', '#b3161b', '#f0ebdc'
+];
+
+// ───────────────────────── Parede atrás do terminal (fundo da árvore) ─────────────────────────
+// Reboco velho, eletrodutos e um esquema de circuito a giz; a única luz é o verde da tela no centro.
+export function parede() {
+  const w = 1600, h = 1000, r = sorteio(404);
+  const defs = radial('brilhoT', [[0, '#d8ffe2'], [.2, '#7fd99a'], [.45, '#2f6e44'], [.75, '#10241a'], [1, '#0a120d', 0]], { cx: 800, cy: 560, r: 900, unidades: 'userSpaceOnUse' });
+  let s = `<rect width="${w}" height="${h}" fill="#8e958c"/><rect width="${w}" height="${h}" filter="url(#mancha)" opacity=".12"/>`;
+  // eletrodutos com caixas de passagem
+  s += `<rect y="110" width="${w}" height="16" fill="#6b706a"/><rect y="110" width="${w}" height="4" fill="#b8beb5"/>`;
+  for (const x of [130, 1470]) s += `<rect x="${x}" y="126" width="16" height="874" fill="#6b706a"/><rect x="${x}" y="126" width="4" height="874" fill="#b8beb5"/><rect x="${x - 22}" y="330" width="60" height="70" fill="#7a8079"/><rect x="${x - 22}" y="330" width="60" height="5" fill="#c4cac1"/>`;
+  for (let x = 60; x < w; x += 190) s += `<rect x="${x}" y="104" width="10" height="28" fill="#4a4e49"/>`;
+  // esquema a giz: fonte de 5 V, resistor de 220 R, LED, capacitor e terra
+  const g = (dx, dy) => `${180 + dx} ${210 + dy}`;
+  s += `<g fill="none" stroke="#f4fbf2" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M${g(0, 70)} H${g(40, 70).split(' ')[0]} M${g(8, 86)} H${g(32, 86).split(' ')[0]}"/>
+    <path d="M${g(20, 70)} V${210 + 20} H${180 + 70} L${g(80, 4)} L${g(94, 36)} L${g(108, 4)} L${g(122, 36)} L${g(136, 4)} L${g(150, 36)} L${g(160, 20)} H${180 + 210}"/>
+    <path d="M${g(210, 2)} V${210 + 38} L${g(240, 20)} Z M${g(240, 2)} V${210 + 38}"/>
+    <path d="M${g(246, -4)} L${g(262, -20)} M${g(254, 8)} L${g(270, -8)}"/>
+    <path d="M${g(240, 20)} H${180 + 300} V${210 + 70} M${g(280, 70)} H${180 + 320} M${g(280, 86)} H${180 + 320} M${g(300, 86)} V${210 + 130}"/>
+    <path d="M${g(20, 86)} V${210 + 130} H${180 + 300} M${g(278, 140)} H${180 + 322} M${g(286, 150)} H${180 + 314} M${g(294, 160)} H${180 + 306}"/></g>
+  ${texto('+5V', 112, 286, { fonte: 'Marker', tam: 28, fill: '#f4fbf2' })}${texto('R1 220R', 258, 194, { fonte: 'Marker', tam: 28, fill: '#f4fbf2' })}${texto('D1', 384, 304, { fonte: 'Marker', tam: 28, fill: '#f4fbf2' })}${texto('C1 10uF', 512, 306, { fonte: 'Marker', tam: 28, fill: '#f4fbf2' })}`;
+  // cabo enrolado pendurado num prego, à direita
+  s += `<circle cx="1300" cy="200" r="6" fill="#2a2c2a"/><g fill="none" stroke="#1d1f1d" stroke-width="8">${[0, 1, 2, 3].map(i => `<ellipse cx="${1300 + i * 4}" cy="${262 + i * 3}" rx="${58 - i * 4}" ry="${66 - i * 3}"/>`).join('')}</g><path d="M1330 320 C1340 420 1280 520 1320 640" fill="none" stroke="#1d1f1d" stroke-width="7"/>`;
+  // tampo da bancada embaixo da tela
+  s += `<rect y="900" width="${w}" height="100" fill="#7a5634"/><rect y="900" width="${w}" height="7" fill="#b48a5a"/><rect y="930" width="${w}" height="3" fill="#5e4229"/>`;
+  s += multiplicar(`<rect width="${w}" height="${h}" fill="#0a120d"/>${somar(`<rect width="${w}" height="${h}" fill="url(#brilhoT)"/>`)}`);
+  return { nome: 'parede', w, h, alfa: false, paleta: ['#020403', '#050a06', '#0a140d', '#112016', '#1a3122', '#27482f', '#3a6a47', '#5c9a6c', '#9fd6aa', '#1a1510', '#2c241b', '#4a3a28'], svg: svg(w, h, s, defs) };
+}
+
+// ───────────────────────── Parede de azulejos sob luz fria (fundo do Sobre) ─────────────────────────
+// Meia parede de azulejo branco e reboco pintado em cima, com uma lâmpada fluorescente: um corredor de Silent Hill.
+export function mural() {
+  const w = 1600, h = 1000, r = sorteio(1999);
+  const defs = radial('tubo', [[0, '#f6fcff'], [.22, '#c4d2d6'], [.55, '#5d6c72'], [1, '#1c2428']], { cx: 800, cy: 40, r: 1050, unidades: 'userSpaceOnUse' })
+    + linear('mofo', [[0, '#2d3a24', 0], [1, '#2d3a24', .65]])
+    + linear('escorreM', [[0, '#5e5038', .55], [1, '#5e5038', 0]])
+    + linear('umidade', [[0, '#5e5038', 0], [1, '#5e5038', .45]]);
+  let s = `<rect width="${w}" height="${h}" fill="#a7b8ad"/><rect width="${w}" height="400" filter="url(#mancha)" opacity=".12"/>`;
+  // umidade subindo pelo reboco e trincas finas
+  s += `<rect y="300" width="${w}" height="90" fill="url(#umidade)"/>`;
+  for (const [x, y] of [[300, 120], [1180, 200], [760, 260]]) s += `<path d="M${x} ${y} l14 26 l-8 22 l18 30 l-6 24" fill="none" stroke="#5c6462" stroke-width="3"/>`;
+  // azulejos de 64 com rejunte; alguns trincados, dois faltando
+  s += `<rect y="396" width="${w}" height="604" fill="#7f8784"/><rect y="388" width="${w}" height="12" fill="#c9d2cd"/>`;
+  for (let y = 404, l = 0; y < h; y += 66, l++) for (let x = 2; x < w; x += 66) {
+    const falta = (l === 3 && x === 1124) || (l === 5 && x === 266);
+    s += falta ? `<rect x="${x}" y="${y}" width="62" height="62" fill="#4e4a40"/>` : `<rect x="${x}" y="${y}" width="62" height="62" fill="${r() < .1 ? '#dfe5e0' : '#eef2ee'}"/><rect x="${x}" y="${y}" width="62" height="5" fill="#ffffff"/>`;
+  }
+  for (let i = 0; i < 7; i++) { const x = r.entre(80, 1520), y = r.entre(420, 940); s += `<path d="M${n(x)} ${n(y)} l${n(r.entre(-30, 30))} ${n(r.entre(20, 50))} l${n(r.entre(-20, 20))} ${n(r.entre(16, 40))}" fill="none" stroke="#5c6462" stroke-width="2.5"/>`; }
+  for (let i = 0; i < 22; i++) s += `<rect x="${n(r.entre(0, w))}" y="${n(r.entre(392, 600))}" width="${n(r.entre(4, 14))}" height="${n(r.entre(80, 360))}" fill="url(#escorreM)"/>`;
+  s += `<rect y="820" width="${w}" height="180" fill="url(#mofo)"/>`;
+  // calha da fluorescente
+  s += `<rect x="540" y="22" width="520" height="40" rx="4" fill="#3d4447"/><rect x="552" y="58" width="496" height="6" fill="#262c2e"/>`;
+  s += multiplicar(`<rect width="${w}" height="${h}" fill="url(#tubo)"/>`);
+  s += `<rect x="560" y="50" width="480" height="12" rx="6" fill="#f6fcff"/><rect x="600" y="52" width="40" height="8" fill="#ffffff"/>`;
+  return { nome: 'mural', w, h, alfa: false, paleta: ['#0a0d0e', '#141a1c', '#1f282b', '#2d393d', '#41504f', '#5c6c6c', '#7e8f8d', '#a6b5b1', '#cdd8d3', '#eef5f1', '#ffffff', '#3d3426', '#5e5038', '#3c4a32'], svg: svg(w, h, s, defs) };
+}
+
+// ───────────────────────── Página de zine em xerox (fundo do texto do Sobre) ─────────────────────────
+// Fotocópia de flyer pós-punk: sombra da tampa da copiadora, pontos de toner, dobra central e grampos.
+export function zine() {
+  const w = 900, h = 1060, r = sorteio(1979);
+  const borda = [[30, 34], [868, 26], [874, 1028], [26, 1034]];
+  const orelha = 'M800 26 L868 26 L874 98 Z';
+  const defs = linear('tampa', [[0, '#0c0c0c', .85], [.035, '#0c0c0c', .35], [.09, '#0c0c0c', 0], [.92, '#0c0c0c', 0], [1, '#0c0c0c', .5]], { x1: 0, y1: 0, x2: 1, y2: 0 })
+    + `<clipPath id="folhaZ"><polygon points="${borda.map(p => p.join(',')).join(' ')}"/></clipPath>`
+    + `<pattern id="retícula" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="4.5" cy="4.5" r="2.4" fill="#0c0c0c"/></pattern>`
+    + linear('some', [[0, '#fff', 0], [1, '#fff', 1]]) + `<mask id="degrade"><rect x="0" y="880" width="${w}" height="160" fill="url(#some)"/></mask>`;
+  let s = `<g clip-path="url(#folhaZ)"><rect width="${w}" height="${h}" fill="#f1f0eb"/><rect width="${w}" height="${h}" fill="url(#tampa)"/>`;
+  // toner espalhado, mais denso nas bordas
+  for (let i = 0; i < 900; i++) {
+    const x = r() * w, y = r() * h, borda2 = Math.min(x, w - x, y, h - y);
+    if (r() * 160 < borda2 && r() > .12) continue;
+    s += `<rect x="${n(x)}" y="${n(y)}" width="${n(r.entre(2, 5))}" height="${n(r.entre(2, 4))}" fill="#2a2a2a" opacity="${n(r.entre(.35, .9))}"/>`;
+  }
+  // retícula de meio-tom no pé da página, sumindo para cima
+  s += `<rect x="0" y="880" width="${w}" height="160" fill="url(#retícula)" mask="url(#degrade)" opacity=".35"/>`;
+  // dobra central e grampos na dobra
+  s += `<rect x="448" y="0" width="3" height="${h}" fill="#bdbdb8"/><rect x="451" y="0" width="2" height="${h}" fill="#ffffff"/>`;
+  for (const y of [240, 800]) s += `<rect x="438" y="${y}" width="24" height="6" fill="#8a8a86"/><rect x="438" y="${y}" width="24" height="2" fill="#dcdcd6"/>`;
+  s += `</g><path d="${orelha}" fill="#dcdcd6"/><path d="M800 26 L874 98" stroke="#8a8a86" stroke-width="3"/>`;
+  return { nome: 'zine', w, h, alfa: true, grade: .4, paleta: ['#0c0c0c', '#2a2a2a', '#555555', '#8a8a86', '#bdbdb8', '#dcdcd6', '#f1f0eb', '#ffffff'], svg: svg(w, h, s, defs) };
 }
 
 // ───────────────────────── Mesa de madeira (fundo dos contatos) ─────────────────────────
+// Luminária quente vindo de cima à esquerda e o reflexo frio de uma tela à direita.
 export function mesa() {
   const w = 1600, h = 1000, r = sorteio(1998);
-  let s = `<rect width="${w}" height="${h}" fill="#140f0c"/>`;
-  // parede escura ao fundo
-  for (let y = 0, l = 0; y < 170; y += 30, l++) for (let x = l % 2 ? -36 : 0; x < w; x += 74) s += `<rect x="${x + 2}" y="${y + 2}" width="70" height="26" fill="${r.um(['#2a1712', '#331c15', '#24140f'])}"/>`;
-  s += `<rect y="150" width="${w}" height="30" fill="#0b0806"/>`;
-  // tábuas
-  for (let y = 180, i = 0; y < h; y += 118, i++) {
-    s += `<rect y="${y}" width="${w}" height="114" fill="${['#5b3b22', '#4f321c', '#563820', '#4a2f1a', '#5e3d23', '#523520', '#4d311b'][i]}"/><rect y="${y + 114}" width="${w}" height="4" fill="#120b07"/>`;
-  }
-  s += `<rect y="180" width="${w}" height="${h - 180}" filter="url(#madeira)"/><rect y="180" width="${w}" height="${h - 180}" filter="url(#sujeira)" opacity=".7"/>`;
-  for (let i = 0; i < 5; i++) s += `<circle cx="${r.entre(200, 1400).toFixed(0)}" cy="${r.entre(260, 950).toFixed(0)}" r="${r.entre(38, 60).toFixed(0)}" fill="none" stroke="#2a1a0e" stroke-width="5" opacity=".5"/>`;
+  const defs = radial('lamp', [[0, '#fff6e2'], [.3, '#ecd2a8'], [.6, '#9a7a5c'], [.88, '#3a2a20'], [1, '#2a1c14', 0]], { cx: 560, cy: 300, r: 1150, unidades: 'userSpaceOnUse' })
+    + radial('telaFria', [[0, '#7fe0c8', .7], [.5, '#2f7a6a', .25], [1, '#2f7a6a', 0]], { cx: 1640, cy: 560, r: 560, unidades: 'userSpaceOnUse' });
+  let s = `<rect width="${w}" height="${h}" fill="#3a2414"/>`;
+  for (let y = -20, i = 0; y < h; y += 118, i++) s += `<rect y="${y}" width="${w}" height="114" fill="${['#a8805a', '#9c7550', '#a47c56', '#96704c', '#ac845e', '#9e7652', '#98724e', '#a27a54', '#9a744f'][i]}"/><rect y="${y + 114}" width="${w}" height="4" fill="#3a2414"/>`;
+  for (let i = 0; i < 40; i++) { const y = r.entre(0, h), x = r.entre(0, w); s += `<path d="M${n(x)} ${n(y)} h${n(r.entre(60, 260))}" stroke="#7a5a3e" stroke-width="2.5" opacity=".6"/>`; }
+  for (let i = 0; i < 4; i++) s += `<circle cx="${n(r.entre(300, 1300))}" cy="${n(r.entre(300, 950))}" r="${n(r.entre(38, 58))}" fill="none" stroke="#6a4426" stroke-width="5" opacity=".5"/>`;
   // teclado mecânico gasto
-  let tec = `<rect x="40" y="690" width="470" height="200" rx="12" fill="#232323"/>`;
+  let tec = `<rect x="40" y="690" width="470" height="200" rx="12" fill="#3a3a3a"/><rect x="40" y="690" width="470" height="8" rx="4" fill="#5a5a5a"/>`;
   for (let row = 0; row < 5; row++) for (let col = 0; col < 14; col++) {
-    const gasto = r() < .25;
-    const fill = row === 0 && col === 0 ? cor.vermelho : row === 2 && col === 13 ? cor.fosforo : gasto ? '#5c5b56' : '#8b8a84';
-    tec += `<rect x="${56 + col * 32}" y="${708 + row * 34}" width="27" height="28" rx="4" fill="${fill}"/><rect x="${59 + col * 32}" y="${710 + row * 34}" width="21" height="18" rx="3" fill="#fff" opacity="${gasto ? .02 : .08}"/>`;
+    const gasto = r() < .25, fill = row === 0 && col === 0 ? '#c4161c' : row === 2 && col === 13 ? '#39ff6a' : gasto ? '#9a9a94' : '#cfcfc8';
+    tec += `<rect x="${56 + col * 32}" y="${708 + row * 34}" width="27" height="28" rx="4" fill="${fill}"/><rect x="${59 + col * 32}" y="${710 + row * 34}" width="21" height="6" rx="2" fill="#fff" opacity="${gasto ? .1 : .3}"/>`;
   }
-  s += `<g transform="rotate(-9 270 790)" filter="url(#sombra)">${tec}</g>`;
+  s += `<g transform="rotate(-9 270 790)"><rect x="52" y="702" width="470" height="200" rx="12" fill="#1a1008" opacity=".5"/>${tec}</g>`;
   // disquetes
-  const disquete = (x, y, rot, fill, rotulo) => `<g transform="rotate(${rot} ${x + 90} ${y + 90})" filter="url(#sombra)"><rect x="${x}" y="${y}" width="180" height="180" rx="6" fill="${fill}"/><rect x="${x + 44}" y="${y}" width="92" height="58" fill="#a9aba8"/><rect x="${x + 100}" y="${y + 8}" width="22" height="42" fill="${fill}"/><rect x="${x + 22}" y="${y + 84}" width="136" height="88" fill="#e6e0cc"/>${texto(rotulo, x + 90, y + 132, { fonte: 'Marker', tam: 20, fill: '#1a1a1a', ancora: 'middle' })}</g>`;
-  s += disquete(110, 230, -12, '#1d1d1d', 'DRIVERS 98') + disquete(220, 300, 9, '#7a1414', 'KERNEL') + disquete(70, 400, -3, '#173a52', 'BACKUP');
-  // CDs riscados
-  const cd = (cx, cy, raio) => {
-    let c = `<g filter="url(#sombra)"><circle cx="${cx}" cy="${cy}" r="${raio}" fill="#b9bab6"/>`;
-    const cores = [cor.ciano, cor.magenta, cor.fosforo, cor.vermelho];
-    for (let i = 0; i < 8; i++) { const a1 = i / 8 * Math.PI * 2, a2 = a1 + .32; c += `<path d="M${cx} ${cy} L${(cx + Math.cos(a1) * raio).toFixed(1)} ${(cy + Math.sin(a1) * raio).toFixed(1)} A${raio} ${raio} 0 0 1 ${(cx + Math.cos(a2) * raio).toFixed(1)} ${(cy + Math.sin(a2) * raio).toFixed(1)} Z" fill="${cores[i % 4]}" opacity=".28"/>`; }
-    c += `<circle cx="${cx}" cy="${cy}" r="${raio * .3}" fill="#d6d6d2"/><circle cx="${cx}" cy="${cy}" r="${raio * .11}" fill="#140f0c"/>`;
-    for (let i = 0; i < 26; i++) { const a = r() * 6.28, rr = r.entre(raio * .35, raio * .95); c += `<path d="M${(cx + Math.cos(a) * rr).toFixed(1)} ${(cy + Math.sin(a) * rr).toFixed(1)} l${r.entre(-30, 30).toFixed(1)} ${r.entre(-12, 12).toFixed(1)}" stroke="#fff" stroke-width="1" opacity=".55"/>`; }
-    return c + '</g>';
-  };
-  s += cd(1300, 300, 110);
-  // fita cassete com os gêneros de sempre
-  s += `<g transform="rotate(7 1260 830)" filter="url(#sombra)"><rect x="1150" y="760" width="220" height="140" rx="9" fill="#1b1b1b"/>
-    <rect x="1164" y="772" width="192" height="78" rx="3" fill="#e6e0cc"/><rect x="1164" y="772" width="192" height="12" fill="${cor.vermelho}"/>
-    ${texto('NU METAL · RAP METAL', 1260, 804, { fonte: 'Marker', tam: 15, fill: '#1a1a1a', ancora: 'middle' })}
-    ${texto('PÓS-PUNK · NEW WAVE', 1260, 824, { fonte: 'Marker', tam: 15, fill: '#1a1a1a', ancora: 'middle' })}
-    ${texto('+ experimental', 1260, 843, { fonte: 'Marker', tam: 13, fill: '#7a1010', ancora: 'middle' })}
-    <rect x="1208" y="856" width="104" height="30" rx="4" fill="#0c0c0c"/>
-    <circle cx="1232" cy="871" r="12" fill="#cfcfc8"/><circle cx="1288" cy="871" r="12" fill="#cfcfc8"/><circle cx="1232" cy="871" r="5" fill="#0c0c0c"/><circle cx="1288" cy="871" r="5" fill="#0c0c0c"/>
-    <path d="M1190 900 L1202 886 H1318 L1330 900 Z" fill="#262626"/></g>`;
-  // placas de circuito
-  let pcb = `<rect x="1180" y="540" width="300" height="200" rx="6" fill="#1d4a28"/>`;
-  for (let i = 0; i < 18; i++) { const y = 556 + i * 10; pcb += `<path d="M1190 ${y} H${1220 + r() * 120} V${y + r.entre(-6, 16)} H${1300 + r() * 160}" stroke="#b47d3c" stroke-width="2" fill="none" opacity=".8"/>`; }
-  pcb += `<rect x="1250" y="590" width="80" height="56" fill="#0e0e0e"/><rect x="1360" y="640" width="54" height="40" fill="#0e0e0e"/><circle cx="1450" cy="560" r="6" fill="${cor.vermelho}"/>`;
-  for (let i = 0; i < 9; i++) pcb += `<rect x="${1252 + i * 9}" y="584" width="4" height="6" fill="#bbb"/><rect x="${1252 + i * 9}" y="646" width="4" height="6" fill="#bbb"/>`;
-  s += `<g transform="rotate(8 1330 640)" filter="url(#sombra)">${pcb}</g>`;
-  // protoboard: resistor 220R (vermelho, vermelho, marrom, dourado), LED e jumpers
-  let pb = `<rect x="1380" y="800" width="200" height="110" rx="5" fill="#e4e0d3"/><rect x="1386" y="806" width="188" height="2" fill="${cor.vermelho}"/><rect x="1386" y="902" width="188" height="2" fill="${cor.ciano}"/><rect x="1386" y="855" width="188" height="4" fill="#cfcabb"/>`;
-  for (let i = 0; i < 30; i++) for (let j = 0; j < 12; j++) pb += `<rect x="${1392 + i * 6}" y="${816 + j * 7 + (j > 5 ? 6 : 0)}" width="2" height="2" fill="#a9a497"/>`;
-  pb += `<path d="M1420 830 H1476" stroke="#9a9a9a" stroke-width="2"/><rect x="1436" y="825" width="26" height="10" rx="4" fill="#d9c08a"/>`;
-  for (const [dx, c] of [[1440, '#c81e1e'], [1445, '#c81e1e'], [1450, '#6b3a1e'], [1457, '#c9a227']]) pb += `<rect x="${dx}" y="825" width="2.5" height="10" fill="${c}"/>`;
-  pb += `<path d="M1508 844 V830 M1516 844 V830" stroke="#9a9a9a" stroke-width="2"/><circle cx="1512" cy="827" r="7" fill="${cor.vermelho}"/><circle cx="1510" cy="825" r="2" fill="#fff" opacity=".7"/>`;
-  pb += `<path d="M1404 886 C1420 860 1470 870 1490 844" fill="none" stroke="${cor.fosforo}" stroke-width="3" stroke-linecap="round"/><path d="M1530 886 C1540 866 1556 870 1564 840" fill="none" stroke="${cor.ciano}" stroke-width="3" stroke-linecap="round"/>`;
-  s += `<g transform="rotate(-12 1480 855)" filter="url(#sombra)">${pb}</g>`;
+  const disquete = (x, y, rot, fill, rotulo) => `<g transform="rotate(${rot} ${x + 90} ${y + 90})"><rect x="${x + 10}" y="${y + 12}" width="180" height="180" rx="6" fill="#1a1008" opacity=".5"/><rect x="${x}" y="${y}" width="180" height="180" rx="6" fill="${fill}"/><rect x="${x + 44}" y="${y}" width="92" height="58" fill="#c9cbc8"/><rect x="${x + 100}" y="${y + 8}" width="22" height="42" fill="${fill}"/><rect x="${x + 22}" y="${y + 84}" width="136" height="88" fill="#f2ecdc"/>${texto(rotulo, x + 90, y + 136, { fonte: 'Marker', tam: 22, fill: '#1a1a1a', ancora: 'middle' })}</g>`;
+  s += disquete(110, 230, -12, '#2a2a2a', 'DRIVERS 98') + disquete(220, 300, 9, '#a3161b', 'KERNEL') + disquete(70, 400, -3, '#2a5a8a', 'BACKUP');
+  // CD riscado
+  let cd = `<circle cx="1310" cy="312" r="110" fill="#1a1008" opacity=".5"/><circle cx="1300" cy="300" r="110" fill="#d9dad6"/>`;
+  const cores = ['#7fe0e8', '#e87fd0', '#a8f07f', '#f0d27f'];
+  for (let i = 0; i < 8; i++) { const a1 = i / 8 * Math.PI * 2, a2 = a1 + .32; cd += `<path d="M1300 300 L${n(1300 + Math.cos(a1) * 110)} ${n(300 + Math.sin(a1) * 110)} A110 110 0 0 1 ${n(1300 + Math.cos(a2) * 110)} ${n(300 + Math.sin(a2) * 110)} Z" fill="${cores[i % 4]}" opacity=".45"/>`; }
+  cd += `<circle cx="1300" cy="300" r="33" fill="#eeeeea"/><circle cx="1300" cy="300" r="12" fill="#3a2414"/>`;
+  for (let i = 0; i < 20; i++) { const a = r() * 6.28, rr = r.entre(40, 104); cd += `<path d="M${n(1300 + Math.cos(a) * rr)} ${n(300 + Math.sin(a) * rr)} l${n(r.entre(-30, 30))} ${n(r.entre(-12, 12))}" stroke="#fff" stroke-width="1.5" opacity=".7"/>`; }
+  s += cd;
+  // fita cassete com os gêneros de sempre (o único lugar do site onde eles aparecem)
+  s += `<g transform="rotate(7 1260 830)"><rect x="1160" y="772" width="220" height="140" rx="9" fill="#1a1008" opacity=".5"/><rect x="1150" y="760" width="220" height="140" rx="9" fill="#2a2a2a"/>
+    <rect x="1164" y="772" width="192" height="78" rx="3" fill="#f2ecdc"/><rect x="1164" y="772" width="192" height="12" fill="#c4161c"/>
+    ${texto('NU METAL · RAP METAL', 1260, 806, { fonte: 'Marker', tam: 15, fill: '#1a1a1a', ancora: 'middle' })}
+    ${texto('PÓS-PUNK · NEW WAVE', 1260, 826, { fonte: 'Marker', tam: 15, fill: '#1a1a1a', ancora: 'middle' })}
+    ${texto('+ experimental', 1260, 845, { fonte: 'Marker', tam: 13, fill: '#a3161b', ancora: 'middle' })}
+    <rect x="1208" y="856" width="104" height="30" rx="4" fill="#141414"/><circle cx="1232" cy="871" r="12" fill="#e2e2dc"/><circle cx="1288" cy="871" r="12" fill="#e2e2dc"/><circle cx="1232" cy="871" r="5" fill="#141414"/><circle cx="1288" cy="871" r="5" fill="#141414"/></g>`;
+  // placa de circuito
+  let pcb = `<rect x="1190" y="552" width="300" height="200" rx="6" fill="#1a1008" opacity=".5"/><rect x="1180" y="540" width="300" height="200" rx="6" fill="#2f8a4a"/>`;
+  for (let i = 0; i < 16; i++) { const y = 556 + i * 11; pcb += `<path d="M1190 ${y} H${n(1220 + r() * 120)} V${n(y + r.entre(-6, 16))} H${n(1300 + r() * 160)}" stroke="#e0a84a" stroke-width="3" fill="none" opacity=".85"/>`; }
+  pcb += `<rect x="1250" y="590" width="80" height="56" fill="#141414"/><rect x="1360" y="640" width="54" height="40" fill="#141414"/><circle cx="1450" cy="560" r="7" fill="#c4161c"/>`;
+  for (let i = 0; i < 9; i++) pcb += `<rect x="${1252 + i * 9}" y="584" width="4" height="6" fill="#dcdcd6"/><rect x="${1252 + i * 9}" y="646" width="4" height="6" fill="#dcdcd6"/>`;
+  s += `<g transform="rotate(8 1330 640)">${pcb}</g>`;
+  // protoboard: resistor de 220 R (vermelho, vermelho, marrom, dourado), LED e jumpers
+  let pb = `<rect x="1390" y="812" width="200" height="110" rx="5" fill="#1a1008" opacity=".5"/><rect x="1380" y="800" width="200" height="110" rx="5" fill="#f2efe6"/><rect x="1386" y="806" width="188" height="3" fill="#c4161c"/><rect x="1386" y="900" width="188" height="3" fill="#2a5a8a"/><rect x="1386" y="855" width="188" height="4" fill="#d6d2c4"/>`;
+  for (let i = 0; i < 30; i++) for (let j = 0; j < 12; j++) pb += `<rect x="${1392 + i * 6}" y="${816 + j * 7 + (j > 5 ? 6 : 0)}" width="2.5" height="2.5" fill="#9a958a"/>`;
+  pb += `<path d="M1420 830 H1476" stroke="#b8b8b8" stroke-width="3"/><rect x="1436" y="824" width="26" height="12" rx="4" fill="#e8cf96"/>`;
+  for (const [dx, c] of [[1440, '#c4161c'], [1445, '#c4161c'], [1450, '#7a4020'], [1457, '#e0a84a']]) pb += `<rect x="${dx}" y="824" width="3" height="12" fill="${c}"/>`;
+  pb += `<path d="M1508 844 V830 M1516 844 V830" stroke="#b8b8b8" stroke-width="3"/><path d="M1404 886 C1420 860 1470 870 1490 844" fill="none" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/><path d="M1530 886 C1540 866 1556 870 1564 840" fill="none" stroke="#2a5a8a" stroke-width="4" stroke-linecap="round"/>`;
+  s += `<g transform="rotate(-12 1480 855)">${pb}</g>`;
   // papéis amassados
   const bola = (cx, cy, raio) => {
-    let pts = [];
-    for (let i = 0; i < 14; i++) { const a = i / 14 * 6.28; const rr = raio * r.entre(.72, 1.08); pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]); }
-    let b = `<g filter="url(#sombra)"><polygon points="${pts.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ')}" fill="#d7d0bb"/>`;
-    for (let i = 0; i < 9; i++) { const p1 = r.um(pts), p2 = r.um(pts); b += `<path d="M${p1[0].toFixed(1)} ${p1[1].toFixed(1)} L${(cx + r.entre(-10, 10)).toFixed(1)} ${(cy + r.entre(-10, 10)).toFixed(1)} L${p2[0].toFixed(1)} ${p2[1].toFixed(1)} Z" fill="#000" opacity="${r.entre(.04, .18).toFixed(2)}"/>`; }
-    return b + '</g>';
+    const pts = [];
+    for (let i = 0; i < 14; i++) { const a = i / 14 * 6.28, rr = raio * r.entre(.72, 1.08); pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]); }
+    let b = `<ellipse cx="${cx + 8}" cy="${cy + 10}" rx="${raio}" ry="${raio * .9}" fill="#1a1008" opacity=".5"/><polygon points="${pts.map(p => p.map(n).join(',')).join(' ')}" fill="#f2ecdc"/>`;
+    for (let i = 0; i < 9; i++) { const p1 = r.um(pts), p2 = r.um(pts); b += `<path d="M${n(p1[0])} ${n(p1[1])} L${n(cx + r.entre(-10, 10))} ${n(cy + r.entre(-10, 10))} L${n(p2[0])} ${n(p2[1])} Z" fill="#000" opacity="${n(r.entre(.06, .22))}"/>`; }
+    return b;
   };
   s += bola(1490, 420, 44) + bola(1040, 230, 38) + bola(560, 930, 46);
-  // cartão-postal de pesca noturna: barco na neblina e uma luz que não devia estar ali
-  s += `<g transform="rotate(-7 390 225)" filter="url(#sombra)"><rect x="300" y="160" width="180" height="130" fill="#e8e3d3"/>
-    <rect x="310" y="170" width="160" height="90" fill="#1a2326"/><rect x="310" y="222" width="160" height="38" fill="#0e1618"/><rect x="310" y="212" width="160" height="14" fill="#9aa3a6" opacity=".28"/>
-    <path d="M358 230 L398 230 L392 238 L362 238 Z M370 230 V220 H382 V230 M376 220 V210" fill="#05090a" stroke="#05090a" stroke-width="1.5"/>
-    <circle cx="432" cy="226" r="9" fill="${cor.fosforo}" opacity=".18"/><circle cx="432" cy="226" r="2.6" fill="${cor.fosforo}"/><path d="M432 226 q-6 -16 -16 -22" fill="none" stroke="#05090a" stroke-width="1"/>
-    ${texto('pesca noturna', 390, 280, { fonte: 'Marker', tam: 15, fill: '#1a1a1a', ancora: 'middle' })}</g>`;
-  // post-its
-  s += `<g transform="rotate(-8 1450 230)" filter="url(#sombraP)"><rect x="1390" y="190" width="120" height="110" fill="${cor.fosforo}"/>${texto('TODO:', 1402, 228, { fonte: 'Marker', tam: 22, fill: '#111' })}${texto('deploy', 1402, 258, { fonte: 'Marker', tam: 22, fill: '#111' })}</g>`;
+  // cartão-postal de pesca noturna: barco na neblina e uma luz que não devia estar ali (Dredge)
+  s += `<g transform="rotate(-7 390 225)"><rect x="310" y="172" width="180" height="130" fill="#1a1008" opacity=".5"/><rect x="300" y="160" width="180" height="130" fill="#f2ecdc"/>
+    <rect x="310" y="170" width="160" height="90" fill="#2a3a40"/><rect x="310" y="222" width="160" height="38" fill="#1a2629"/><rect x="310" y="212" width="160" height="14" fill="#a9b6ba" opacity=".4"/>
+    <path d="M358 230 L398 230 L392 238 L362 238 Z M370 230 V220 H382 V230 M376 220 V210" fill="#0a1214" stroke="#0a1214" stroke-width="1.5"/>
+    <circle cx="432" cy="226" r="3" fill="#39ff6a"/>${texto('pesca noturna', 390, 282, { fonte: 'Marker', tam: 16, fill: '#1a1a1a', ancora: 'middle' })}</g>`;
+  // post-it
+  s += `<g transform="rotate(-8 1450 230)"><rect x="1398" y="198" width="120" height="110" fill="#1a1008" opacity=".5"/><rect x="1390" y="190" width="120" height="110" fill="#c8f060"/>${texto('TODO:', 1402, 230, { fonte: 'Marker', tam: 22, fill: '#1a1a1a' })}${texto('deploy', 1402, 262, { fonte: 'Marker', tam: 22, fill: '#1a1a1a' })}</g>`;
   // cabos
-  s += `<g fill="none" stroke-linecap="round" filter="url(#sombraP)">
-    <path d="M0 610 C160 560 260 680 420 620 S640 560 700 640" stroke="#0b0b0b" stroke-width="9"/>
-    <path d="M1600 560 C1500 520 1440 600 1300 520" stroke="#7a1010" stroke-width="7"/>
-    <path d="M1600 960 C1400 900 1300 980 1180 900 S980 960 900 1000" stroke="#0b0b0b" stroke-width="8"/>
-    <path d="M330 1000 C340 950 420 940 470 900" stroke="#0f3a1a" stroke-width="7"/></g>`;
-  // luz dura vindo de cima-direita e vinheta
-  s += `<path d="M0 0 H${w} V${h} H0 Z" fill="url(#vinM)"/>`;
-  s = s.replace(`<path d="M0 0 H${w} V${h} H0 Z" fill="url(#vinM)"/>`,
-    `<radialGradient id="vinM" cx=".52" cy=".56" r=".72"><stop offset=".5" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".82"/></radialGradient><path d="M0 0 H${w} V${h} H0 Z" fill="url(#vinM)"/>`);
-  s += grao(w, h, .3);
-  return { nome: 'mesa', w, h, alfa: false, svg: svg(w, h, s) };
+  s += `<g fill="none" stroke-linecap="round"><path d="M0 610 C160 560 260 680 420 620 S640 560 700 640" stroke="#1a1a1a" stroke-width="10"/><path d="M1600 560 C1500 520 1440 600 1300 520" stroke="#a3161b" stroke-width="8"/>
+    <path d="M1600 960 C1400 900 1300 980 1180 900 S980 960 900 1000" stroke="#1a1a1a" stroke-width="9"/><path d="M330 1000 C340 950 420 940 470 900" stroke="#2f8a4a" stroke-width="8"/></g>`;
+  s += multiplicar(`<rect width="${w}" height="${h}" fill="#2a1a12"/>${somar(`<rect width="${w}" height="${h}" fill="url(#lamp)"/><rect width="${w}" height="${h}" fill="url(#telaFria)"/>`)}`);
+  s += `<circle cx="1512" cy="827" r="7" fill="#ff3b30" transform="rotate(-12 1480 855)"/><circle cx="1510" cy="825" r="2" fill="#fff" transform="rotate(-12 1480 855)"/>`;
+  return { nome: 'mesa', w, h, alfa: false, paleta: paletaMesa, rigor: .6, svg: svg(w, h, s, defs) };
 }
+const paletaMesa = [
+  '#0d0806', '#1a0f0a', '#2b1a10', '#3f2a1a', '#5a3e28', '#7a5838', '#9a7450', '#c09a6c', '#e8c890', '#fff2d2',
+  '#141414', '#3a3a3a', '#8a8a86', '#d4d4cc', '#a3161b', '#2a5a8a', '#2f8a4a', '#39ff6a', '#e6dcc0', '#2f7a6a', '#7fe0c8'
+];
 
 // ───────────────────────── Papel amassado do contato (bordas irregulares, transparente) ─────────────────────────
 export function papel() {
@@ -465,29 +526,26 @@ export function papel() {
   for (let y = m; y <= h - m; y += 22) pts.push([w - m + r.entre(-12, 10), y]);
   for (let x = w - m; x >= m; x -= 22) pts.push([x, h - m + r.entre(-12, 10)]);
   for (let y = h - m; y >= m; y -= 22) pts.push([m + r.entre(-10, 12), y]);
-  const contorno = pts.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ');
+  const contorno = pts.map(p => p.map(n).join(',')).join(' ');
   let s = `<defs><clipPath id="folha"><polygon points="${contorno}"/></clipPath></defs>`;
-  s += `<g clip-path="url(#folha)"><rect width="${w}" height="${h}" fill="#d6cdb4"/>`;
+  s += `<g clip-path="url(#folha)"><rect width="${w}" height="${h}" fill="#ddd4bb"/>`;
   // facetas do amassado: triângulos claros e escuros com borda dura
-  for (let i = 0; i < 70; i++) {
+  for (let i = 0; i < 60; i++) {
     const cx = r() * w, cy = r() * h, t = r.entre(60, 220);
     const a = [cx + r.entre(-t, t), cy + r.entre(-t, t)], b = [cx + r.entre(-t, t), cy + r.entre(-t, t)];
-    s += `<polygon points="${cx.toFixed(0)},${cy.toFixed(0)} ${a[0].toFixed(0)},${a[1].toFixed(0)} ${b[0].toFixed(0)},${b[1].toFixed(0)}" fill="${r() < .5 ? '#000' : '#fff'}" opacity="${r.entre(.025, .08).toFixed(3)}"/>`;
+    s += `<polygon points="${n(cx)},${n(cy)} ${n(a[0])},${n(a[1])} ${n(b[0])},${n(b[1])}" fill="${r() < .5 ? '#000' : '#fff'}" opacity="${n(r.entre(.015, .04))}"/>`;
   }
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 14; i++) {
     const x1 = r() * w, y1 = r() * h, x2 = x1 + r.entre(-400, 400), y2 = y1 + r.entre(-400, 400);
-    s += `<path d="M${x1.toFixed(0)} ${y1.toFixed(0)} L${x2.toFixed(0)} ${y2.toFixed(0)}" stroke="#5a503c" stroke-width="1.2" opacity=".35"/><path d="M${(x1 + 2).toFixed(0)} ${(y1 + 2).toFixed(0)} L${(x2 + 2).toFixed(0)} ${(y2 + 2).toFixed(0)}" stroke="#fff" stroke-width="1" opacity=".35"/>`;
+    s += `<path d="M${n(x1)} ${n(y1)} L${n(x2)} ${n(y2)}" stroke="#7a6a48" stroke-width="2.5" opacity=".4"/>`;
   }
   // pauta de caderno, margem e mancha de café
-  for (let y = 150; y < h - 40; y += 46) s += `<rect x="0" y="${y}" width="${w}" height="1.5" fill="#6aa0b8" opacity=".28"/>`;
-  s += `<rect x="96" y="0" width="2" height="${h}" fill="${cor.vermelho}" opacity=".35"/>`;
-  s += `<circle cx="720" cy="860" r="92" fill="none" stroke="#6b4423" stroke-width="10" opacity=".22"/><circle cx="726" cy="866" r="80" fill="none" stroke="#6b4423" stroke-width="3" opacity=".18"/>`;
-  s += `<rect width="${w}" height="${h}" filter="url(#sujeira)" opacity=".1"/>`;
-  s += grao(w, h, .12);
-  // bordas encardidas
-  s += `<polygon points="${contorno}" fill="none" stroke="#7a6a48" stroke-width="10" opacity=".35"/>`;
+  for (let y = 150; y < h - 40; y += 46) s += `<rect x="0" y="${y}" width="${w}" height="2.5" fill="#7fa6bf" opacity=".5"/>`;
+  s += `<rect x="96" y="0" width="3" height="${h}" fill="#c0392b" opacity=".5"/>`;
+  s += `<circle cx="720" cy="860" r="92" fill="none" stroke="#8a5a33" stroke-width="10" opacity=".3"/>`;
+  s += `<polygon points="${contorno}" fill="none" stroke="#9a8a62" stroke-width="12" opacity=".5"/>`;
   s += `</g>`;
-  return { nome: 'papel', w, h, alfa: true, svg: svg(w, h, s) };
+  return { nome: 'papel', w, h, alfa: true, paleta: ['#7a6a48', '#a6997a', '#c4b896', '#d3c9ac', '#ddd4bb', '#e9e2cf', '#f4efe2', '#7fa6bf', '#c0392b', '#8a5a33'], svg: svg(w, h, s) };
 }
 
 // ───────────────────────── Neblina baixa (ladrilho horizontal sem emenda) ─────────────────────────
@@ -499,7 +557,7 @@ export function neblina() {
     <linearGradient id="desce" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff"/></linearGradient>
     <mask id="mn"><rect width="${w}" height="${h}" fill="url(#desce)"/></mask></defs>
   <rect width="${w}" height="${h}" filter="url(#nevoa)" mask="url(#mn)"/>`;
-  return { nome: 'neblina', w, h, alfa: true, svg: svg(w, h, s) };
+  return { nome: 'neblina', w, h, alfa: 'pontilhado', grade: .4, paleta: ['#9aa4aa', '#c4ccd0'], svg: svg(w, h, s) };
 }
 
 // ───────────────────────── Selo de tinta vermelho com as iniciais ─────────────────────────
@@ -516,7 +574,7 @@ export function selo() {
     <feColorMatrix in="s" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -4 0 0 0 3.05" result="falhas"/>
     <feComposite in="d" in2="falhas" operator="in"/></filter>
   <g filter="url(#carimbo)"><rect x="22" y="22" width="176" height="176" rx="14" fill="#c4161c" mask="url(#letras)"/></g>`;
-  return { nome: 'selo', w, h, alfa: true, svg: svg(w, h, s) };
+  return { nome: 'selo', w, h, alfa: true, grade: .32, paleta: ['#c4161c', '#8e0f14'], svg: svg(w, h, s) };
 }
 
-export const cenas = [portao, fachada, garagem, terminal, mesa, papel, neblina, selo];
+export const cenas = [portao, fachada, garagem, terminal, parede, mural, zine, mesa, papel, neblina, selo];

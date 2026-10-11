@@ -24,6 +24,10 @@ assert.equal(css, await versionar(css), 'Versões de assets desatualizadas no CS
 assert.ok(html.includes('lang="pt-BR"'));
 assert.ok(!/\sstyle="/.test(html), 'Atributo style inline bloqueado pelo CSP');
 assert.ok(html.includes(listaSeo()), 'Lista SEO desatualizada: rode npm run seo');
+// Cada imagem de cena aparece uma vez só no site.
+const cenas = [...(html + css).matchAll(/assets\/cena\/([\w-]+\.webp)/g)].map(m => m[1]);
+const repetidas = cenas.filter((c, i) => cenas.indexOf(c) !== i);
+assert.deepEqual(repetidas, [], 'Imagem de cena repetida: ' + repetidas.join(', '));
 // Animações só mexem em transform, opacity e recortes curtos: nada que force layout ou repintura pesada a cada quadro.
 for (const m of css.matchAll(/@keyframes\s+([\w-]+)\s*\{((?:[^{}]*\{[^}]*\})*)\s*\}/g)) {
   assert.ok(!/letter-spacing|width|height|\btop\b|\bleft\b|margin|padding|box-shadow|filter|background|stroke/.test(m[2]), `Animação ${m[1]} mexe em propriedade cara`);

@@ -64,8 +64,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .hint{display:inline-block;font-family:var(--f-gotica);font-size:24px;letter-spacing:.06em;color:var(--brasa);text-decoration:none;padding:6px 0;text-shadow:2px 2px 0 #3a1200,-2px 0 0 rgba(255,140,40,.28),2px 0 0 rgba(255,140,40,.28),0 -2px 0 rgba(255,140,40,.28)}
 .hint:hover{color:#ffd29a}
 .fog{position:absolute;left:0;right:0;bottom:0;height:52%;z-index:2;pointer-events:none;overflow:hidden}
-.fog span{position:absolute;left:0;bottom:0;width:200%;height:100%;background:url('./assets/cena/neblina.webp?v=4f9dff7e') repeat-x;background-size:50% 100%;opacity:.24}
-.fog span+span{height:72%;opacity:.14;transform:translateX(-25%)}
+.fog span{position:absolute;left:0;bottom:0;width:200%;height:100%;background:url('./assets/cena/neblina.webp?v=d5540319') repeat-x;background-size:50% 100%;opacity:.16}
+.fog span+span{height:72%;opacity:.1;transform:translateX(-25%)}
 
 /* camadas de VHS e CRT */
 .vhs{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
@@ -120,7 +120,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .garage{position:relative;padding:18px 0 70px;overflow:hidden;background:#030604}
 .garage-bg{position:absolute;inset:0;z-index:0}
 .garage-bg img{width:100%;height:100%;object-fit:cover;object-position:50% 40%}
-.garage-bg::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.42)}
+.garage-bg::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.18)}
 .section-head{position:relative;z-index:1;width:min(1100px,calc(100% - 32px));margin:0 auto 14px;text-align:center}
 .section-head .kicker{margin-bottom:6px}
 .section-head h2{margin:0;font-family:var(--f-titulo);font-weight:400;font-size:60px;line-height:.9;color:#ecebe2;text-shadow:4px 4px 0 var(--vermelho);text-transform:uppercase}
@@ -228,9 +228,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 /* /etapa:arvore */
 
 /* etapa:mesa ─────────────────────────────────────────── */
-.zine-wall{position:relative;padding:90px 16px;background:#120c09 url('./assets/cena/garagem.webp?v=834d54fc') center/cover;isolation:isolate;overflow:hidden}
-.zine-wall::before{content:"";position:absolute;inset:0;z-index:-1;background:rgba(0,0,0,.72)}
-.zine{position:relative;width:min(760px,100%);margin:0 auto;padding:clamp(34px,6vw,64px);background:url('./assets/cena/papel.webp?v=c8d0e0b4') center/100% 100% no-repeat,linear-gradient(var(--papel),var(--papel)) center/calc(100% - 64px) calc(100% - 64px) no-repeat;color:var(--tinta);transform:rotate(-1.2deg);filter:drop-shadow(14px 16px 0 rgba(0,0,0,.7))}
+/* página de zine em xerox colada com fita isolante numa parede de azulejos sob luz fria */
+.zine-wall{position:relative;padding:90px 16px;background:#1c2428 url('./assets/cena/mural.webp?v=03e43913') center/cover;isolation:isolate;overflow:hidden}
+.zine-wall::before{content:"";position:absolute;inset:0;z-index:-1;background:rgba(6,9,10,.38)}
+.zine{position:relative;width:min(760px,100%);margin:0 auto;padding:clamp(34px,6vw,64px);background:url('./assets/cena/zine.webp?v=4d0f780a') center/100% 100% no-repeat,linear-gradient(#f1f0eb,#f1f0eb) center/calc(100% - 48px) calc(100% - 48px) no-repeat;color:var(--tinta);transform:rotate(-1.2deg);filter:drop-shadow(14px 16px 0 rgba(0,0,0,.6))}
 .zine .kicker{color:var(--vermelho)}
 .zine h2{margin:0 0 14px;font-family:var(--f-titulo);font-weight:400;font-size:60px;line-height:.95}
 .zine p{font-size:22px;margin:0 0 12px}
@@ -241,6 +242,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .facts dd{margin:0;font-size:21px}
 .scribble{font-family:var(--f-mao);font-style:italic;font-size:26px;color:#b3001b;transform:rotate(-3deg);margin:58px 0 0;text-align:right}
 .tape{position:absolute;width:120px;height:30px;background:rgba(222,214,185,.72);box-shadow:0 1px 0 rgba(0,0,0,.2)}
+.zine .tape{width:110px;height:26px;background:#141414;box-shadow:inset 0 4px 0 #2e2e2e,0 2px 0 rgba(0,0,0,.35)}
 .tape-a{left:8%;top:-8px;transform:rotate(-8deg)}
 .tape-b{right:7%;top:-6px;transform:rotate(6deg)}
 
@@ -258,7 +260,7 @@ button{font:inherit;color:inherit;cursor:pointer}
   .desk.is-idle .leds i{animation-play-state:paused}
 }
 @keyframes led{40%{opacity:.15}}
-.note{position:relative;width:min(660px,100%);margin:0 auto;padding:clamp(48px,9vw,88px) clamp(28px,8vw,80px) clamp(54px,9vw,90px);color:var(--tinta);background:url('./assets/cena/papel.webp?v=c8d0e0b4') center/100% 100% no-repeat;transform:rotate(-2deg);filter:drop-shadow(16px 20px 0 rgba(0,0,0,.72))}
+.note{position:relative;width:min(660px,100%);margin:0 auto;padding:clamp(48px,9vw,88px) clamp(28px,8vw,80px) clamp(54px,9vw,90px);color:var(--tinta);background:url('./assets/cena/papel.webp?v=8dfff9b3') center/100% 100% no-repeat;transform:rotate(-2deg);filter:drop-shadow(16px 20px 0 rgba(0,0,0,.72))}
 .note .kicker{color:var(--vermelho);margin-left:clamp(0px,3vw,20px)}
 .note-title{margin:0 0 18px;font-family:var(--f-titulo);font-weight:400;font-size:105px;line-height:.85;letter-spacing:.04em}
 .note-links{margin:0;padding:0;list-style:none;display:grid;gap:6px}
