@@ -129,39 +129,39 @@ export function portao() {
   // colagem de zine à esquerda
   g += papelRasgado(r, 40, 52, 250, 330, cor.papel, -4,
     `<rect x="52" y="64" width="226" height="306" fill="url(#pontos)" opacity=".35"/>
-     ${usar('afro', 70, 92, 180, 222, '#111')}
+     ${usar('androide', 70, 92, 180, 222, '#111', 'style="--corte:#cfc6ae"')}
      ${texto('ZINE Nº 03', 60, 358, { tam: 26, fill: '#111' })}
-     ${texto('VOZ · CÓDIGO · RUA', 62, 86, { fonte: 'Pixel', tam: 14, fill: cor.vermelho })}`);
+     ${texto('BITS · NEON · RUA', 62, 86, { fonte: 'Pixel', tam: 14, fill: cor.vermelho })}`);
   g += papelRasgado(r, 210, 320, 190, 150, cor.vermelho, 6,
-    `${usar('punho', 230, 330, 70, 105, '#111', 'style="--corte:#ff2a2a"')}
-     ${texto('QUILOMBO', 300, 380, { fonte: 'Pixel', tam: 20, fill: '#111' })}
-     ${texto('DIGITAL', 300, 404, { fonte: 'Pixel', tam: 20, fill: '#111' })}`);
+    `${usar('olho', 245, 334, 120, 70, '#111', 'style="--corte:#ff2a2a"')}
+     ${texto('VIGIADO', 305, 432, { fonte: 'Pixel', tam: 18, fill: '#111', ancora: 'middle' })}
+     ${texto('24/7', 305, 456, { fonte: 'Pixel', tam: 18, fill: '#111', ancora: 'middle' })}`);
   g += papelRasgado(r, 30, 420, 200, 120, '#151515', -7,
-    `${texto('ORGULHO', 46, 470, { tam: 34, fill: cor.fosforo })}${texto('PRETO', 46, 512, { tam: 40, fill: cor.fosforo })}`);
+    `${texto('SEM', 46, 470, { tam: 34, fill: cor.fosforo })}${texto('SINAL', 46, 512, { tam: 40, fill: cor.fosforo })}`);
   g += fita(70, 40, 90, -12) + fita(240, 300, 80, 18) + fita(40, 410, 70, -20);
   // faixa central
-  g += `<g filter="url(#tinta)">${usar('coroa', 560, 30, 160, 115, cor.ciano)}
-    ${texto('HIP-HOP É', 360, 205, { tam: 66, fill: cor.magenta, rot: -2 })}
-    ${texto('RESISTÊNCIA', 470, 268, { tam: 74, fill: cor.vermelho, rot: -2 })}
-    ${escorrido(r, 480, 262, 430, cor.vermelho, 9)}${escorrido(r, 370, 205, 300, cor.magenta, 6)}</g>`;
-  // MC, toca-discos e rádio à direita
-  g += `<g filter="url(#tinta)">${usar('mc', 970, 110, 200, 300, cor.fosforo)}
+  g += `<g filter="url(#tinta)">${usar('planeta', 565, 26, 150, 108, cor.ciano, 'style="--corte:#3a3e41"')}
+    ${texto('HIGH TECH', 390, 205, { tam: 70, fill: cor.magenta, rot: -2 })}
+    ${texto('LOW LIFE', 535, 270, { tam: 78, fill: cor.vermelho, rot: -2 })}
+    ${escorrido(r, 545, 264, 400, cor.vermelho, 9)}${escorrido(r, 400, 205, 400, cor.magenta, 6)}</g>`;
+  // androide, parabólica e sinal à direita
+  g += `<g filter="url(#tinta)">${usar('robo', 970, 110, 200, 300, cor.fosforo, 'style="--corte:#3a3e41"')}
     ${usar('estrela', 1150, 70, 60, 60, cor.vermelho)}${usar('raio', 920, 90, 46, 80, cor.ciano)}
-    ${usar('toca', 1010, 430, 210, 176, cor.ciano, 'style="--corte:#2b2f32"')}
-    ${usar('fone', 1180, 350, 80, 72, cor.magenta)}
-    ${texto('> sudo liberdade_', 860, 655, { fonte: 'Pixel', tam: 30, fill: cor.fosforo })}</g>`;
+    ${usar('parabolica', 1010, 430, 210, 176, cor.ciano, 'style="--corte:#3a3e41"')}
+    ${usar('sinal', 1180, 350, 80, 72, cor.magenta)}
+    ${texto('root@garagem:~# _', 860, 655, { fonte: 'Pixel', tam: 30, fill: cor.fosforo })}</g>`;
   // punho gigante e silhuetas embaixo
-  g += `<g filter="url(#tinta)">${usar('punho', 555, 470, 200, 300, cor.vermelho, 'style="--corte:#3a3e41"')}
-    ${usar('breaker', 300, 600, 220, 173, cor.magenta)}
+  g += `<g filter="url(#tinta)">${usar('chip', 540, 520, 230, 230, cor.vermelho, 'style="--corte:#3a3e41"')}
+    ${usar('drone', 300, 600, 220, 173, cor.magenta, 'style="--corte:#3a3e41"')}
     ${usar('lata', 250, 690, 46, 92, cor.fosforo)}
-    ${usar('radio', 820, 690, 170, 112, cor.magenta, 'style="--corte:#2b2f32"')}
-    ${usar('olho', 120, 590, 110, 64, cor.ciano, 'style="--corte:#2b2f32"')}
+    ${usar('ovni', 820, 690, 170, 112, cor.magenta, 'style="--corte:#3a3e41"')}
+    ${usar('cctv', 112, 580, 120, 80, cor.ciano, 'style="--corte:#3a3e41"')}
     ${texto('AYO', 1040, 790, { fonte: 'Marker', tam: 96, fill: cor.fosforo, rot: -8 })}
-    ${texto('1973', 80, 760, { fonte: 'Marker', tam: 58, fill: '#d6d6cf', rot: 6 })}
+    ${texto('2099', 80, 760, { fonte: 'Marker', tam: 58, fill: '#d6d6cf', rot: 6 })}
     ${texto('GLWYD 03', 1110, 300, { fonte: 'Marker', tam: 34, fill: cor.ciano, rot: -14 })}
     ${texto('ROOT ≠ CRIME', 40, 590, { fonte: 'Pixel', tam: 18, fill: cor.vermelho, rot: -4 })}
     ${escorrido(r, 1040, 760, 220, cor.fosforo, 7)}</g>`;
-  g += `<g filter="url(#tinta)" opacity=".92">${texto('VIDAS NEGRAS IMPORTAM', 640, 796, { tam: 30, fill: '#e2e2da', ancora: 'middle' })}</g>`;
+  g += `<g filter="url(#tinta)" opacity=".92">${texto('ÁREA RESTRITA · NÍVEL 3', 640, 796, { tam: 30, fill: '#e2e2da', ancora: 'middle' })}</g>`;
   s += g;
   s += arranhoes(r, w, h, 120);
   // barra inferior, puxador e cadeado
@@ -191,16 +191,17 @@ export function fachada() {
   <rect width="${w}" height="${h}" filter="url(#ferrugem2)" opacity=".6"/>`;
   // pichações nas laterais
   s += `<g filter="url(#tinta)">
-    ${texto('PERIFA', 40, 520, { fonte: 'Marker', tam: 62, fill: cor.magenta, rot: -90 })}
+    ${texto('LAN HOUSE', 40, 560, { fonte: 'Marker', tam: 54, fill: cor.magenta, rot: -90 })}
     ${texto('ONLINE', 120, 560, { fonte: 'Marker', tam: 52, fill: cor.fosforo, rot: -90 })}
-    ${usar('punho', 30, 640, 90, 135, cor.vermelho, 'style="--corte:#4a4946"')}
-    ${usar('coroa', 1470, 190, 100, 72, cor.ciano)}
-    ${texto('CÓDIGO', 1560, 360, { fonte: 'BlackOps', tam: 44, fill: cor.vermelho, rot: 90 })}
-    ${texto('É VOZ', 1490, 420, { fonte: 'BlackOps', tam: 44, fill: cor.fosforo, rot: 90 })}
-    ${usar('microfone', 1478, 760, 70, 140, cor.magenta, 'style="--corte:#4a4946"')}
+    ${usar('perigo', 30, 650, 90, 81, cor.vermelho, 'style="--corte:#4a4946"')}
+    ${usar('cctv', 18, 168, 104, 70, cor.ciano, 'style="--corte:#4a4946"')}
+    ${usar('planeta', 1470, 190, 100, 72, cor.ciano, 'style="--corte:#4a4946"')}
+    ${texto('ZONA', 1560, 360, { fonte: 'BlackOps', tam: 44, fill: cor.vermelho, rot: 90 })}
+    ${texto('FRANCA', 1490, 380, { fonte: 'BlackOps', tam: 44, fill: cor.fosforo, rot: 90 })}
+    ${usar('sinal', 1470, 836, 90, 81, cor.magenta)}
   </g>`;
-  s += papelRasgado(r, 1456, 560, 120, 150, cor.papel, 5,
-    `${usar('afro', 1470, 572, 90, 112, '#111')}${texto('SARAU', 1468, 700, { tam: 18, fill: cor.vermelho })}`);
+  s += papelRasgado(r, 1456, 640, 120, 160, cor.papel, 5,
+    `${texto('PROCURA-SE', 1516, 662, { fonte: 'Pixel', tam: 11, fill: '#111', ancora: 'middle' })}${usar('androide', 1476, 668, 80, 99, '#111', 'style="--corte:#cfc6ae"')}${texto('ANDROIDE', 1516, 788, { tam: 17, fill: cor.vermelho, ancora: 'middle' })}`);
   s += arranhoes(r, w, h, 80);
   s += grao(w, h, .28);
   s += `</g>`;
@@ -242,31 +243,33 @@ export function garagem() {
   // cartazes
   s += papelRasgado(r, 90, 120, 240, 330, '#0e0e0e', -3,
     `<rect x="100" y="130" width="220" height="310" fill="none" stroke="${cor.magenta}" stroke-width="6"/>
-     ${usar('afro', 120, 150, 180, 222, cor.fosforo)}
-     ${texto('BAILE BLACK', 210, 400, { tam: 34, fill: cor.magenta, ancora: 'middle' })}
-     ${texto('SOUL · FUNK · RAP', 210, 428, { fonte: 'Pixel', tam: 16, fill: '#e6e6dc', ancora: 'middle' })}`);
+     <circle cx="210" cy="250" r="72" fill="${cor.magenta}"/>
+     <rect x="130" y="262" width="160" height="5" fill="#0e0e0e"/><rect x="130" y="276" width="160" height="7" fill="#0e0e0e"/><rect x="130" y="292" width="160" height="9" fill="#0e0e0e"/><rect x="130" y="310" width="160" height="12" fill="#0e0e0e"/>
+     ${usar('predios', 110, 262, 200, 120, cor.fosforo, 'style="--corte:#0e0e0e"')}
+     ${texto('MANAUS 2099', 210, 412, { tam: 32, fill: cor.ciano, ancora: 'middle' })}
+     ${texto('ZONA FRANCA DIGITAL', 210, 432, { fonte: 'Pixel', tam: 12, fill: '#e6e6dc', ancora: 'middle' })}`);
   s += papelRasgado(r, 360, 400, 170, 240, cor.papel, 4,
     `<rect x="370" y="410" width="150" height="220" fill="url(#pontosV)" opacity=".45"/>
-     ${usar('punho', 400, 418, 90, 135, '#111', 'style="--corte:#cfc6ae"')}
-     ${texto('VIDAS NEGRAS', 445, 590, { tam: 22, fill: '#111', ancora: 'middle' })}
-     ${texto('IMPORTAM', 445, 616, { tam: 26, fill: cor.vermelho, ancora: 'middle' })}`);
+     ${usar('perigo', 395, 428, 100, 90, '#111', 'style="--corte:#cfc6ae"')}
+     ${texto('PERIGO', 445, 568, { tam: 32, fill: '#111', ancora: 'middle' })}
+     ${texto('ALTA TENSÃO', 445, 598, { tam: 19, fill: cor.vermelho, ancora: 'middle' })}`);
   s += papelRasgado(r, 1260, 110, 250, 340, '#101010', 2,
-    `${usar('mc', 1300, 130, 170, 255, cor.ciano)}
-     ${texto('SARAU DA', 1385, 400, { tam: 30, fill: cor.fosforo, ancora: 'middle' })}
-     ${texto('QUEBRADA', 1385, 432, { tam: 30, fill: cor.fosforo, ancora: 'middle' })}`);
+    `${usar('robo', 1300, 130, 170, 255, cor.ciano, 'style="--corte:#101010"')}
+     ${texto('ANDROIDES', 1385, 400, { tam: 30, fill: cor.fosforo, ancora: 'middle' })}
+     ${texto('ENTRE NÓS', 1385, 432, { tam: 30, fill: cor.fosforo, ancora: 'middle' })}`);
   s += papelRasgado(r, 1090, 450, 190, 260, cor.vermelho, -5,
-    `${usar('toca', 1115, 470, 140, 117, '#111', 'style="--corte:#ff2a2a"')}
-     ${texto('4 ELEMENTOS', 1185, 630, { tam: 24, fill: '#111', ancora: 'middle' })}
-     ${texto('MC · DJ · BREAK', 1185, 658, { fonte: 'Pixel', tam: 13, fill: '#111', ancora: 'middle' })}
-     ${texto('· GRAFITE ·', 1185, 680, { fonte: 'Pixel', tam: 13, fill: '#111', ancora: 'middle' })}`);
+    `${usar('parabolica', 1115, 470, 140, 117, '#111', 'style="--corte:#ff2a2a"')}
+     ${texto('RÁDIO PIRATA', 1185, 630, { tam: 21, fill: '#111', ancora: 'middle' })}
+     ${texto('CANAL 03 · 24H', 1185, 658, { fonte: 'Pixel', tam: 13, fill: '#111', ancora: 'middle' })}
+     ${texto('SINAL ABERTO', 1185, 680, { fonte: 'Pixel', tam: 13, fill: '#111', ancora: 'middle' })}`);
   s += papelRasgado(r, 40, 480, 150, 110, cor.papel, 7,
-    `${texto('PALMARES', 115, 525, { tam: 22, fill: '#111', ancora: 'middle' })}${texto('VIVE', 115, 560, { tam: 32, fill: cor.vermelho, ancora: 'middle' })}`);
+    `${texto('CONEXÃO', 115, 525, { tam: 22, fill: '#111', ancora: 'middle' })}${texto('56K', 115, 562, { tam: 34, fill: cor.vermelho, ancora: 'middle' })}`);
   s += papelRasgado(r, 1420, 500, 150, 100, cor.magenta, -6,
-    `${texto('AFRO', 1495, 545, { tam: 30, fill: '#111', ancora: 'middle' })}${texto('FUTURO', 1495, 580, { tam: 30, fill: '#111', ancora: 'middle' })}`);
+    `${texto('NEON', 1495, 545, { tam: 30, fill: '#111', ancora: 'middle' })}${texto('NOITE', 1495, 580, { tam: 30, fill: '#111', ancora: 'middle' })}`);
   s += fita(150, 108, 80, -10) + fita(1340, 98, 90, 8) + fita(400, 390, 70, 12) + fita(1130, 440, 70, -14);
   // grafite direto no tijolo
-  s += `<g filter="url(#tinta)">${usar('coroa', 560, 60, 120, 86, cor.ciano)}${texto('AYO', 980, 130, { fonte: 'Marker', tam: 70, fill: cor.magenta, rot: -6 })}
-    ${usar('estrela', 680, 90, 40, 40, cor.vermelho)}${texto('</> é resistência', 600, 220, { fonte: 'Pixel', tam: 22, fill: cor.fosforo, rot: -2 })}</g>`;
+  s += `<g filter="url(#tinta)">${usar('planeta', 560, 56, 120, 86, cor.ciano, 'style="--corte:#4e231b"')}${texto('AYO', 980, 130, { fonte: 'Marker', tam: 70, fill: cor.magenta, rot: -6 })}
+    ${usar('estrela', 680, 90, 40, 40, cor.vermelho)}${texto('> sistema online_', 600, 220, { fonte: 'Pixel', tam: 22, fill: cor.fosforo, rot: -2 })}</g>`;
   // prateleira e equipamentos à esquerda
   s += `<g filter="url(#sombra)"><rect x="30" y="640" width="330" height="14" fill="#3b2a1c"/>
     <rect x="44" y="590" width="150" height="50" fill="#1c1c1c"/><rect x="54" y="600" width="70" height="10" fill="#0a0a0a"/><circle cx="170" cy="615" r="9" fill="#2e2e2e"/><rect x="54" y="622" width="10" height="5" fill="${cor.vermelho}"/>
@@ -316,13 +319,13 @@ export function tv() {
   // adesivos hacktivistas e de representatividade
   const adesivo = (x, y, w2, h2, fill, rot, conteudo) => `<g transform="rotate(${rot} ${x + w2 / 2} ${y + h2 / 2})" filter="url(#sombraP)"><rect x="${x}" y="${y}" width="${w2}" height="${h2}" rx="6" fill="${fill}"/>${conteudo}</g>`;
   s += adesivo(48, 166, 230, 46, '#e9e4d2', -4, texto('SOFTWARE LIVRE', 163, 199, { tam: 26, fill: '#111', ancora: 'middle' }));
-  s += `<g filter="url(#sombraP)"><circle cx="130" cy="900" r="62" fill="${cor.vermelho}"/>${usar('punho', 100, 852, 60, 90, '#111', 'style="--corte:#ff2a2a"')}</g>`;
-  s += adesivo(270, 902, 230, 50, '#111', 3, texto('0xQUILOMBO', 385, 937, { fonte: 'Pixel', tam: 24, fill: cor.ciano, ancora: 'middle' }));
-  s += adesivo(560, 896, 200, 54, cor.magenta, -3, texto('AFROFUTURO', 660, 932, { tam: 26, fill: '#111', ancora: 'middle' }));
+  s += `<g filter="url(#sombraP)"><circle cx="130" cy="900" r="62" fill="${cor.vermelho}"/>${usar('alien', 102, 862, 56, 70, '#111', 'style="--corte:#ff2a2a"')}</g>`;
+  s += adesivo(270, 902, 230, 50, '#111', 3, texto('0xDEADBEEF', 385, 937, { fonte: 'Pixel', tam: 24, fill: cor.ciano, ancora: 'middle' }));
+  s += adesivo(560, 896, 200, 54, cor.magenta, -3, texto('NÃO RASTREIE', 660, 931, { tam: 21, fill: '#111', ancora: 'middle' }));
   s += adesivo(938, 280, 190, 44, cor.fosforo, 6, texto('SUDO JUSTIÇA', 1033, 310, { fonte: 'Pixel', tam: 18, fill: '#111', ancora: 'middle' }));
-  s += adesivo(940, 860, 180, 50, '#111', -5, texto('</> É VOZ', 1030, 894, { fonte: 'Pixel', tam: 22, fill: cor.fosforo, ancora: 'middle' }));
+  s += adesivo(940, 860, 180, 50, '#111', -5, texto('</> ONLINE', 1030, 894, { fonte: 'Pixel', tam: 20, fill: cor.fosforo, ancora: 'middle' }));
   s += adesivo(700, 176, 210, 40, cor.ciano, 3, texto('ROOT ≠ CRIME', 805, 204, { fonte: 'Pixel', tam: 18, fill: '#111', ancora: 'middle' }));
-  s += `<g filter="url(#tinta)">${usar('coroa', 330, 160, 70, 50, cor.ciano)}${texto('AYO', 790, 985, { fonte: 'Marker', tam: 40, fill: cor.fosforo, rot: -6 })}${usar('estrela', 40, 720, 34, 34, cor.magenta)}</g>`;
+  s += `<g filter="url(#tinta)">${usar('planeta', 330, 158, 70, 50, cor.ciano, 'style="--corte:#4a2f1c"')}${texto('AYO', 790, 985, { fonte: 'Marker', tam: 40, fill: cor.fosforo, rot: -6 })}${usar('estrela', 40, 720, 34, 34, cor.magenta)}</g>`;
   s += fita(30, 640, 70, -70) + fita(860, 180, 60, 30);
   s += arranhoes(r, w, h, 60);
   s += `</g>`;
@@ -355,7 +358,7 @@ export function mesa() {
   s += `<g transform="rotate(-9 270 790)" filter="url(#sombra)">${tec}</g>`;
   // disquetes
   const disquete = (x, y, rot, fill, rotulo) => `<g transform="rotate(${rot} ${x + 90} ${y + 90})" filter="url(#sombra)"><rect x="${x}" y="${y}" width="180" height="180" rx="6" fill="${fill}"/><rect x="${x + 44}" y="${y}" width="92" height="58" fill="#a9aba8"/><rect x="${x + 100}" y="${y + 8}" width="22" height="42" fill="${fill}"/><rect x="${x + 22}" y="${y + 84}" width="136" height="88" fill="#e6e0cc"/>${texto(rotulo, x + 90, y + 132, { fonte: 'Marker', tam: 20, fill: '#1a1a1a', ancora: 'middle' })}</g>`;
-  s += disquete(110, 230, -12, '#1d1d1d', 'MIXTAPE 98') + disquete(220, 300, 9, '#7a1414', 'KERNEL') + disquete(70, 400, -3, '#173a52', 'BACKUP');
+  s += disquete(110, 230, -12, '#1d1d1d', 'DRIVERS 98') + disquete(220, 300, 9, '#7a1414', 'KERNEL') + disquete(70, 400, -3, '#173a52', 'BACKUP');
   // CDs riscados
   const cd = (cx, cy, raio) => {
     let c = `<g filter="url(#sombra)"><circle cx="${cx}" cy="${cy}" r="${raio}" fill="#b9bab6"/>`;
