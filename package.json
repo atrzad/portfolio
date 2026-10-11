@@ -8,8 +8,9 @@
     "check": "node --check server.mjs && for f in dist/app.js dist/data.js dist/js/*.js; do node --check $f; done",
     "test": "node scripts/check.mjs",
     "seo": "node scripts/build-seo.mjs",
-    "arte": "node scripts/arte.mjs",
-    "qa": "node scripts/qa.mjs"
+    "arte": "node scripts/arte.mjs && node scripts/versionar.mjs",
+    "qa": "node scripts/qa.mjs",
+    "versao": "node scripts/versionar.mjs"
   },
   "engines": {
     "node": ">=22"

@@ -1,9 +1,9 @@
 /* Garagem grunge: anos 2000, hacker, cyberpunk. Paleta dura, sem pastéis nem degradês suaves. */
-@font-face{font-family:Pixel;src:url('./assets/fonts/Silkscreen-Bold.woff2') format('woff2');font-display:swap}
-@font-face{font-family:Term;src:url('./assets/fonts/VT323-Regular.woff2') format('woff2');font-display:swap}
-@font-face{font-family:Stencil;src:url('./assets/fonts/BlackOpsOne-Regular.woff2') format('woff2');font-display:swap}
-@font-face{font-family:Marker;src:url('./assets/fonts/PermanentMarker-Regular.woff2') format('woff2');font-display:swap}
-@font-face{font-family:Gotica;src:url('./assets/fonts/Cinzel.woff2') format('woff2');font-weight:400 900;font-display:swap}
+@font-face{font-family:Pixel;src:url('./assets/fonts/Silkscreen-Bold.woff2?v=711eba70') format('woff2');font-display:swap}
+@font-face{font-family:Term;src:url('./assets/fonts/VT323-Regular.woff2?v=36f01df2') format('woff2');font-display:swap}
+@font-face{font-family:Stencil;src:url('./assets/fonts/BlackOpsOne-Regular.woff2?v=78be92b7') format('woff2');font-display:swap}
+@font-face{font-family:Marker;src:url('./assets/fonts/PermanentMarker-Regular.woff2?v=69ed6d52') format('woff2');font-display:swap}
+@font-face{font-family:Gotica;src:url('./assets/fonts/Cinzel.woff2?v=50b03d55') format('woff2');font-weight:400 900;font-display:swap}
 
 :root{
   color-scheme:dark;
@@ -66,15 +66,15 @@ button{font:inherit;color:inherit;cursor:pointer}
 .hint:hover{color:#ffd29a}
 .seal{position:absolute;top:-30px;right:-18px;width:clamp(58px,9vw,96px);height:auto;transform:rotate(9deg);pointer-events:none}
 .fog{position:absolute;left:0;right:0;bottom:0;height:52%;z-index:2;pointer-events:none;overflow:hidden}
-.fog span{position:absolute;left:0;bottom:0;width:200%;height:100%;background:url('./assets/cena/neblina.webp') repeat-x;background-size:50% 100%;opacity:.34}
+.fog span{position:absolute;left:0;bottom:0;width:200%;height:100%;background:url('./assets/cena/neblina.webp?v=fc682612') repeat-x;background-size:50% 100%;opacity:.34}
 .fog span+span{height:72%;opacity:.2;transform:translateX(-25%)}
-@media (max-width:760px){.fog span{background-image:url('./assets/cena/neblina-m.webp')}}
+@media (max-width:760px){.fog span{background-image:url('./assets/cena/neblina-m.webp?v=7dbcedbd')}}
 
 /* camadas de VHS e CRT */
 .vhs{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
 .vhs::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(180deg,rgba(0,0,0,.38) 0 1px,transparent 1px 3px)}
 .vhs::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 58%,rgba(0,0,0,.72) 100%);box-shadow:inset 0 0 120px #000}
-.vhs-noise{position:absolute;inset:-50%;background:url('./assets/cena/ruido.webp');opacity:.1;mix-blend-mode:screen}
+.vhs-noise{position:absolute;inset:-50%;background:url('./assets/cena/ruido.webp?v=c1fe4862');opacity:.1;mix-blend-mode:screen}
 .vhs-track{position:absolute;left:0;right:0;top:0;height:9vh;background:repeating-linear-gradient(180deg,rgba(255,255,255,.07) 0 2px,transparent 2px 4px);opacity:.7}
 .vhs-blocks i{position:absolute;display:block;opacity:0}
 .vhs-blocks i:nth-child(1){left:12%;top:22%;width:90px;height:14px;background:var(--magenta)}
@@ -237,9 +237,9 @@ button{font:inherit;color:inherit;cursor:pointer}
 /* /etapa:arvore */
 
 /* etapa:mesa ─────────────────────────────────────────── */
-.zine-wall{position:relative;padding:90px 16px;background:#120c09 url('./assets/cena/garagem-m.webp') center/cover;isolation:isolate}
+.zine-wall{position:relative;padding:90px 16px;background:#120c09 url('./assets/cena/garagem-m.webp?v=08c23ac8') center/cover;isolation:isolate}
 .zine-wall::before{content:"";position:absolute;inset:0;z-index:-1;background:rgba(0,0,0,.72)}
-.zine{position:relative;width:min(760px,100%);margin:0 auto;padding:clamp(34px,6vw,64px);background:url('./assets/cena/papel-m.webp') center/100% 100% no-repeat,linear-gradient(var(--papel),var(--papel)) center/calc(100% - 64px) calc(100% - 64px) no-repeat;color:var(--tinta);transform:rotate(-1.2deg);filter:drop-shadow(14px 16px 0 rgba(0,0,0,.7))}
+.zine{position:relative;width:min(760px,100%);margin:0 auto;padding:clamp(34px,6vw,64px);background:url('./assets/cena/papel-m.webp?v=727b3ef5') center/100% 100% no-repeat,linear-gradient(var(--papel),var(--papel)) center/calc(100% - 64px) calc(100% - 64px) no-repeat;color:var(--tinta);transform:rotate(-1.2deg);filter:drop-shadow(14px 16px 0 rgba(0,0,0,.7))}
 .zine .kicker{color:var(--vermelho)}
 .zine h2{margin:0 0 14px;font-family:var(--f-stencil);font-weight:400;font-size:clamp(32px,5vw,52px);line-height:1}
 .zine p{font-size:22px;margin:0 0 12px}
@@ -267,7 +267,7 @@ button{font:inherit;color:inherit;cursor:pointer}
   .desk.is-idle .leds i{animation-play-state:paused}
 }
 @keyframes led{40%{opacity:.15;box-shadow:none}}
-.note{position:relative;width:min(660px,100%);margin:0 auto;padding:clamp(48px,9vw,88px) clamp(28px,8vw,80px) clamp(54px,9vw,90px);color:var(--tinta);background:url('./assets/cena/papel-m.webp') center/100% 100% no-repeat;transform:rotate(-2deg);filter:drop-shadow(16px 20px 0 rgba(0,0,0,.72))}
+.note{position:relative;width:min(660px,100%);margin:0 auto;padding:clamp(48px,9vw,88px) clamp(28px,8vw,80px) clamp(54px,9vw,90px);color:var(--tinta);background:url('./assets/cena/papel-m.webp?v=727b3ef5') center/100% 100% no-repeat;transform:rotate(-2deg);filter:drop-shadow(16px 20px 0 rgba(0,0,0,.72))}
 .note .kicker{color:var(--vermelho);margin-left:clamp(0px,3vw,20px)}
 .note-title{margin:0 0 18px;font-family:var(--f-stencil);font-weight:400;font-size:clamp(52px,11vw,104px);line-height:.9;letter-spacing:.04em}
 .note-links{margin:0;padding:0;list-style:none;display:grid;gap:6px}

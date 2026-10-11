@@ -27,6 +27,7 @@ npm run qa      # Chromium: portão, árvore, modal, teclado, celular, movimento
 ## Editar
 
 - `dist/data.js`: **fonte única dos dados**: habilidades, ligações da árvore, projetos (com `skills` e `motivation`) e contatos. Projeto com `skills: []` fica fora da árvore, numa fileira abaixo da TV.
+- `npm run versao`: carimba `?v=<hash do conteúdo>` nas referências a `./assets/` do HTML e do CSS, para o navegador nunca mostrar uma imagem antiga em cache (o `npm run arte` já roda isso; o `npm test` avisa se faltar).
 - `npm run seo`: regenera, a partir de `data.js`, a lista de projetos oculta visualmente no `index.html` (para leitores de tela e indexação). O `npm test` avisa se ela ficar desatualizada.
 - `dist/index.html`: estrutura das cenas (abertura/portão, garagem com TV, zine "sobre", mesa de contatos).
 - `dist/style.css`: visual; blocos marcados por etapa (`etapa:hero`, `etapa:portao`, `etapa:arvore`, `etapa:mesa`).
