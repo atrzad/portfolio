@@ -18,3 +18,11 @@ Tailscale Funnel ativo na instância principal do Tailscale, porta 8443. Página
 ## Endereço dedicado e contatos
 
 Instância Tailscale em userspace publicada em https://glaydson-porfolio.tail9ff58.ts.net/. Página e catálogo retornaram HTTP 200. Os links de e-mail e LinkedIn foram encontrados no HTML público. Serviços Node, Tailscale dedicado e publicação confirmados ativos. A instância original mantém o Nossos Dias e o acesso secundário na porta 8443. Autenticação usa arquivo privado, sem expor a chave em argumentos ou saídas.
+
+## Garagem grunge — 10/10/2026
+
+- Nova experiência: abertura com ruído VHS e glitch RGB, portão animado pela rolagem com luz de CRT e avanço de câmera, árvore de habilidades em SVG na TV, modal com glitch, zine "sobre" e contatos num papel sobre a mesa.
+- Dados centralizados em `dist/data.js` (19 projetos, 16 na árvore e 3 fora dela: um estudo em Java e dois repositórios vazios). Lista SEO estática gerada a partir dos mesmos dados.
+- `npm run qa` (Chromium): portão se move e a câmera avança; 8 hexágonos e 16 losangos; hover e foco acendem habilidades, ligações tracejadas e caminho até a raiz LINUX; Enter abre o modal, Escape fecha e devolve o foco; captura ampliada com Escape empilhado; projeto privado sem botão de repositório; 19 itens na lista SEO; 4 contatos; 320, 390, 768 e 1440 px sem rolagem horizontal; texto a 200%; movimento reduzido sem portão em rolagem, sem glitch e sem animações rodando; nenhum erro de JavaScript, HTTP ou CSP.
+- Fontes trocadas: Inter removida; entram Silkscreen, VT323, Black Ops One e Permanent Marker (licenças em `dist/assets/fonts/LICENSES.txt`).
+- Imagens das cenas: entre 13 KB e 250 KB cada, com versões menores para celular via `srcset`.

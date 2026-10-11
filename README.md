@@ -1,6 +1,6 @@
 # Portfólio — Glaydson de Oliveira Araujo
 
-Site pessoal em português com catálogo de projetos, filtros por área, detalhes técnicos e capturas ampliáveis. HTML, CSS e JavaScript, servido por Node.js sem dependências de produção.
+Site pessoal em português com estética grunge dos anos 2000, hacker e cyberpunk. A experiência é toda na rolagem: o portão de uma garagem coberto de grafite se abre, a câmera entra, uma TV CRT mostra a árvore de habilidades com os projetos, e os contatos ficam num papel amassado sobre a mesa. HTML, CSS e JavaScript (módulos ES) servidos por Node.js, sem dependências de produção e sem etapa de build.
 
 ## Site publicado
 
@@ -19,19 +19,28 @@ npm start
 Acesso: http://127.0.0.1:4321. O servidor entrega **somente `dist/`**, escuta em loopback e não expõe fontes, diretórios de projetos ou arquivos de configuração.
 
 ```sh
-npm run check
-npm test
+npm run check   # sintaxe
+npm test        # dados, referências locais, lista SEO
+npm run qa      # Chromium: portão, árvore, modal, teclado, celular, movimento reduzido
 ```
 
 ## Editar
 
-- `dist/index.html`: apresentação, formação e contato.
-- `dist/style.css`: visual e comportamento responsivo.
-- `dist/projects.json`: catálogo, tecnologias, links e origem dos prints.
-- `dist/assets/screenshots/`: capturas reais otimizadas em WebP.
-- `dist/app.js`: filtros e diálogos acessíveis.
+- `dist/data.js`: **fonte única dos dados**: habilidades, ligações da árvore, projetos (com `skills` e `motivation`) e contatos. Projeto com `skills: []` fica fora da árvore, numa fileira abaixo da TV.
+- `npm run seo`: regenera, a partir de `data.js`, a lista de projetos oculta visualmente no `index.html` (para leitores de tela e indexação). O `npm test` avisa se ela ficar desatualizada.
+- `dist/index.html`: estrutura das cenas (abertura/portão, garagem com TV, zine "sobre", mesa de contatos).
+- `dist/style.css`: visual; blocos marcados por etapa (`etapa:hero`, `etapa:portao`, `etapa:arvore`, `etapa:mesa`).
+- `dist/js/portao.js`: animação do portão por rolagem e ruído mecânico opcional (Web Audio, desligado por padrão).
+- `dist/js/arvore.js`: árvore SVG, lista para celular e modal com glitch.
+- `dist/js/mesa.js`: inclinação da câmera para a mesa.
+- `scripts/arte/cenas.mjs` e `scripts/arte/simbolos.mjs`: a arte (portão, fachada, garagem, TV, mesa, papel) é gerada em SVG com texturas procedurais e renderizada em WebP por `npm run arte` (usa o Chromium do Playwright). Silhuetas e símbolos são genéricos: sem marcas, logotipos ou pessoas reais.
+- `dist/assets/screenshots/`: capturas reais otimizadas em WebP, mostradas no modal.
 
-O site não depende do GitHub em tempo de execução. Nenhuma chave, conta pessoal, banco de produção ou serviço de analytics é necessário.
+Acessibilidade: tudo funciona por teclado (losangos da árvore são focáveis; Enter abre; Escape fecha e devolve o foco), foco visível em verde-ácido, rótulos ARIA e `prefers-reduced-motion` desliga portão animado, glitch, ruído de VHS e LEDs piscando. Em telas até 760 px a árvore vira lista vertical com os mesmos dados. O CSP do servidor bloqueia estilos inline, então valores dinâmicos são aplicados via CSSOM no JavaScript.
+
+As motivações dos projetos foram escritas a partir do problema que cada um trata; ajuste-as em `data.js` com a sua história real.
+
+Fontes tipográficas (em `dist/assets/fonts/`, licenças em `LICENSES.txt`): Silkscreen, VT323 e Black Ops One (SIL OFL 1.1) e Permanent Marker (Apache 2.0), obtidas do repositório google/fonts.
 
 ## Fontes e escopo
 
