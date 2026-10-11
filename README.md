@@ -1,6 +1,6 @@
 # Portfólio — Glaydson de Oliveira Araujo
 
-Site pessoal em português com estética grunge dos anos 2000, hacker e cyberpunk. A experiência é toda na rolagem: o portão de uma garagem coberto de grafite se abre, a câmera entra, uma TV CRT mostra a árvore de habilidades com os projetos, e os contatos ficam num papel amassado sobre a mesa. HTML, CSS e JavaScript (módulos ES) servidos por Node.js, sem dependências de produção e sem etapa de build.
+Site pessoal em português com estética grunge dos anos 2000, hacker e cyberpunk. A experiência é toda na rolagem: o portão de uma garagem coberto de grafite se abre, a câmera entra, a tela grande de um terminal mostra a árvore de habilidades com os projetos, e os contatos ficam num papel amassado sobre a mesa. HTML, CSS e JavaScript (módulos ES) servidos por Node.js, sem dependências de produção e sem etapa de build.
 
 ## Site publicado
 
@@ -26,23 +26,23 @@ npm run qa      # Chromium: portão, árvore, modal, teclado, celular, movimento
 
 ## Editar
 
-- `dist/data.js`: **fonte única dos dados**: habilidades, ligações da árvore, projetos (com `skills` e `motivation`) e contatos. Projeto com `skills: []` fica fora da árvore, numa fileira abaixo da TV.
+- `dist/data.js`: **fonte única dos dados**: habilidades, ligações da árvore, projetos (com `skills` e `motivation`) e contatos. Projeto com `skills: []` fica fora da árvore, numa fileira abaixo do terminal.
 - `npm run versao`: carimba `?v=<hash do conteúdo>` nas referências a `./assets/` do HTML e do CSS, para o navegador nunca mostrar uma imagem antiga em cache (o `npm run arte` já roda isso; o `npm test` avisa se faltar).
 - `npm run seo`: regenera, a partir de `data.js`, a lista de projetos oculta visualmente no `index.html` (para leitores de tela e indexação). O `npm test` avisa se ela ficar desatualizada.
-- `dist/index.html`: estrutura das cenas (abertura/portão, garagem com TV, zine "sobre", mesa de contatos).
+- `dist/index.html`: estrutura das cenas (abertura/portão, garagem com terminal, zine "sobre", mesa de contatos).
 - `dist/style.css`: visual; blocos marcados por etapa (`etapa:hero`, `etapa:portao`, `etapa:arvore`, `etapa:mesa`).
 - `dist/js/portao.js`: animação do portão por rolagem, faixas de cinema na travessia e neblina se dissipando.
-- `dist/js/som.js`: som opcional (Web Audio, desligado por padrão): ruído mecânico do portão e chiado de rádio quando a TV perde o sinal.
+- `dist/js/som.js`: som opcional (Web Audio, desligado por padrão): ruído mecânico do portão e chiado de rádio quando o terminal perde o sinal.
 - `dist/js/arvore.js`: árvore SVG (trilhas de PCB, graticula de osciloscópio, sincronia na tela), lista para celular e modal com glitch.
 - `dist/js/mesa.js`: inclinação da câmera para a mesa e aviso dourado "SINAL ACESO" (uma vez).
-- `scripts/arte/cenas.mjs` e `scripts/arte/simbolos.mjs`: a arte (portão, fachada, garagem, TV, mesa, papel, neblina e selo) é gerada em SVG com texturas procedurais e renderizada em WebP por `npm run arte` (usa o Chromium do Playwright). Silhuetas e símbolos são genéricos: sem marcas, logotipos ou pessoas reais.
+- `scripts/arte/cenas.mjs` e `scripts/arte/simbolos.mjs`: a arte (portão, fachada, garagem, terminal, mesa, papel, neblina e selo) é desenhada em SVG com texturas procedurais e renderizada em **pixel art** por `npm run arte`: o Chromium do Playwright renderiza o SVG, a imagem é reduzida para uma grade de 640 px (a resolução nativa de Blasphemous) e mapeada para uma paleta fixa, sem anti-aliasing; a neblina usa transparência pontilhada. No site, as imagens são ampliadas com `image-rendering: pixelated`, nítidas até no zoom do portão. Silhuetas e símbolos são genéricos: sem marcas, logotipos ou pessoas reais.
 - `dist/assets/screenshots/`: capturas reais otimizadas em WebP, mostradas no modal.
 
 Acessibilidade: tudo funciona por teclado (losangos da árvore são focáveis; Enter abre; Escape fecha e devolve o foco), foco visível em verde-ácido, rótulos ARIA e `prefers-reduced-motion` desliga portão animado, glitch, ruído de VHS e LEDs piscando. Em telas até 760 px a árvore vira lista vertical com os mesmos dados. O CSP do servidor bloqueia estilos inline, então valores dinâmicos são aplicados via CSSOM no JavaScript.
 
 As motivações dos projetos foram escritas a partir do problema que cada um trata; ajuste-as em `data.js` com a sua história real.
 
-Fontes tipográficas (em `dist/assets/fonts/`, licenças em `LICENSES.txt`): Silkscreen, VT323, Black Ops One e Cinzel (SIL OFL 1.1) e Permanent Marker (Apache 2.0), obtidas do repositório google/fonts.
+Fontes tipográficas (em `dist/assets/fonts/`, licenças em `LICENSES.txt`), todas do repositório google/fonts: no site, só fontes de pixel: Silkscreen, VT323, Jersey 15 (títulos) e Jacquard 24 (gótica, nas mensagens dos soulslike), todas SIL OFL 1.1. Black Ops One, Cinzel (SIL OFL 1.1) e Permanent Marker (Apache 2.0) ficam só para o gerador de arte.
 
 ## Referências sutis
 
@@ -51,9 +51,9 @@ A estética é cyberpunk e meio sci-fi, com acenos discretos ao que inspira o au
 | Referência | Onde aparece |
 |---|---|
 | Soulslike / FromSoftware | dica do início como mensagem laranja no chão ("experimente rolar"); aviso dourado "SINAL ACESO" ao chegar no contato; motivação dos projetos como inscrição em serifa romana dourada |
-| Hollow Knight, Blasphemous | tom de lore nas inscrições e no rodapé ("toda garagem guarda um reino esquecido"); vermelho-carmim e dourado como acentos |
-| Silent Hill | neblina baixa no portão, ferrugem e chiado de rádio quando a TV perde o sinal (com som ligado) |
-| Samurai Jack, Vagabond, Vinland Saga | faixas de cinema na travessia do portão; ronin de chapéu de palha no grafite; selo de tinta "G A"; adesivo de drakkar "RUMO A OESTE" na TV |
+| Hollow Knight, Blasphemous | tom de lore nas inscrições e no rodapé ("toda garagem guarda um reino esquecido"); vermelho-carmim e dourado como acentos; toda a arte em pixel art na resolução de Blasphemous, com fonte gótica em pixel |
+| Silent Hill | neblina baixa no portão, ferrugem e chiado de rádio quando o terminal perde o sinal (com som ligado) |
+| Samurai Jack, Vagabond, Vinland Saga | faixas de cinema na travessia do portão; ronin de chapéu de palha no grafite; selo de tinta "G A"; adesivo de drakkar "RUMO A OESTE" no terminal |
 | BLAME! | cartaz MANAUS 2099 com megaestrutura sem fim e uma figura minúscula |
 | Godzilla | cartaz KAIJU NA ORLA |
 | Evangelion | nós hexagonais da árvore; "SINC." na tela (quanto das habilidades o projeto usa); adesivo "SINC. 400%" |

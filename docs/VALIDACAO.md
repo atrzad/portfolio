@@ -32,3 +32,9 @@ Instância Tailscale em userspace publicada em https://glaydson-porfolio.tail9ff
 - Removidos os símbolos de representatividade preta e os elementos de hip-hop da arte; entram motivos cyberpunk/sci-fi e referências sutis (tabela no README).
 - `npm run qa` ampliado: dica do início com nome acessível, botão de som alterna, faixas de cinema entram na travessia, tela mostra "SINC. 62,5%" ao passar no Sistema Financeiro, graticula presente, aviso "SINAL ACESO" acende ao chegar no contato e fica oculto com movimento reduzido. Tudo passou em 320, 390, 768 e 1440 px, sem erros de JavaScript, HTTP ou CSP.
 - Nova fonte: Cinzel (SIL OFL 1.1). Novas imagens: neblina (ladrilho horizontal sem emenda) e selo de tinta.
+
+## Terminal e pixel art — 11/10/2026
+
+- A TV deu lugar a um terminal grande (tela de 88,5% × 76,9% da moldura), com prompt no topo, árvore em viewBox 1400 × 700 e barra de status com a sincronia. Rótulos que sairiam da tela são movidos para baixo do losango depois que a fonte carrega.
+- Todas as cenas passaram a ser pixel art (640 px, paleta fixa de 60 cores, transparência binária; neblina pontilhada). Imagens ampliadas com `image-rendering: pixelated`; conferido que o zoom do portão continua nítido.
+- `npm run qa` passou com as novas checagens (moldura do terminal e portão com `image-rendering: pixelated`), em 320, 390, 768 e 1440 px, com movimento reduzido e sem erros de JavaScript, HTTP ou CSP.

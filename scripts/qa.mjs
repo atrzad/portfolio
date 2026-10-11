@@ -38,7 +38,7 @@ try {
   assert.ok(escala > 3, 'câmera não avançou: escala ' + escala);
 
   // árvore
-  await page.locator('#tv').scrollIntoViewIfNeeded();
+  await page.locator('#terminal').scrollIntoViewIfNeeded();
   assert.equal(await page.locator('#skill-tree .skill').count(), 8);
   assert.equal(await page.locator('#skill-tree .proj').count(), naArvore.length);
   assert.equal(await page.locator('#offtree-list button').count(), projects.length - naArvore.length);
@@ -49,6 +49,8 @@ try {
   assert.ok(await page.locator('#skill-tree .edge-skill.on').count() >= 3, 'caminho de habilidades não acendeu');
   assert.ok((await page.locator('#osd-live').textContent()).includes('SINC. 62,5%'), 'tela sem a sincronia do projeto');
   assert.ok(await page.locator('#skill-tree .graticula line').count() > 50, 'graticula do osciloscópio ausente');
+  assert.equal(await page.locator('.term-frame').evaluate(i => getComputedStyle(i).imageRendering), 'pixelated', 'moldura do terminal sem pixel art');
+  assert.equal(await page.locator('#door').evaluate(i => getComputedStyle(i).imageRendering), 'pixelated', 'portão sem pixel art');
   await page.waitForTimeout(450);
   await page.mouse.move(5, 300);
   assert.equal(await page.locator('#skill-tree.lit').count(), 0, 'árvore não apagou ao sair');
@@ -123,7 +125,7 @@ try {
   assert.equal(await r.locator('#door').evaluate(d => getComputedStyle(d).transform), 'none');
   await r.locator('.proj[data-project="rest"] .dia').hover();
   await r.locator('.proj[data-project="rest"] .dia').click();
-  assert.equal(await r.locator('#tv.glitching').count(), 0, 'glitch da TV com movimento reduzido');
+  assert.equal(await r.locator('#terminal.glitching').count(), 0, 'glitch da TV com movimento reduzido');
   const animacoes = await r.evaluate(() => document.getAnimations().filter(a => a.playState === 'running').length);
   assert.equal(animacoes, 0, 'animações rodando com movimento reduzido');
   assert.equal(await r.locator('#banner').evaluate(b => getComputedStyle(b).display), 'none', 'aviso dourado com movimento reduzido');

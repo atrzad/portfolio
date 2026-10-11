@@ -1,4 +1,4 @@
-// Árvore de habilidades na tela da TV (SVG), lista vertical no celular e modal de projeto com glitch.
+// Árvore de habilidades na tela do terminal (SVG), lista vertical no celular e modal de projeto com glitch.
 // Ligações entre habilidades são trilhas de PCB (reto + 45°, com via); as dos projetos ficam retas e
 // tracejadas, como conexões ainda não roteadas. Ao fundo, a graticula de um osciloscópio.
 // Tudo é desenhado uma vez; hover/foco só trocam classes nos elementos envolvidos.
@@ -11,7 +11,7 @@ const rotulo = Object.fromEntries(skills.map(s => [s.id, s.label]));
 const porId = Object.fromEntries(projects.map(p => [p.id, p]));
 const categoria = { Web: 'WEB & FULL-STACK', Desktop: 'DESKTOP & MOBILE', Backend: 'APIS & AUTOMAÇÃO' };
 
-const CENTRO = { x: 500, y: 385 };
+const CENTRO = { x: 700, y: 350 };
 const RAIZ = 'linux';
 const ANEL = ['infra', 'servidor', 'fullstack', 'python', 'ml', 'c', 'automacao'];
 
@@ -19,7 +19,7 @@ function layout() {
   const pos = { [RAIZ]: { ...CENTRO } };
   ANEL.forEach((id, i) => {
     const a = -Math.PI / 2 + i * 2 * Math.PI / ANEL.length;
-    pos[id] = { x: CENTRO.x + Math.cos(a) * 215, y: CENTRO.y + Math.sin(a) * 168 };
+    pos[id] = { x: Math.round(CENTRO.x + Math.cos(a) * 300), y: Math.round(CENTRO.y + Math.sin(a) * 190) };
   });
   // Cada projeto vai para a borda, perto do "centro de massa" das suas habilidades, igualmente espaçados.
   const lista = projects.filter(p => p.skills.length).map(p => {
@@ -37,7 +37,7 @@ function layout() {
   }
   for (const [i, item] of lista.entries()) {
     const a = melhor + i * passo;
-    pos[item.p.id] = { x: CENTRO.x + Math.cos(a) * 340, y: CENTRO.y + Math.sin(a) * 300, a };
+    pos[item.p.id] = { x: Math.round(CENTRO.x + Math.cos(a) * 505), y: Math.round(CENTRO.y + Math.sin(a) * 292), a };
   }
   return { pos, naArvore: lista.map(i => i.p) };
 }
@@ -67,13 +67,14 @@ function trilha(a, b) {
   return { d: `M${a.x.toFixed(1)} ${a.y.toFixed(1)} L${dobra.x.toFixed(1)} ${dobra.y.toFixed(1)} L${b.x.toFixed(1)} ${b.y.toFixed(1)}`, dobra };
 }
 
-// Graticula de osciloscópio: 10 × 8 divisões, eixos centrais com subdivisões.
+// Graticula de osciloscópio: divisões de 100 unidades, eixos centrais com subdivisões.
 function graticula() {
   let g = '';
-  for (let i = 1; i < 10; i++) g += `<line x1="${i * 100}" y1="0" x2="${i * 100}" y2="770"${i === 5 ? ' class="eixo"' : ''}/>`;
-  for (let j = 1; j < 8; j++) { const y = (j * 770 / 8).toFixed(1); g += `<line x1="0" y1="${y}" x2="1000" y2="${y}"${j === 4 ? ' class="eixo"' : ''}/>`; }
-  for (let i = 0; i <= 50; i++) g += `<line class="tick" x1="${i * 20}" y1="379" x2="${i * 20}" y2="391"/>`;
-  for (let j = 0; j <= 40; j++) { const y = (j * 770 / 40).toFixed(1); g += `<line class="tick" x1="494" y1="${y}" x2="506" y2="${y}"/>`; }
+  for (let i = 1; i < 14; i++) g += `<line x1="${i * 100}" y1="0" x2="${i * 100}" y2="700"${i === 7 ? ' class="eixo"' : ''}/>`;
+  for (let j = 1; j < 7; j++) g += `<line x1="0" y1="${j * 100}" x2="1400" y2="${j * 100}"/>`;
+  g += `<line class="eixo" x1="0" y1="350" x2="1400" y2="350"/>`;
+  for (let i = 0; i <= 70; i++) g += `<line class="tick" x1="${i * 20}" y1="344" x2="${i * 20}" y2="356"/>`;
+  for (let j = 0; j <= 35; j++) g += `<line class="tick" x1="694" y1="${j * 20}" x2="706" y2="${j * 20}"/>`;
   return `<g class="graticula">${g}</g>`;
 }
 
@@ -83,7 +84,7 @@ function hexagono(r) {
 
 export function iniciarArvore({ reduz }) {
   const svg = document.querySelector('#skill-tree');
-  const tv = document.querySelector('#tv');
+  const tela = document.querySelector('#terminal');
   const listaEl = document.querySelector('#tree-list');
   const foraEl = document.querySelector('#offtree-list');
   const dialogo = document.querySelector('#project-dialog');
@@ -107,7 +108,18 @@ export function iniciarArvore({ reduz }) {
       <circle class="hit" r="24"/><rect class="ring" x="-17" y="-17" width="34" height="34" transform="rotate(45)"/><rect class="dia" x="-11" y="-11" width="22" height="22" transform="rotate(45)"/>
       <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${ancora}">${esc(p.short)}</text></g>`;
   }).join('');
+  // Rótulo que sairia da tela vai para baixo do losango (medido depois que a fonte carrega).
+  const ajustarRotulos = () => {
+    for (const t of svg.querySelectorAll('.proj text')) {
+      const caixa = t.getBBox();
+      if (!caixa.width) continue;
+      const m = t.parentNode.transform.baseVal.consolidate().matrix;
+      if (m.e + caixa.x < 6 || m.e + caixa.x + caixa.width > 1394) { t.setAttribute('text-anchor', 'middle'); t.setAttribute('x', '0'); t.setAttribute('y', '36'); }
+    }
+  };
   svg.innerHTML = `${graticula()}<g>${linhasSkill}</g><g>${linhasProj}</g><g>${nosSkill}</g><g>${nosProj}</g>`;
+
+  document.fonts.ready.then(ajustarRotulos);
 
   listaEl.innerHTML = naArvore.map(p => `<li><button class="tree-item" type="button" data-project="${p.id}"><strong>${esc(p.name)}</strong><span>${p.skills.map(s => esc(rotulo[s])).join(' · ')}</span></button></li>`).join('');
   foraEl.innerHTML = projects.filter(p => !p.skills.length).map(p => `<button class="term-btn" type="button" data-project="${p.id}">[ ${esc(p.name)} ]</button>`).join('');
@@ -143,17 +155,17 @@ export function iniciarArvore({ reduz }) {
     osd.textContent = `● ${n} PROJETOS`;
   }
 
-  // ── glitch de sinal na TV, limitado a hover/abertura e com intervalo mínimo
+  // ── glitch de sinal no terminal, limitado a hover/abertura e com intervalo mínimo
   let ultimoGlitch = 0;
   function glitch() {
-    if (reduz.matches || tv.classList.contains('glitching')) return;
+    if (reduz.matches || tela.classList.contains('glitching')) return;
     const agora = performance.now();
     if (agora - ultimoGlitch < 280) return;
     ultimoGlitch = agora;
-    tv.classList.add('glitching');
+    tela.classList.add('glitching');
     chiado();
   }
-  tv.addEventListener('animationend', e => { if (e.animationName === 'sinal') tv.classList.remove('glitching'); });
+  tela.addEventListener('animationend', e => { if (e.animationName === 'sinal') tela.classList.remove('glitching'); });
 
   let atual = null;
   svg.addEventListener('pointerover', e => {

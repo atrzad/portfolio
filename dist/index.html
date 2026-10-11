@@ -24,15 +24,15 @@
   <div class="gate-stage" id="gate-stage">
     <div class="scene" id="scene">
       <div class="plane plane-back" id="plane-back" aria-hidden="true">
-        <img src="./assets/cena/garagem-m.webp?v=08c23ac8" srcset="./assets/cena/garagem-m.webp?v=08c23ac8 960w, ./assets/cena/garagem.webp?v=7e3a9b52 1920w" sizes="max(100vw, 160vh)" alt="" width="1920" height="1200" decoding="async">
+        <img class="pixel" src="./assets/cena/garagem.webp?v=834d54fc" alt="" width="640" height="400" decoding="async">
         <span class="room-glow"></span>
       </div>
       <div class="plane plane-front" id="plane-front" aria-hidden="true">
         <div class="opening">
           <span class="leak" id="leak"></span>
-          <img class="door" id="door" src="./assets/cena/portao-m.webp?v=1beff77c" srcset="./assets/cena/portao-m.webp?v=1beff77c 768w, ./assets/cena/portao.webp?v=d616a287 1536w" sizes="max(80vw, 128vh)" alt="" width="1536" height="1032" fetchpriority="high">
+          <img class="door pixel" id="door" src="./assets/cena/portao.webp?v=9631a6ee" alt="" width="512" height="344" fetchpriority="high">
         </div>
-        <img class="facade" src="./assets/cena/fachada-m.webp?v=a9d823f9" srcset="./assets/cena/fachada-m.webp?v=a9d823f9 960w, ./assets/cena/fachada.webp?v=e1f734ed 1920w" sizes="max(100vw, 160vh)" alt="" width="1920" height="1200">
+        <img class="facade pixel" src="./assets/cena/fachada.webp?v=48be7117" alt="" width="640" height="400">
       </div>
     </div>
     <div class="fog" id="fog" aria-hidden="true"><span></span><span></span></div>
@@ -40,7 +40,7 @@
     <div class="bars" aria-hidden="true"><i id="bar-top"></i><i id="bar-bottom"></i></div>
 <!-- /etapa:portao -->
     <div class="hero-copy" id="hero-copy">
-      <img class="seal" src="./assets/cena/selo-m.webp?v=83496436" srcset="./assets/cena/selo-m.webp?v=83496436 132w, ./assets/cena/selo.webp?v=baa44c74 264w" sizes="96px" alt="" width="264" height="264">
+      <img class="seal pixel" src="./assets/cena/selo.webp?v=2068288d" alt="" width="70" height="70">
       <p class="boot" aria-hidden="true"><span class="rec">● REC</span> GARAGEM_03 :: VCC 5V :: SINAL OK</p>
       <h1 id="hero-title" class="name"><span class="glitch" data-text="GLAYDSON">GLAYDSON</span> <span class="glitch" data-text="DE OLIVEIRA">DE OLIVEIRA</span></h1>
       <p class="hero-desc">Desenvolvedor full-stack. Python, TypeScript, C, Linux, automação, ML. Construindo sistemas, ferramentas e ideias.<span class="cursor" aria-hidden="true"></span></p>
@@ -57,21 +57,22 @@
 
 <!-- etapa:arvore -->
 <section class="garage" id="projetos" aria-labelledby="tree-title">
-  <div class="garage-bg" aria-hidden="true"><img src="./assets/cena/garagem-m.webp?v=08c23ac8" srcset="./assets/cena/garagem-m.webp?v=08c23ac8 960w, ./assets/cena/garagem.webp?v=7e3a9b52 1920w" sizes="100vw" alt="" width="1920" height="1200" loading="lazy" decoding="async"></div>
+  <div class="garage-bg" aria-hidden="true"><img class="pixel" src="./assets/cena/garagem.webp?v=834d54fc" alt="" width="640" height="400" loading="lazy" decoding="async"></div>
   <header class="section-head">
     <p class="kicker">// 01 — DENTRO DA GARAGEM</p>
     <h2 id="tree-title">Árvore de habilidades</h2>
     <p class="help" id="tree-help">Passe o mouse ou navegue com Tab pelos losangos vermelhos para acender as habilidades de cada projeto. Enter abre os detalhes.</p>
   </header>
-  <div class="tv" id="tv">
-    <img class="tv-frame" src="./assets/cena/tv-m.webp?v=c0db8875" srcset="./assets/cena/tv-m.webp?v=c0db8875 720w, ./assets/cena/tv.webp?v=8b291e6e 1440w" sizes="min(1100px, 94vw)" alt="" width="1440" height="1248" loading="lazy" decoding="async">
-    <div class="tv-screen">
-      <div class="tv-content" id="tv-content">
-        <p class="osd" aria-hidden="true"><span>CH 03</span><span>ÁRVORE.SYS</span><span class="osd-live" id="osd-live">● AO VIVO</span></p>
-        <svg class="tree" id="skill-tree" viewBox="0 0 1000 770" role="group" aria-labelledby="tree-title" aria-describedby="tree-help"></svg>
+  <div class="term" id="terminal">
+    <img class="term-frame pixel" src="./assets/cena/terminal.webp?v=71777847" alt="" width="640" height="416" loading="lazy" decoding="async">
+    <div class="term-screen">
+      <div class="term-content">
+        <p class="term-bar" aria-hidden="true"><span><b>ayo@garagem</b>:~$ ./arvore --habilidades<i class="cursor"></i></span><span>TTY 03</span></p>
+        <svg class="tree" id="skill-tree" viewBox="0 0 1400 700" role="group" aria-labelledby="tree-title" aria-describedby="tree-help"></svg>
         <ul class="tree-list" id="tree-list" aria-label="Projetos e habilidades usadas"></ul>
+        <p class="term-status" aria-hidden="true"><span>[garagem] 0:arvore* 1:projetos 2:contato</span><span class="osd-live" id="osd-live">● AO VIVO</span></p>
       </div>
-      <div class="tv-fx" aria-hidden="true"><span class="roll"></span></div>
+      <div class="term-fx" aria-hidden="true"><span class="roll"></span></div>
     </div>
   </div>
   <div class="offtree">
@@ -129,12 +130,12 @@
 
 <!-- etapa:mesa -->
 <section class="desk" id="contato" aria-labelledby="contact-title">
-  <div class="desk-bg" id="desk-bg" aria-hidden="true"><img src="./assets/cena/mesa-m.webp?v=1885ef50" srcset="./assets/cena/mesa-m.webp?v=1885ef50 960w, ./assets/cena/mesa.webp?v=9cba66fc 1920w" sizes="max(100vw, 160vh)" alt="" width="1920" height="1200" loading="lazy" decoding="async"></div>
+  <div class="desk-bg" id="desk-bg" aria-hidden="true"><img class="pixel" src="./assets/cena/mesa.webp?v=83bdef30" alt="" width="640" height="400" loading="lazy" decoding="async"></div>
   <p class="banner" id="banner" aria-hidden="true">SINAL ACESO</p>
   <div class="leds" aria-hidden="true"><i class="g"></i><i class="r"></i><i class="g"></i><i class="g"></i><i class="r"></i><i class="g"></i><i class="r"></i></div>
   <article class="note" id="note">
     <span class="tape tape-a" aria-hidden="true"></span><span class="tape tape-b" aria-hidden="true"></span>
-    <span class="stamp stamp-a" aria-hidden="true">CONFIDENCIAL</span><img class="seal seal-note" src="./assets/cena/selo-m.webp?v=83496436" alt="" width="132" height="132" loading="lazy">
+    <span class="stamp stamp-a" aria-hidden="true">CONFIDENCIAL</span><img class="seal seal-note pixel" src="./assets/cena/selo.webp?v=2068288d" alt="" width="70" height="70" loading="lazy">
     <p class="kicker">// 03 — MANDE UM SINAL</p>
     <h2 id="contact-title" class="note-title">CONTATO</h2>
     <ul class="note-links" id="contact-links">

@@ -274,14 +274,14 @@ export function garagem() {
   s += `<rect y="860" width="${w}" height="140" fill="#1b1b1a"/><rect y="860" width="${w}" height="6" fill="#2d2c2a"/><rect y="860" width="${w}" height="140" filter="url(#ferrugem2)" opacity=".6"/>`;
   // brilho do CRT na parede (faixas duras, sem degradê suave)
   for (const [raio, op] of [[420, .035], [330, .045], [250, .055], [180, .065]]) s += `<ellipse cx="780" cy="540" rx="${raio * 1.3}" ry="${raio}" fill="${cor.fosforo}" opacity="${op}"/>`;
-  // TV pequena acesa no centro (a luz de CRT que vaza pelo portão); na seção da árvore a TV real fica por cima
+  // monitor de terminal aceso no centro (a luz de CRT que vaza pelo portão); na seção da árvore o terminal grande fica por cima
   s += `<g filter="url(#sombra)"><rect x="630" y="650" width="340" height="210" fill="#4a3220"/><rect x="630" y="650" width="340" height="210" filter="url(#madeira)"/>
     <path d="M630 720 H970 M630 790 H970 M700 650 V860 M900 650 V860" stroke="#2a1b10" stroke-width="6"/>
-    <rect x="660" y="430" width="280" height="220" rx="16" fill="#2b2522"/><rect x="684" y="452" width="190" height="176" rx="18" fill="${cor.fosforo}" opacity=".85"/>
-    <rect x="890" y="470" width="34" height="34" rx="17" fill="#141414"/><rect x="890" y="530" width="34" height="34" rx="17" fill="#141414"/>
-    <path d="M800 430 L740 360 M800 430 L870 370" stroke="#8a8a82" stroke-width="5"/></g>`;
-  for (let y = 456; y < 628; y += 4) s += `<rect x="684" y="${y}" width="190" height="1.5" fill="#052a10" opacity=".55"/>`;
-  s += `<g stroke="#052a10" stroke-width="2.5" fill="none" opacity=".7"><path d="M779 540 L730 500 M779 540 L830 498 M779 540 L779 600 M730 500 L710 560"/></g>`;
+    <rect x="650" y="420" width="300" height="214" rx="8" fill="#2c2b29"/><rect x="672" y="440" width="256" height="166" fill="${cor.fosforo}" opacity=".85"/>
+    <rect x="770" y="612" width="60" height="10" fill="#111"/><circle cx="930" cy="620" r="4" fill="${cor.fosforo}"/>
+    <rect x="690" y="636" width="220" height="14" fill="#1b1b1b"/><path d="M700 643 H900" stroke="#555" stroke-width="3" stroke-dasharray="8 4"/></g>`;
+  for (let y = 444; y < 604; y += 4) s += `<rect x="672" y="${y}" width="256" height="1.5" fill="#052a10" opacity=".55"/>`;
+  s += `<g stroke="#052a10" stroke-width="2.5" fill="none" opacity=".75"><path d="M800 525 L745 488 M800 525 L855 486 M800 525 L800 585 M745 488 L725 548 M855 486 L880 540"/><path d="M684 456 H760" stroke-width="3"/></g>`;
   // cartazes
   s += papelRasgado(r, 90, 120, 240, 330, '#0e0e0e', -3,
     `<rect x="100" y="130" width="220" height="310" fill="none" stroke="${cor.magenta}" stroke-width="6"/>
@@ -338,46 +338,37 @@ export function garagem() {
   return { nome: 'garagem', w, h, alfa: false, svg: svg(w, h, s) };
 }
 
-// ───────────────────────── Moldura da TV CRT (tela transparente) ─────────────────────────
-export const tela = { x: 90, y: 240, w: 780, h: 600, raio: 46 };
-export function tv() {
-  const w = 1200, h = 1040, r = sorteio(1999);
-  const furo = `M0 0 H${w} V${h} H0 Z M${tela.x + tela.raio} ${tela.y} H${tela.x + tela.w - tela.raio} Q${tela.x + tela.w} ${tela.y} ${tela.x + tela.w} ${tela.y + tela.raio} V${tela.y + tela.h - tela.raio} Q${tela.x + tela.w} ${tela.y + tela.h} ${tela.x + tela.w - tela.raio} ${tela.y + tela.h} H${tela.x + tela.raio} Q${tela.x} ${tela.y + tela.h} ${tela.x} ${tela.y + tela.h - tela.raio} V${tela.y + tela.raio} Q${tela.x} ${tela.y} ${tela.x + tela.raio} ${tela.y} Z`;
-  let s = `<defs><clipPath id="corpo"><path d="${furo}" clip-rule="evenodd"/></clipPath></defs>`;
-  // antena
-  s += `<g stroke="#9a9a92" stroke-width="7" stroke-linecap="round"><path d="M600 150 L410 18"/><path d="M600 150 L820 28"/></g><circle cx="410" cy="18" r="10" fill="#bdbdb4"/><circle cx="820" cy="28" r="10" fill="#bdbdb4"/><path d="M520 152 Q600 92 680 152 Z" fill="#202020"/>`;
-  s += `<g clip-path="url(#corpo)">`;
-  s += `<rect x="20" y="150" width="1160" height="840" rx="44" fill="#4a2f1c"/><rect x="20" y="150" width="1160" height="840" rx="44" filter="url(#madeira)"/>`;
-  s += `<rect x="20" y="150" width="1160" height="12" rx="6" fill="#6b4529"/>`;
-  s += `<rect x="58" y="200" width="842" height="700" rx="34" fill="#181716"/><rect x="58" y="200" width="842" height="700" rx="34" fill="none" stroke="#2c2a28" stroke-width="6"/>`;
-  s += `<rect x="${tela.x - 10}" y="${tela.y - 10}" width="${tela.w + 20}" height="${tela.h + 20}" rx="${tela.raio + 8}" fill="#070707"/>`;
-  // painel de controle
-  s += `<rect x="920" y="210" width="226" height="720" rx="16" fill="#1e1d1c"/><rect x="934" y="224" width="198" height="44" fill="#0e0e0e"/>`;
-  s += texto('CANAL 03', 1033, 255, { fonte: 'Pixel', tam: 22, fill: cor.fosforo, ancora: 'middle' });
-  for (const [cy, rot] of [[360, 30], [530, -50]]) {
-    s += `<circle cx="1033" cy="${cy}" r="66" fill="#121212"/><circle cx="1033" cy="${cy}" r="52" fill="#2b2a28"/><rect x="1028" y="${cy - 52}" width="10" height="36" fill="#d6d3c4" transform="rotate(${rot} 1033 ${cy})"/>`;
-    for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; s += `<rect x="${(1033 + Math.cos(a) * 78 - 2).toFixed(1)}" y="${(cy + Math.sin(a) * 78 - 2).toFixed(1)}" width="4" height="4" fill="#77756e"/>`; }
-  }
-  s += texto('VHF', 960, 446, { fonte: 'Pixel', tam: 14, fill: '#8d8b84' }) + texto('UHF', 1070, 446, { fonte: 'Pixel', tam: 14, fill: '#8d8b84' });
-  for (let y = 640; y < 900; y += 18) s += `<rect x="950" y="${y}" width="166" height="7" rx="3" fill="#0a0a0a"/>`;
-  s += `<circle cx="1110" cy="612" r="8" fill="${cor.vermelho}"/>`;
-  // adesivos hacktivistas e de representatividade
+// ───────────────────────── Terminal grande (tela transparente) ─────────────────────────
+// A tela recebe a árvore de habilidades em HTML/SVG; no CSS ela fica em left 5.75%, top 8.077%, 88.5% × 76.923%.
+export const telaTerm = { x: 92, y: 84, w: 1416, h: 800, chanfro: 14 };
+export function terminal() {
+  const w = 1600, h = 1040, r = sorteio(2026), t = telaTerm, c = t.chanfro;
+  const furo = `M0 0 H${w} V${h} H0 Z M${t.x + c} ${t.y} H${t.x + t.w - c} L${t.x + t.w} ${t.y + c} V${t.y + t.h - c} L${t.x + t.w - c} ${t.y + t.h} H${t.x + c} L${t.x} ${t.y + t.h - c} V${t.y + c} Z`;
+  let s = `<defs><clipPath id="corpoT"><path d="${furo}" clip-rule="evenodd"/></clipPath><clipPath id="cascaT"><rect x="16" y="16" width="1568" height="972" rx="30"/></clipPath></defs>`;
+  s += `<g clip-path="url(#corpoT)">`;
+  s += `<rect x="16" y="16" width="1568" height="972" rx="30" fill="#2c2b29"/><rect x="16" y="16" width="1568" height="14" rx="7" fill="#48453f"/><rect x="16" y="944" width="1568" height="44" fill="#1f1e1c"/>`;
+  s += `<rect x="${t.x - 34}" y="${t.y - 34}" width="${t.w + 68}" height="${t.h + 68}" rx="14" fill="#191817"/><rect x="${t.x - 10}" y="${t.y - 10}" width="${t.w + 20}" height="${t.h + 20}" rx="6" fill="#070707"/>`;
+  // queixo: saídas de ar, placa, botões e LED de energia
+  for (let x = 60; x < 300; x += 18) s += `<rect x="${x}" y="932" width="9" height="40" fill="#121110"/>`;
+  s += `<rect x="650" y="928" width="300" height="44" fill="#111"/>` + texto('TTY 03 · GARAGEM', 800, 958, { fonte: 'Pixel', tam: 20, fill: cor.fosforo, ancora: 'middle' });
+  s += `<circle cx="1390" cy="950" r="13" fill="#141414"/><circle cx="1436" cy="950" r="13" fill="#141414"/><rect x="1388" y="938" width="4" height="10" fill="#77756e"/><rect x="1434" y="938" width="4" height="10" fill="#77756e"/>`;
+  s += `<circle cx="1510" cy="950" r="8" fill="${cor.fosforo}"/>` + texto('PWR', 1530, 957, { fonte: 'Pixel', tam: 13, fill: '#8d8b84' });
+  // adesivos hacker
   const adesivo = (x, y, w2, h2, fill, rot, conteudo) => `<g transform="rotate(${rot} ${x + w2 / 2} ${y + h2 / 2})" filter="url(#sombraP)"><rect x="${x}" y="${y}" width="${w2}" height="${h2}" rx="6" fill="${fill}"/>${conteudo}</g>`;
-  s += adesivo(48, 166, 230, 46, '#e9e4d2', -4, texto('SOFTWARE LIVRE', 163, 199, { tam: 26, fill: '#111', ancora: 'middle' }));
-  s += `<g filter="url(#sombraP)"><circle cx="130" cy="900" r="62" fill="${cor.vermelho}"/>${usar('alien', 102, 862, 56, 70, '#111', 'style="--corte:#ff2a2a"')}</g>`;
-  s += adesivo(270, 902, 230, 50, '#111', 3, texto('0xDEADBEEF', 385, 937, { fonte: 'Pixel', tam: 24, fill: cor.ciano, ancora: 'middle' }));
-  s += adesivo(560, 896, 210, 54, cor.magenta, -3, usar('drakkar', 566, 900, 66, 44, '#111', 'style="--corte:#ff2bd6"') + texto('RUMO A OESTE', 704, 930, { fonte: 'Pixel', tam: 13, fill: '#111', ancora: 'middle' }));
-  s += adesivo(938, 280, 190, 44, cor.fosforo, 6, texto('SUDO JUSTIÇA', 1033, 310, { fonte: 'Pixel', tam: 18, fill: '#111', ancora: 'middle' }));
-  s += adesivo(940, 860, 180, 50, '#111', -5, texto('</> ONLINE', 1030, 894, { fonte: 'Pixel', tam: 20, fill: cor.fosforo, ancora: 'middle' }));
-  s += adesivo(700, 176, 210, 40, cor.ciano, 3, texto('ROOT ≠ CRIME', 805, 204, { fonte: 'Pixel', tam: 18, fill: '#111', ancora: 'middle' }));
-  s += `<g filter="url(#tinta)">${usar('planeta', 330, 158, 70, 50, cor.ciano, 'style="--corte:#4a2f1c"')}${texto('AYO', 790, 985, { fonte: 'Marker', tam: 40, fill: cor.fosforo, rot: -6 })}${usar('estrela', 40, 720, 34, 34, cor.magenta)}</g>`;
-  s += fita(30, 640, 70, -70) + fita(860, 180, 60, 30);
-  s += arranhoes(r, w, h, 60);
+  s += adesivo(40, 26, 250, 46, '#e9e4d2', -3, texto('SOFTWARE LIVRE', 165, 59, { tam: 26, fill: '#111', ancora: 'middle' }));
+  s += adesivo(1120, 30, 220, 40, cor.ciano, 3, texto('ROOT ≠ CRIME', 1230, 58, { fonte: 'Pixel', tam: 18, fill: '#111', ancora: 'middle' }));
+  s += adesivo(1360, 24, 200, 44, cor.fosforo, -4, texto('SUDO JUSTIÇA', 1460, 54, { fonte: 'Pixel', tam: 18, fill: '#111', ancora: 'middle' }));
+  s += `<g filter="url(#sombraP)"><circle cx="150" cy="948" r="42" fill="${cor.vermelho}"/>${usar('alien', 128, 917, 44, 55, '#111', 'style="--corte:#ff2a2a"')}</g>`;
+  s += adesivo(330, 922, 230, 50, '#111', 2, texto('0xDEADBEEF', 445, 957, { fonte: 'Pixel', tam: 24, fill: cor.ciano, ancora: 'middle' }));
+  s += adesivo(980, 920, 214, 54, cor.magenta, -3, usar('drakkar', 986, 924, 66, 44, '#111', 'style="--corte:#ff2bd6"') + texto('RUMO A OESTE', 1124, 954, { fonte: 'Pixel', tam: 13, fill: '#111', ancora: 'middle' }));
+  s += adesivo(1210, 926, 160, 46, '#111', -2, texto('</> ONLINE', 1290, 957, { fonte: 'Pixel', tam: 20, fill: cor.fosforo, ancora: 'middle' }));
+  s += `<g filter="url(#tinta)">${usar('planeta', 316, 26, 64, 46, cor.ciano, 'style="--corte:#2c2b29"')}${texto('AYO', 586, 982, { fonte: 'Marker', tam: 34, fill: cor.fosforo, rot: -6 })}${usar('estrela', 24, 500, 30, 30, cor.magenta)}</g>`;
+  s += fita(20, 380, 70, -70) + fita(1500, 110, 60, 30);
+  s += arranhoes(r, w, h, 70);
+  s += `<g clip-path="url(#cascaT)">${grao(w, h, .3)}</g>`;
   s += `</g>`;
-  // pés
-  s += `<rect x="120" y="990" width="90" height="40" fill="#111"/><rect x="990" y="990" width="90" height="40" fill="#111"/>`;
-  s += `<clipPath id="casca"><rect x="20" y="150" width="1160" height="840" rx="44"/></clipPath><g clip-path="url(#corpo)"><g clip-path="url(#casca)">${grao(w, h, .32)}</g></g>`;
-  return { nome: 'tv', w, h, alfa: true, svg: svg(w, h, s) };
+  s += `<rect x="250" y="988" width="220" height="40" fill="#111"/><rect x="1130" y="988" width="220" height="40" fill="#111"/>`;
+  return { nome: 'terminal', w, h, alfa: true, svg: svg(w, h, s) };
 }
 
 // ───────────────────────── Mesa de madeira (fundo dos contatos) ─────────────────────────
@@ -494,8 +485,8 @@ export function papel() {
   for (let y = 150; y < h - 40; y += 46) s += `<rect x="0" y="${y}" width="${w}" height="1.5" fill="#6aa0b8" opacity=".28"/>`;
   s += `<rect x="96" y="0" width="2" height="${h}" fill="${cor.vermelho}" opacity=".35"/>`;
   s += `<circle cx="720" cy="860" r="92" fill="none" stroke="#6b4423" stroke-width="10" opacity=".22"/><circle cx="726" cy="866" r="80" fill="none" stroke="#6b4423" stroke-width="3" opacity=".18"/>`;
-  s += `<rect width="${w}" height="${h}" filter="url(#sujeira)" opacity=".35"/>`;
-  s += grao(w, h, .35);
+  s += `<rect width="${w}" height="${h}" filter="url(#sujeira)" opacity=".1"/>`;
+  s += grao(w, h, .12);
   // bordas encardidas
   s += `<polygon points="${contorno}" fill="none" stroke="#7a6a48" stroke-width="10" opacity=".35"/>`;
   s += `</g>`;
@@ -531,4 +522,4 @@ export function selo() {
   return { nome: 'selo', w, h, alfa: true, svg: svg(w, h, s) };
 }
 
-export const cenas = [portao, fachada, garagem, tv, mesa, papel, neblina, selo];
+export const cenas = [portao, fachada, garagem, terminal, mesa, papel, neblina, selo];

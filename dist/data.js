@@ -464,7 +464,7 @@ export const projects = [
   {
     "id": "monitor",
     "name": "Monitor de Concursos",
-    "short": "Monitor Concursos",
+    "short": "Mon. Concursos",
     "category": "Backend",
     "kind": "Documentação",
     "description": "Automação para consultar concursos e preparar resumos diários.",
