@@ -23,6 +23,7 @@ export function iniciarPortao({ reduz }) {
     porta.style.transform = `translate3d(${tremor.toFixed(2)}px, ${(-abre * 100).toFixed(3)}%, 0)`;
     texto.style.opacity = (1 - limitar((p - .02) / .12)).toFixed(3);
     texto.style.pointerEvents = p > .14 ? 'none' : '';
+    portao.classList.toggle('aberto', abre > .98);
     ruidoPortao(p - anterior, abre > 0 && abre < 1);
     anterior = p;
   }
@@ -31,7 +32,7 @@ export function iniciarPortao({ reduz }) {
 
   function aplicarModo() {
     if (reduz.matches) {
-      portao.classList.remove('is-scrolly');
+      portao.classList.remove('is-scrolly', 'aberto');
       removeEventListener('scroll', agendar);
       removeEventListener('resize', agendar);
       porta.removeAttribute('style');

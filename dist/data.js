@@ -1,22 +1,36 @@
-// Fonte única dos dados do site: habilidades, ligações da árvore, projetos e contatos.
+// Fonte única dos dados do site: áreas e linguagens da árvore, projetos e contatos.
 // Usado pelo navegador (app.js) e pelos scripts (check.mjs, build-seo.mjs).
 
-export const skills = [
-  { id: "linux", label: "LINUX" },
-  { id: "servidor", label: "SERVIDOR" },
-  { id: "infra", label: "INFRA" },
-  { id: "automacao", label: "AUTOMAÇÃO" },
-  { id: "python", label: "PYTHON" },
-  { id: "ml", label: "ML / IA" },
-  { id: "fullstack", label: "FULL-STACK" },
-  { id: "c", label: "C / C++" }
+// Linguagens (conferidas nos repositórios: arquivos locais e estatísticas do GitHub). code: sigla da roda compacta do celular.
+export const languages = [
+  { id: "typescript", label: "TypeScript", code: "TS" },
+  { id: "javascript", label: "JavaScript", code: "JS" },
+  { id: "python", label: "Python", code: "PY" },
+  { id: "csharp", label: "C#", code: "C#" },
+  { id: "c", label: "C", code: "C" },
+  { id: "shell", label: "Shell", code: "SH" },
+  { id: "kotlin", label: "Kotlin", code: "KT" },
+  { id: "java", label: "Java", code: "JV" }
 ];
 
-// Linhas cinzas da árvore (habilidade ↔ habilidade). LINUX é a raiz.
-export const skillLinks = [
-  ["linux", "servidor"], ["linux", "automacao"], ["linux", "c"],
-  ["servidor", "infra"], ["servidor", "fullstack"], ["infra", "automacao"],
-  ["automacao", "python"], ["python", "ml"], ["python", "fullstack"]
+// As três áreas da roda. langs: linguagens que a área usa, na ordem em que aparecem na roda;
+// os projetos de cada área se ligam às linguagens que usam.
+export const areas = [
+  {
+    id: "fullstack", label: "FULL-STACK", name: "Full-stack",
+    short: "Interfaces web em React e APIs em FastAPI, Express e .NET, com banco de dados e tempo real.",
+    langs: ["csharp", "typescript", "python", "javascript"]
+  },
+  {
+    id: "automacao", label: "AUTOMAÇÃO", name: "Automação",
+    short: "Scripts, serviços e ferramentas nativas para Linux que tiram o trabalho repetido do dia a dia.",
+    langs: ["c", "python", "shell", "javascript"]
+  },
+  {
+    id: "android", label: "ANDROID", name: "Android",
+    short: "App nativo em Kotlin, irmão do app para Linux, com a mesma biblioteca de músicas.",
+    langs: ["kotlin"]
+  }
 ];
 
 export const contacts = [
@@ -26,7 +40,8 @@ export const contacts = [
   { label: "LINKEDIN", value: "Glaydson Oliveira", href: "https://www.linkedin.com/in/glaydson-oliveira" }
 ];
 
-// skills: ids acima; lista vazia = projeto fora da árvore (estudo ou em preparação).
+// area: id de uma área acima; null = projeto fora da árvore (estudo ou em preparação).
+// langs: linguagens do projeto; quem está numa área só usa linguagens dessa área.
 // motivation: texto editável, escrito a partir do problema que cada projeto trata.
 export const projects = [
   {
@@ -49,10 +64,10 @@ export const projects = [
       "FastAPI",
       "Socket.IO"
     ],
-    "skills": [
-      "fullstack",
-      "python",
-      "servidor"
+    "area": "fullstack",
+    "langs": [
+      "typescript",
+      "python"
     ],
     "repo": "atrzad/duelo-de-termos",
     "image": "duelo.webp",
@@ -78,12 +93,10 @@ export const projects = [
       "PostgreSQL",
       "Celery"
     ],
-    "skills": [
-      "fullstack",
-      "python",
-      "servidor",
-      "automacao",
-      "ml"
+    "area": "fullstack",
+    "langs": [
+      "typescript",
+      "python"
     ],
     "repo": "atrzad/Sistema-Financeiro",
     "image": "financeiro.webp",
@@ -109,10 +122,9 @@ export const projects = [
       "Kotlin",
       "GStreamer"
     ],
-    "skills": [
-      "python",
-      "linux",
-      "servidor"
+    "area": "android",
+    "langs": [
+      "kotlin"
     ],
     "repo": "atrzad/ayo-musica",
     "image": "music.webp",
@@ -138,11 +150,10 @@ export const projects = [
       "Redis",
       "PostgreSQL"
     ],
-    "skills": [
-      "fullstack",
-      "python",
-      "servidor",
-      "infra"
+    "area": "fullstack",
+    "langs": [
+      "typescript",
+      "python"
     ],
     "repo": "atrzad/rest-system",
     "image": "rest.webp",
@@ -168,9 +179,10 @@ export const projects = [
       ".NET 8",
       "PostgreSQL"
     ],
-    "skills": [
-      "fullstack",
-      "servidor"
+    "area": "fullstack",
+    "langs": [
+      "csharp",
+      "typescript"
     ],
     "repo": "atrzad/Sistema-de-controle",
     "image": "controle.webp",
@@ -196,10 +208,9 @@ export const projects = [
       "SQLite",
       "Markdown"
     ],
-    "skills": [
-      "fullstack",
-      "servidor",
-      "linux"
+    "area": "fullstack",
+    "langs": [
+      "javascript"
     ],
     "repo": "atrzad/ayo-std",
     "image": "std.webp",
@@ -225,10 +236,9 @@ export const projects = [
       "SQLite",
       "Markdown"
     ],
-    "skills": [
-      "fullstack",
-      "servidor",
-      "infra"
+    "area": "fullstack",
+    "langs": [
+      "javascript"
     ],
     "repo": "atrzad/ayo-sketchbook",
     "image": "sketchbook.webp",
@@ -254,10 +264,10 @@ export const projects = [
       "C",
       "SQLite"
     ],
-    "skills": [
+    "area": "automacao",
+    "langs": [
       "python",
-      "c",
-      "linux"
+      "c"
     ],
     "repo": "atrzad/ayo-desk",
     "image": "calculator.webp",
@@ -282,9 +292,9 @@ export const projects = [
       "GTK4",
       "SQLite"
     ],
-    "skills": [
-      "python",
-      "linux"
+    "area": "automacao",
+    "langs": [
+      "python"
     ],
     "repo": "atrzad/ayo-desk/tree/feat/kanban",
     "image": "kanban.webp",
@@ -310,11 +320,9 @@ export const projects = [
       "SQLite",
       "PWA"
     ],
-    "skills": [
-      "fullstack",
-      "servidor",
-      "infra",
-      "linux"
+    "area": "fullstack",
+    "langs": [
+      "javascript"
     ],
     "repo": null,
     "image": "nossos.webp",
@@ -340,9 +348,9 @@ export const projects = [
       "MongoDB",
       "Docker"
     ],
-    "skills": [
-      "fullstack",
-      "infra"
+    "area": "fullstack",
+    "langs": [
+      "javascript"
     ],
     "repo": "glwydson/cronograma-treinos",
     "image": "treinos.webp",
@@ -368,8 +376,9 @@ export const projects = [
       "EF Core",
       "PostgreSQL"
     ],
-    "skills": [
-      "servidor"
+    "area": "fullstack",
+    "langs": [
+      "csharp"
     ],
     "repo": "glwydson/LivrariaOnlineAPI",
     "image": "livraria.webp",
@@ -395,10 +404,9 @@ export const projects = [
       "Git",
       "GitHub CLI"
     ],
-    "skills": [
-      "c",
-      "linux",
-      "automacao"
+    "area": "automacao",
+    "langs": [
+      "c"
     ],
     "repo": "glwydson/repo-manager",
     "image": "repo.webp",
@@ -423,8 +431,9 @@ export const projects = [
       "TypeScript",
       "Vite"
     ],
-    "skills": [
-      "fullstack"
+    "area": "fullstack",
+    "langs": [
+      "typescript"
     ],
     "repo": "glwydson/landind-mvp",
     "image": "landing-live.webp",
@@ -450,12 +459,10 @@ export const projects = [
       "tmux",
       "ttyd"
     ],
-    "skills": [
-      "infra",
-      "linux",
-      "automacao",
-      "servidor",
-      "ml"
+    "area": "automacao",
+    "langs": [
+      "javascript",
+      "shell"
     ],
     "repo": "atrzad/agent-sandbox",
     "image": "agent.webp",
@@ -481,10 +488,9 @@ export const projects = [
       "TOML",
       "systemd"
     ],
-    "skills": [
-      "python",
-      "automacao",
-      "linux"
+    "area": "automacao",
+    "langs": [
+      "python"
     ],
     "repo": "atrzad/monitor-concursos",
     "image": "monitor.webp",
@@ -507,7 +513,10 @@ export const projects = [
     "stack": [
       "Java"
     ],
-    "skills": [],
+    "area": null,
+    "langs": [
+      "java"
+    ],
     "repo": "glwydson/stooqmanager",
     "image": "stooq.webp",
     "caption": "Captura do repositório público no GitHub."
@@ -527,7 +536,8 @@ export const projects = [
     "stack": [
       "Em preparação"
     ],
-    "skills": [],
+    "area": null,
+    "langs": [],
     "repo": "glwydson/AudioBridge",
     "image": null,
     "caption": "Repositório vazio na consulta ao GitHub; não há tela para capturar."
@@ -547,7 +557,8 @@ export const projects = [
     "stack": [
       "Em preparação"
     ],
-    "skills": [],
+    "area": null,
+    "langs": [],
     "repo": "glwydson/gerenciador-de-comandas-kds",
     "image": null,
     "caption": "Repositório vazio na consulta ao GitHub; não há tela para capturar."

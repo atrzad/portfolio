@@ -10,7 +10,8 @@
     "seo": "node scripts/build-seo.mjs",
     "arte": "node scripts/arte.mjs && node scripts/versionar.mjs",
     "qa": "node scripts/qa.mjs",
-    "versao": "node scripts/versionar.mjs"
+    "versao": "node scripts/versionar.mjs",
+    "miniaturas": "node scripts/miniaturas.mjs"
   },
   "engines": {
     "node": ">=22"

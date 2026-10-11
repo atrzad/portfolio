@@ -53,15 +53,31 @@
   <header class="section-head">
     <p class="kicker">// 01 — DENTRO DA GARAGEM</p>
     <h2 id="tree-title">Árvore de habilidades</h2>
-    <p class="help" id="tree-help">Passe o mouse ou use Tab nos losangos vermelhos para acender as habilidades de cada projeto. Enter abre os detalhes.</p>
+    <p class="help" id="tree-help"><span class="so-desktop">Passe o mouse nos nós ou use Tab nos losangos: o caminho acende e a ficha ao lado explica. Enter abre o projeto.</span><span class="so-movel">Escolha uma área, filtre pelas linguagens e toque num projeto para abrir.</span></p>
   </header>
   <div class="term" id="terminal">
     <img class="term-frame pixel" src="./assets/cena/terminal.webp?v=70cecf67" alt="" width="640" height="416" loading="lazy" decoding="async">
     <div class="term-screen">
       <div class="term-content">
         <p class="term-bar" aria-hidden="true"><span><b>ayo@garagem</b>:~$ ./arvore --habilidades<i class="cursor"></i></span><span>TTY 03</span></p>
-        <svg class="tree" id="skill-tree" viewBox="0 0 1400 700" role="group" aria-labelledby="tree-title" aria-describedby="tree-help"></svg>
-        <ul class="tree-list" id="tree-list" aria-label="Projetos e habilidades usadas"></ul>
+        <div class="roda" id="roda">
+          <svg class="tree" id="skill-tree" viewBox="0 0 960 700" role="group" aria-labelledby="tree-title" aria-describedby="tree-help"></svg>
+          <aside class="ficha" id="ficha" aria-hidden="true">
+            <p class="ficha-tipo">// FICHA</p>
+            <p class="ficha-nome">Roda de habilidades</p>
+            <p class="ficha-desc">Do centro saem as áreas; em cada área, as linguagens que ela usa; na borda, os projetos feitos com elas.</p>
+            <ul class="ficha-legenda"><li><i class="sim-area"></i>área</li><li><i class="sim-ling"></i>linguagem</li><li><i class="sim-proj"></i>projeto</li></ul>
+            <p class="ficha-acao">Passe o mouse em qualquer nó.</p>
+          </aside>
+        </div>
+        <div class="tela-movel" id="tela-movel">
+          <svg class="tree tree-mini" id="mini-tree" viewBox="150 20 660 660" aria-hidden="true" focusable="false"></svg>
+          <div class="abas" id="abas" role="group" aria-label="Áreas da árvore"></div>
+          <p class="area-desc" id="area-desc"></p>
+          <div class="filtro-ling" id="filtro-ling" role="group" aria-label="Filtrar os projetos por linguagem"></div>
+          <p class="movel-resumo" id="movel-resumo" aria-live="polite"></p>
+          <ul class="tree-list" id="tree-list" aria-label="Projetos da área"></ul>
+        </div>
         <p class="term-status" aria-hidden="true"><span>[garagem] 0:arvore* 1:projetos 2:contato</span><span class="osd-live" id="osd-live">● AO VIVO</span></p>
       </div>
       <div class="term-fx" aria-hidden="true"></div>
@@ -78,23 +94,23 @@
   <h2>Todos os projetos</h2>
   <!-- seo:start -->
     <ul>
-      <li><a href="https://github.com/atrzad/duelo-de-termos">Duelo de Termos</a>: Um jogo de palavras com partidas solo e salas para até oito jogadores. Habilidades: FULL-STACK, PYTHON, SERVIDOR. Tecnologias: React, TypeScript, FastAPI, Socket.IO.</li>
-      <li><a href="https://github.com/atrzad/Sistema-Financeiro">Sistema Financeiro</a>: Comprovantes viram lançamentos com OCR e revisão humana. Habilidades: FULL-STACK, PYTHON, SERVIDOR, AUTOMAÇÃO, ML / IA. Tecnologias: React, FastAPI, PostgreSQL, Celery.</li>
-      <li><a href="https://github.com/atrzad/ayo-musica">Ayo Música</a>: Biblioteca musical, playlists e letras em aplicativos para Linux e Android. Habilidades: PYTHON, LINUX, SERVIDOR. Tecnologias: Python, GTK4, Kotlin, GStreamer.</li>
-      <li><a href="https://github.com/atrzad/rest-system">Rest System</a>: Comandas e pedidos conectam o salão à cozinha em tempo real. Habilidades: FULL-STACK, PYTHON, SERVIDOR, INFRA. Tecnologias: React, FastAPI, Redis, PostgreSQL.</li>
-      <li><a href="https://github.com/atrzad/Sistema-de-controle">Sistema de Controle</a>: Grade de professores, frequência e acompanhamento da rotina escolar. Habilidades: FULL-STACK, SERVIDOR. Tecnologias: React, C#, .NET 8, PostgreSQL.</li>
-      <li><a href="https://github.com/atrzad/ayo-std">Ayo Std</a>: Um espaço de estudos com trilhas, notas e sessões de foco. Habilidades: FULL-STACK, SERVIDOR, LINUX. Tecnologias: Node.js, Express, SQLite, Markdown.</li>
-      <li><a href="https://github.com/atrzad/ayo-sketchbook">Ayo Sketchbook</a>: Notas conectadas, desenhos e organização em um caderno no navegador. Habilidades: FULL-STACK, SERVIDOR, INFRA. Tecnologias: JavaScript, Express, SQLite, Markdown.</li>
-      <li><a href="https://github.com/atrzad/ayo-desk">Ayo Desk</a>: Ferramentas nativas para tornar o dia a dia no Linux mais prático. Habilidades: PYTHON, C / C++, LINUX. Tecnologias: Python, GTK4, C, SQLite.</li>
-      <li><a href="https://github.com/atrzad/ayo-desk/tree/feat/kanban">Ayo Kanban</a>: Quadros e cartões para organizar tarefas diretamente no desktop. Habilidades: PYTHON, LINUX. Tecnologias: Python, GTK4, SQLite.</li>
-      <li>Nossos Dias (código privado): Memórias, datas especiais e comunicação em um espaço compartilhado. Habilidades: FULL-STACK, SERVIDOR, INFRA, LINUX. Tecnologias: Node.js, Express, SQLite, PWA.</li>
-      <li><a href="https://github.com/glwydson/cronograma-treinos">Cronograma de Treinos</a>: Planejamento de exercícios, histórico e círculos de amigos. Habilidades: FULL-STACK, INFRA. Tecnologias: React, Node.js, MongoDB, Docker.</li>
-      <li><a href="https://github.com/glwydson/LivrariaOnlineAPI">LivrariaOnline API</a>: API de livraria com catálogo, autenticação e pedidos. Habilidades: SERVIDOR. Tecnologias: C#, .NET 8, EF Core, PostgreSQL.</li>
-      <li><a href="https://github.com/glwydson/repo-manager">Repo Manager</a>: Gerenciador gráfico de repositórios Git e GitHub no Linux. Habilidades: C / C++, LINUX, AUTOMAÇÃO. Tecnologias: C, GTK4, Git, GitHub CLI.</li>
-      <li><a href="https://github.com/glwydson/landind-mvp">Landing MVP</a>: Página institucional responsiva com navegação e apresentação pessoal. Habilidades: FULL-STACK. Tecnologias: React, TypeScript, Vite.</li>
-      <li><a href="https://github.com/atrzad/agent-sandbox">Agent Sandbox</a>: Ambiente de terminal e painel para acompanhar agentes de desenvolvimento. Habilidades: INFRA, LINUX, AUTOMAÇÃO, SERVIDOR, ML / IA. Tecnologias: Node.js, Docker, tmux, ttyd.</li>
-      <li><a href="https://github.com/atrzad/monitor-concursos">Monitor de Concursos</a>: Automação para consultar concursos e preparar resumos diários. Habilidades: PYTHON, AUTOMAÇÃO, LINUX. Tecnologias: Python, JSON-RPC, TOML, systemd.</li>
-      <li><a href="https://github.com/glwydson/stooqmanager">Stooq Manager</a>: Projeto de estudo em Java para praticar sintaxe e organização de código. Tecnologias: Java.</li>
+      <li><a href="https://github.com/atrzad/duelo-de-termos">Duelo de Termos</a>: Um jogo de palavras com partidas solo e salas para até oito jogadores. Área: Full-stack. Linguagens: TypeScript, Python. Tecnologias: React, TypeScript, FastAPI, Socket.IO.</li>
+      <li><a href="https://github.com/atrzad/Sistema-Financeiro">Sistema Financeiro</a>: Comprovantes viram lançamentos com OCR e revisão humana. Área: Full-stack. Linguagens: TypeScript, Python. Tecnologias: React, FastAPI, PostgreSQL, Celery.</li>
+      <li><a href="https://github.com/atrzad/ayo-musica">Ayo Música</a>: Biblioteca musical, playlists e letras em aplicativos para Linux e Android. Área: Android. Linguagens: Kotlin. Tecnologias: Python, GTK4, Kotlin, GStreamer.</li>
+      <li><a href="https://github.com/atrzad/rest-system">Rest System</a>: Comandas e pedidos conectam o salão à cozinha em tempo real. Área: Full-stack. Linguagens: TypeScript, Python. Tecnologias: React, FastAPI, Redis, PostgreSQL.</li>
+      <li><a href="https://github.com/atrzad/Sistema-de-controle">Sistema de Controle</a>: Grade de professores, frequência e acompanhamento da rotina escolar. Área: Full-stack. Linguagens: C#, TypeScript. Tecnologias: React, C#, .NET 8, PostgreSQL.</li>
+      <li><a href="https://github.com/atrzad/ayo-std">Ayo Std</a>: Um espaço de estudos com trilhas, notas e sessões de foco. Área: Full-stack. Linguagens: JavaScript. Tecnologias: Node.js, Express, SQLite, Markdown.</li>
+      <li><a href="https://github.com/atrzad/ayo-sketchbook">Ayo Sketchbook</a>: Notas conectadas, desenhos e organização em um caderno no navegador. Área: Full-stack. Linguagens: JavaScript. Tecnologias: JavaScript, Express, SQLite, Markdown.</li>
+      <li><a href="https://github.com/atrzad/ayo-desk">Ayo Desk</a>: Ferramentas nativas para tornar o dia a dia no Linux mais prático. Área: Automação. Linguagens: Python, C. Tecnologias: Python, GTK4, C, SQLite.</li>
+      <li><a href="https://github.com/atrzad/ayo-desk/tree/feat/kanban">Ayo Kanban</a>: Quadros e cartões para organizar tarefas diretamente no desktop. Área: Automação. Linguagens: Python. Tecnologias: Python, GTK4, SQLite.</li>
+      <li>Nossos Dias (código privado): Memórias, datas especiais e comunicação em um espaço compartilhado. Área: Full-stack. Linguagens: JavaScript. Tecnologias: Node.js, Express, SQLite, PWA.</li>
+      <li><a href="https://github.com/glwydson/cronograma-treinos">Cronograma de Treinos</a>: Planejamento de exercícios, histórico e círculos de amigos. Área: Full-stack. Linguagens: JavaScript. Tecnologias: React, Node.js, MongoDB, Docker.</li>
+      <li><a href="https://github.com/glwydson/LivrariaOnlineAPI">LivrariaOnline API</a>: API de livraria com catálogo, autenticação e pedidos. Área: Full-stack. Linguagens: C#. Tecnologias: C#, .NET 8, EF Core, PostgreSQL.</li>
+      <li><a href="https://github.com/glwydson/repo-manager">Repo Manager</a>: Gerenciador gráfico de repositórios Git e GitHub no Linux. Área: Automação. Linguagens: C. Tecnologias: C, GTK4, Git, GitHub CLI.</li>
+      <li><a href="https://github.com/glwydson/landind-mvp">Landing MVP</a>: Página institucional responsiva com navegação e apresentação pessoal. Área: Full-stack. Linguagens: TypeScript. Tecnologias: React, TypeScript, Vite.</li>
+      <li><a href="https://github.com/atrzad/agent-sandbox">Agent Sandbox</a>: Ambiente de terminal e painel para acompanhar agentes de desenvolvimento. Área: Automação. Linguagens: JavaScript, Shell. Tecnologias: Node.js, Docker, tmux, ttyd.</li>
+      <li><a href="https://github.com/atrzad/monitor-concursos">Monitor de Concursos</a>: Automação para consultar concursos e preparar resumos diários. Área: Automação. Linguagens: Python. Tecnologias: Python, JSON-RPC, TOML, systemd.</li>
+      <li><a href="https://github.com/glwydson/stooqmanager">Stooq Manager</a>: Projeto de estudo em Java para praticar sintaxe e organização de código. Linguagens: Java. Tecnologias: Java.</li>
       <li><a href="https://github.com/glwydson/AudioBridge">AudioBridge</a>: Repositório criado; ainda sem código público.</li>
       <li><a href="https://github.com/glwydson/gerenciador-de-comandas-kds">Gerenciador de Comandas KDS</a>: Repositório criado; ainda sem código público.</li>
     </ul>
