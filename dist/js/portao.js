@@ -1,6 +1,5 @@
-// Portão da garagem: abre com a rolagem, vaza luz de CRT e a câmera avança para dentro.
-// Faixas de cinema entram durante a travessia e a neblina baixa se dissipa lá dentro.
-// Só transform e opacity são alterados por quadro; nada de layout durante o scroll.
+// Portão da garagem: sobe com a rolagem e, aberto, a página segue direto para o terminal.
+// Só transform e opacity mudam por quadro, e o ouvinte de rolagem só trabalha com o portão na tela.
 import { ligarBotao, ruidoPortao } from './som.js';
 
 const limitar = (v, min = 0, max = 1) => Math.min(max, Math.max(min, v));
@@ -8,54 +7,35 @@ const suave = t => t * t * (3 - 2 * t);
 
 export function iniciarPortao({ reduz }) {
   const portao = document.querySelector('#inicio');
-  const fundo = document.querySelector('#plane-back');
-  const frente = document.querySelector('#plane-front');
   const porta = document.querySelector('#door');
-  const luz = document.querySelector('#leak');
   const texto = document.querySelector('#hero-copy');
-  const lente = document.querySelector('#lens');
-  const liga = document.querySelector('#power');
-  const neblina = document.querySelector('#fog');
-  const barras = [document.querySelector('#bar-top'), document.querySelector('#bar-bottom')];
   ligarBotao(document.querySelector('#sound'));
-  const animados = [fundo, frente, porta, luz, texto, lente, liga, neblina, ...barras];
-  let pendente = false, anterior = 0;
+  let pendente = false, visivel = true, anterior = 0;
 
   function quadro() {
     pendente = false;
     const caixa = portao.getBoundingClientRect();
     const percurso = caixa.height - innerHeight;
-    if (percurso <= 0 || caixa.bottom < 0) return;
+    if (percurso <= 0) return;
     const p = limitar(-caixa.top / percurso);
-    const delta = p - anterior;
-    anterior = p;
-    const abre = suave(limitar((p - .06) / .44));
-    const z = suave(limitar((p - .42) / .5));
-    const tremor = abre > 0 && abre < 1 ? Math.sin(p * 900) * 1.4 : 0;
+    const abre = suave(limitar((p - .04) / .9));
+    const tremor = abre > 0 && abre < 1 ? Math.sin(p * 900) * 1.2 : 0;
     porta.style.transform = `translate3d(${tremor.toFixed(2)}px, ${(-abre * 100).toFixed(3)}%, 0)`;
-    luz.style.opacity = (abre * (1 - z) * .9).toFixed(3);
-    luz.style.transform = `scaleY(${abre.toFixed(3)})`;
-    frente.style.transform = `scale(${(1 + 3.2 * z * z).toFixed(4)})`;
-    fundo.style.transform = `scale(${(1 + .45 * z).toFixed(4)})`;
     texto.style.opacity = (1 - limitar((p - .02) / .12)).toFixed(3);
     texto.style.pointerEvents = p > .14 ? 'none' : '';
-    lente.style.opacity = (Math.sin(Math.PI * z) * .9 + abre * (1 - z) * .15).toFixed(3);
-    const pw = limitar((p - .9) / .1);
-    liga.style.opacity = pw > 0 ? (pw < .6 ? 1 : (1 - pw) / .4 * .8).toFixed(3) : '0';
-    liga.style.transform = `scale(${limitar(pw * 2.2).toFixed(3)}, ${(1 + Math.max(0, pw - .45) * 70).toFixed(2)})`;
-    neblina.style.opacity = (1 - z * .85).toFixed(3);
-    const cinema = suave(limitar((p - .4) / .15)) * (1 - limitar((p - .94) / .06));
-    for (const barra of barras) barra.style.transform = `scaleY(${cinema.toFixed(3)})`;
-    ruidoPortao(delta, (abre > 0 && abre < 1) || (z > 0 && z < 1));
+    ruidoPortao(p - anterior, abre > 0 && abre < 1);
+    anterior = p;
   }
-  const agendar = () => { if (!pendente) { pendente = true; requestAnimationFrame(quadro); } };
+  const agendar = () => { if (visivel && !pendente) { pendente = true; requestAnimationFrame(quadro); } };
+  new IntersectionObserver(([e]) => { visivel = e.isIntersecting; agendar(); }).observe(portao);
 
   function aplicarModo() {
     if (reduz.matches) {
       portao.classList.remove('is-scrolly');
       removeEventListener('scroll', agendar);
       removeEventListener('resize', agendar);
-      for (const el of animados) el.removeAttribute('style');
+      porta.removeAttribute('style');
+      texto.removeAttribute('style');
       return;
     }
     portao.classList.add('is-scrolly');
@@ -66,4 +46,3 @@ export function iniciarPortao({ reduz }) {
   reduz.addEventListener('change', aplicarModo);
   aplicarModo();
 }
-

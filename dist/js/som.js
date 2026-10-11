@@ -1,19 +1,16 @@
-// Som opcional (desligado por padrão), sintetizado no navegador:
-// ruído mecânico do portão e um chiado curto de rádio quando a TV perde o sinal.
-let ctx, mestre, marrom, branco, silencio;
+// Som opcional (desligado por padrão), sintetizado no navegador: o ruído mecânico do portão.
+let ctx, mestre, silencio;
 let ligado = false;
 
 function montar() {
   ctx = new AudioContext();
   mestre = ctx.createGain(); mestre.gain.value = 0; mestre.connect(ctx.destination);
   const duracao = ctx.sampleRate * 2;
-  marrom = ctx.createBuffer(1, duracao, ctx.sampleRate);
-  branco = ctx.createBuffer(1, duracao, ctx.sampleRate);
-  const m = marrom.getChannelData(0), b = branco.getChannelData(0);
+  const marrom = ctx.createBuffer(1, duracao, ctx.sampleRate);
+  const m = marrom.getChannelData(0);
   let ultimo = 0;
   for (let i = 0; i < duracao; i++) {
-    b[i] = Math.random() * 2 - 1;
-    ultimo = (ultimo + .02 * b[i]) / 1.02; m[i] = ultimo * 3.5;
+    ultimo = (ultimo + .02 * (Math.random() * 2 - 1)) / 1.02; m[i] = ultimo * 3.5;
   }
   // corrente chacoalhando: ruído marrom filtrado, modulado por um LFO quadrado
   const ruido = ctx.createBufferSource(); ruido.buffer = marrom; ruido.loop = true;
@@ -47,17 +44,4 @@ export function ruidoPortao(delta, movendo) {
   mestre.gain.setTargetAtTime(alvo, ctx.currentTime, .04);
   clearTimeout(silencio);
   silencio = setTimeout(() => mestre.gain.setTargetAtTime(0, ctx.currentTime, .12), 140);
-}
-
-export function chiado() {
-  if (!ligado || !ctx) return;
-  const t = ctx.currentTime;
-  const fonte = ctx.createBufferSource(); fonte.buffer = branco;
-  const banda = ctx.createBiquadFilter(); banda.type = 'bandpass'; banda.frequency.value = 2600; banda.Q.value = .7;
-  const env = ctx.createGain();
-  env.gain.setValueAtTime(0, t);
-  env.gain.linearRampToValueAtTime(.16, t + .01);
-  env.gain.exponentialRampToValueAtTime(.001, t + .34);
-  fonte.connect(banda).connect(env).connect(ctx.destination);
-  fonte.start(t, Math.random()); fonte.stop(t + .36);
 }

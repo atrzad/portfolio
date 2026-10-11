@@ -1,9 +1,9 @@
 // Árvore de habilidades na tela do terminal (SVG), lista vertical no celular e modal de projeto com glitch.
 // Ligações entre habilidades são trilhas de PCB (reto + 45°, com via); as dos projetos ficam retas e
 // tracejadas, como conexões ainda não roteadas. Ao fundo, a graticula de um osciloscópio.
-// Tudo é desenhado uma vez; hover/foco só trocam classes nos elementos envolvidos.
+// Tudo é desenhado uma vez; hover/foco só trocam classes nos elementos envolvidos, e a tela fica
+// parada: nada de glitch ou chiado ao passar de um projeto para outro.
 import { projects, skills, skillLinks } from '../data.js';
-import { chiado } from './som.js';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const imagem = nome => './assets/screenshots/' + encodeURIComponent(nome);
@@ -82,9 +82,8 @@ function hexagono(r) {
   return Array.from({ length: 6 }, (_, i) => { const a = Math.PI / 3 * i; return `${(Math.cos(a) * r).toFixed(1)},${(Math.sin(a) * r * .9).toFixed(1)}`; }).join(' ');
 }
 
-export function iniciarArvore({ reduz }) {
+export function iniciarArvore() {
   const svg = document.querySelector('#skill-tree');
-  const tela = document.querySelector('#terminal');
   const listaEl = document.querySelector('#tree-list');
   const foraEl = document.querySelector('#offtree-list');
   const dialogo = document.querySelector('#project-dialog');
@@ -144,7 +143,6 @@ export function iniciarArvore({ reduz }) {
     }
     for (const [a, b] of skillLinks) if (usadas.has(a) && usadas.has(b)) marcar(el(`.edge-skill[data-k="${chave(a, b)}"]`));
     osd.textContent = `● SINC. ${pct.format(p.skills.length / skills.length * 100)}%`;
-    glitch();
   }
   function acenderSkill(sid) {
     apagar();
@@ -154,18 +152,6 @@ export function iniciarArvore({ reduz }) {
     for (const p of naArvore) if (p.skills.includes(sid)) { n++; marcar(el(`.proj[data-project="${p.id}"]`)); marcar(el(`.edge-proj[data-k="${p.id}|${sid}"]`)); }
     osd.textContent = `● ${n} PROJETOS`;
   }
-
-  // ── glitch de sinal no terminal, limitado a hover/abertura e com intervalo mínimo
-  let ultimoGlitch = 0;
-  function glitch() {
-    if (reduz.matches || tela.classList.contains('glitching')) return;
-    const agora = performance.now();
-    if (agora - ultimoGlitch < 280) return;
-    ultimoGlitch = agora;
-    tela.classList.add('glitching');
-    chiado();
-  }
-  tela.addEventListener('animationend', e => { if (e.animationName === 'sinal') tela.classList.remove('glitching'); });
 
   let atual = null;
   svg.addEventListener('pointerover', e => {
@@ -182,13 +168,11 @@ export function iniciarArvore({ reduz }) {
     const proj = e.target.closest('.proj');
     if (proj && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); abrir(proj.dataset.project); }
   });
-  listaEl.addEventListener('pointerover', e => { if (e.target.closest('.tree-item')) glitch(); });
 
   // ── modal
   function abrir(id) {
     const p = porId[id];
     if (!p) return;
-    glitch();
     document.querySelector('#dialog-category').textContent = `ARQUIVO://${p.id}.proj · ${categoria[p.category] || p.category}`;
     const habilidades = p.skills.length ? `<ul class="chips" aria-label="Habilidades usadas">${p.skills.map(s => `<li class="chip">${esc(rotulo[s])}</li>`).join('')}</ul>` : '';
     const tecnologias = p.stack.length ? `<ul class="chips" aria-label="Tecnologias">${p.stack.map(s => `<li class="chip stack">${esc(s)}</li>`).join('')}</ul>` : '';

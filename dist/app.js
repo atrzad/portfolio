@@ -16,5 +16,5 @@ new IntersectionObserver(([e]) => palco.classList.toggle('is-idle', !e.isInterse
 // /etapa:hero
 
 iniciarPortao({ reduz }); // etapa:portao
-iniciarArvore({ reduz }); // etapa:arvore
+iniciarArvore(); // etapa:arvore
 iniciarMesa({ reduz }); // etapa:mesa

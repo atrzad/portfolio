@@ -30,12 +30,17 @@ try {
   assert.equal(await page.getByRole('link', { name: /Experimente rolar/ }).count(), 1, 'dica do início sem nome acessível');
   await page.locator('#sound').click();
   assert.equal(await page.locator('#sound').getAttribute('aria-pressed'), 'true', 'botão de som não alternou');
-  await rolarPortao(page, .7); await page.waitForTimeout(150);
-  const barra = await page.locator('#bar-top').evaluate(b => new DOMMatrix(getComputedStyle(b).transform).d);
-  assert.ok(barra > .9, 'faixas de cinema não entraram: ' + barra);
-  await rolarPortao(page, .99); await page.waitForTimeout(150);
-  const escala = await page.locator('#plane-front').evaluate(d => new DOMMatrix(getComputedStyle(d).transform).a);
-  assert.ok(escala > 3, 'câmera não avançou: escala ' + escala);
+  // aberto, o portão solta o palco e a próxima tela já é o terminal: sem câmera, faixas, lente ou linha de energia
+  await rolarPortao(page, 1); await page.waitForTimeout(150);
+  const aberto = await page.locator('#door').evaluate(d => new DOMMatrix(getComputedStyle(d).transform).m42 / d.offsetHeight);
+  assert.ok(aberto < -.99, 'portão não abriu inteiro: ' + aberto);
+  assert.equal(await page.locator('#bar-top, #lens, #power, #plane-front, .roll').count(), 0, 'restos da animação depois da abertura');
+  const distancia = await page.evaluate(() => document.querySelector('#terminal').getBoundingClientRect().top / innerHeight);
+  assert.ok(distancia < 1.35, 'terminal longe demais depois do portão: ' + distancia);
+  await page.getByRole('navigation', { name: 'Navegação principal' }).getByRole('link', { name: 'Projetos' }).click();
+  await page.waitForTimeout(900);
+  const tela = await page.locator('#terminal').boundingBox();
+  assert.ok(tela.y >= 56 && tela.y + tela.height <= 900 + 1, 'terminal não cabe inteiro na janela: ' + JSON.stringify(tela));
 
   // árvore
   await page.locator('#terminal').scrollIntoViewIfNeeded();
@@ -48,6 +53,13 @@ try {
   assert.equal(await page.locator('#skill-tree .edge-proj.on').count(), 5);
   assert.ok(await page.locator('#skill-tree .edge-skill.on').count() >= 3, 'caminho de habilidades não acendeu');
   assert.ok((await page.locator('#osd-live').textContent()).includes('SINC. 62,5%'), 'tela sem a sincronia do projeto');
+  // trocar de projeto só acende outro caminho: a tela não pisca nem anima
+  await page.locator('.proj[data-project="duelo"] .dia').hover();
+  await page.locator('.proj[data-project="desk"] .dia').hover();
+  const animandoNaTela = await page.locator('#terminal').evaluate(t => t.getAnimations({ subtree: true })
+    .filter(a => a instanceof CSSAnimation && !a.effect.target.classList.contains('cursor')).map(a => a.animationName));
+  assert.deepEqual(animandoNaTela, [], 'tela animando ao trocar de projeto');
+  await page.locator('.proj[data-project="financeiro"] .dia').hover();
   assert.ok(await page.locator('#skill-tree .graticula line').count() > 50, 'graticula do osciloscópio ausente');
   assert.equal(await page.locator('.term-frame').evaluate(i => getComputedStyle(i).imageRendering), 'pixelated', 'moldura do terminal sem pixel art');
   assert.equal(await page.locator('#door').evaluate(i => getComputedStyle(i).imageRendering), 'pixelated', 'portão sem pixel art');
@@ -95,6 +107,7 @@ try {
   assert.ok(await semOverflow(page), 'overflow em 1440px');
   await page.evaluate(() => document.documentElement.style.fontSize = '200%');
   assert.ok(await semOverflow(page), 'overflow com texto ampliado');
+  assert.ok(!(await page.locator('footer').textContent()).includes('reino esquecido'), 'frase antiga no rodapé');
   assert.equal((await page.request.get(BASE + '/.env')).status(), 404);
   assert.equal((await page.request.get(BASE + '/../server.mjs')).status(), 404);
   assert.deepEqual(erros, []);
@@ -133,7 +146,7 @@ try {
   assert.deepEqual(er, []);
   await ctx.close();
 
-  console.log(`PASS: portão (abre, avança, faixas de cinema, som), árvore ${naArvore.length}+${projects.length - naArvore.length} projetos com sincronia e graticula, hover/foco acendem caminhos, modal (teclado, clique, captura, Escape, foco), SEO ${projects.length} itens, contatos e aviso dourado, 320/390/768/1440px, texto 200%, movimento reduzido, sem erros JS/HTTP/CSP.`);
+  console.log(`PASS: portão (abre inteiro e segue direto para o terminal, que cabe na janela; som), árvore ${naArvore.length}+${projects.length - naArvore.length} projetos com sincronia e graticula, hover/foco acendem caminhos sem a tela piscar, modal (teclado, clique, captura, Escape, foco), SEO ${projects.length} itens, contatos e aviso dourado, 320/390/768/1440px, texto 200%, movimento reduzido, sem erros JS/HTTP/CSP.`);
 } finally {
   await browser.close();
 }
