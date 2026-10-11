@@ -95,6 +95,17 @@ button{font:inherit;color:inherit;cursor:pointer}
 @keyframes tremor{0%,100%{transform:none}30%{transform:translateX(2px) skewX(-6deg)}55%{transform:translateX(-3px)}75%{transform:skewX(4deg)}}
 /* /etapa:hero */
 
+/* etapa:portao ─────────────────────────────────────────── */
+.gate.is-scrolly{height:360vh}
+.gate.is-scrolly .gate-stage{position:sticky;top:0}
+.gate.is-scrolly .plane,.gate.is-scrolly .door{will-change:transform}
+.lens{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;box-shadow:inset 34px 0 42px -10px rgba(255,43,214,.55),inset -34px 0 42px -10px rgba(34,230,255,.55),inset 0 0 160px 40px #000}
+.power{position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;z-index:6;pointer-events:none;background:repeating-linear-gradient(180deg,#eafff0 0 1px,var(--fosforo) 1px 2px);opacity:0;transform:scaleX(0)}
+.sound{position:absolute;right:max(16px,3vw);bottom:20px;z-index:7;display:none;background:rgba(0,0,0,.82);border:1px solid #3a3a3a;padding:5px 9px;font-family:var(--f-pixel);font-size:11px;color:var(--cinza-claro);white-space:nowrap}
+.gate.is-scrolly .sound{display:block}
+.sound[aria-pressed="true"]{color:#000;background:var(--fosforo);border-color:var(--fosforo)}
+@media (max-width:760px){.gate.is-scrolly{height:300vh}}
+/* /etapa:portao */
 
 
 
