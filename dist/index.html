@@ -50,6 +50,31 @@
   </div>
 </section>
 
+<!-- etapa:arvore -->
+<section class="garage" id="projetos" aria-labelledby="tree-title">
+  <div class="garage-bg" aria-hidden="true"><img src="./assets/cena/garagem-m.webp" srcset="./assets/cena/garagem-m.webp 960w, ./assets/cena/garagem.webp 1920w" sizes="100vw" alt="" width="1920" height="1200" loading="lazy" decoding="async"></div>
+  <header class="section-head">
+    <p class="kicker">// 01 — DENTRO DA GARAGEM</p>
+    <h2 id="tree-title">Árvore de habilidades</h2>
+    <p class="help" id="tree-help">Passe o mouse ou navegue com Tab pelos losangos vermelhos para acender as habilidades de cada projeto. Enter abre os detalhes.</p>
+  </header>
+  <div class="tv" id="tv">
+    <img class="tv-frame" src="./assets/cena/tv-m.webp" srcset="./assets/cena/tv-m.webp 720w, ./assets/cena/tv.webp 1440w" sizes="min(1100px, 94vw)" alt="" width="1440" height="1248" loading="lazy" decoding="async">
+    <div class="tv-screen">
+      <div class="tv-content" id="tv-content">
+        <p class="osd" aria-hidden="true"><span>CH 03</span><span>ÁRVORE.SYS</span><span class="osd-live">● AO VIVO</span></p>
+        <svg class="tree" id="skill-tree" viewBox="0 0 1000 770" role="group" aria-labelledby="tree-title" aria-describedby="tree-help"></svg>
+        <ul class="tree-list" id="tree-list" aria-label="Projetos e habilidades usadas"></ul>
+      </div>
+      <div class="tv-fx" aria-hidden="true"><span class="roll"></span></div>
+    </div>
+  </div>
+  <div class="offtree">
+    <p class="kicker">// FORA DA ÁRVORE: estudos e repositórios em preparação</p>
+    <div class="offtree-list" id="offtree-list"></div>
+  </div>
+</section>
+<!-- /etapa:arvore -->
 
 <nav class="seo-list" aria-label="Lista de todos os projetos em texto">
   <h2>Todos os projetos</h2>
@@ -84,5 +109,16 @@
 </main>
 <footer class="footer"><span>© 2026 Glaydson de Oliveira Araujo</span><span>Feito em Manaus, numa garagem imaginária.</span><a href="#inicio">[ VOLTAR AO INÍCIO ]</a></footer>
 
+<!-- etapa:arvore -->
+<dialog class="modal" id="project-dialog" aria-labelledby="dialog-title">
+  <div class="modal-inner" id="modal-inner">
+    <div class="modal-top"><span class="modal-id" id="dialog-category"></span><button class="close" id="close-dialog" type="button" aria-label="Fechar detalhes">[ X ]</button></div>
+    <div id="dialog-content"></div>
+  </div>
+</dialog>
+<dialog class="modal modal-image" id="image-dialog" aria-label="Captura ampliada">
+  <div class="modal-inner"><div class="modal-top"><span class="modal-id">CAPTURA.WEBP</span><button class="close" id="close-image" type="button" aria-label="Fechar imagem">[ X ]</button></div><img id="expanded-image" alt=""><p id="expanded-caption"></p></div>
+</dialog>
+<!-- /etapa:arvore -->
 </body>
 </html>
