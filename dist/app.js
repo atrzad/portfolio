@@ -1,6 +1,7 @@
 // Ponto de entrada. Cada etapa da garagem vive no seu módulo e respeita prefers-reduced-motion.
 import { iniciarPortao } from './js/portao.js'; // etapa:portao
 import { iniciarArvore } from './js/arvore.js'; // etapa:arvore
+import { iniciarMesa } from './js/mesa.js'; // etapa:mesa
 
 const reduz = matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -16,3 +17,4 @@ new IntersectionObserver(([e]) => palco.classList.toggle('is-idle', !e.isInterse
 
 iniciarPortao({ reduz }); // etapa:portao
 iniciarArvore({ reduz }); // etapa:arvore
+iniciarMesa({ reduz }); // etapa:mesa
