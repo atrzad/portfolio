@@ -38,3 +38,11 @@ Instância Tailscale em userspace publicada em https://glaydson-porfolio.tail9ff
 - A TV deu lugar a um terminal grande (tela de 88,5% × 76,9% da moldura), com prompt no topo, árvore em viewBox 1400 × 700 e barra de status com a sincronia. Rótulos que sairiam da tela são movidos para baixo do losango depois que a fonte carrega.
 - Todas as cenas passaram a ser pixel art (640 px, paleta fixa de 60 cores, transparência binária; neblina pontilhada). Imagens ampliadas com `image-rendering: pixelated`; conferido que o zoom do portão continua nítido.
 - `npm run qa` passou com as novas checagens (moldura do terminal e portão com `image-rendering: pixelated`), em 320, 390, 768 e 1440 px, com movimento reduzido e sem erros de JavaScript, HTTP ou CSP.
+
+## Direção PC-98 e animações leves — 11/10/2026
+
+- O portão sobe com a rolagem e, aberto, a página segue direto para o terminal: saíram o avanço de câmera, as faixas de cinema, a lente e a linha de energia (o percurso do portão caiu de 360vh para 220vh). Com o título compacto, o terminal cabe inteiro abaixo do HUD ao clicar em "Projetos".
+- Passar de um projeto para outro na árvore não faz mais a tela piscar nem tocar chiado; a marcha das ligações acesas também saiu. A mesa não inclina mais com a rolagem (pixels sempre nítidos), o aviso dourado e os LEDs animam só opacidade e transform, e o ruído do VHS ficou numa camada menor e sem modo de mesclagem.
+- Arte refeita em pontilhado ordenado com paleta própria por cena (referências na tabela "Direção de arte" do README). Imagens novas: parede atrás do terminal, parede de azulejos e página de zine; o interior da garagem, o papel e o selo deixaram de se repetir (cada imagem aparece uma vez, conferido pelo `npm test`).
+- Rodapé sem a frase "Feito em Manaus. Toda garagem guarda um reino esquecido."
+- `npm run qa` passou com as checagens novas (portão abre inteiro, sem restos da animação depois da abertura, terminal a menos de 1,35 tela do fim do portão e inteiro na janela, nenhuma animação na tela ao trocar de projeto, rodapé sem a frase), em 320, 390, 768 e 1440 px, com texto a 200%, movimento reduzido e sem erros de JavaScript, HTTP ou CSP. As mesmas checagens falham na versão anterior.

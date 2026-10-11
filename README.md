@@ -1,6 +1,6 @@
 # Portfólio — Glaydson de Oliveira Araujo
 
-Site pessoal em português com estética grunge dos anos 2000, hacker e cyberpunk. A experiência é toda na rolagem: o portão de uma garagem coberto de grafite se abre, a câmera entra, a tela grande de um terminal mostra a árvore de habilidades com os projetos, e os contatos ficam num papel amassado sobre a mesa. HTML, CSS e JavaScript (módulos ES) servidos por Node.js, sem dependências de produção e sem etapa de build.
+Site pessoal em português com estética hacker, cyberpunk e um pouco de sci-fi, toda em pixel art. A experiência é toda na rolagem: o portão de uma garagem sobe e a página segue direto para a tela grande de um terminal com a árvore de habilidades e os projetos; depois vêm uma página de zine em xerox e os contatos num papel amassado sobre a mesa. HTML, CSS e JavaScript (módulos ES) servidos por Node.js, sem dependências de produção e sem etapa de build.
 
 ## Site publicado
 
@@ -31,18 +31,35 @@ npm run qa      # Chromium: portão, árvore, modal, teclado, celular, movimento
 - `npm run seo`: regenera, a partir de `data.js`, a lista de projetos oculta visualmente no `index.html` (para leitores de tela e indexação). O `npm test` avisa se ela ficar desatualizada.
 - `dist/index.html`: estrutura das cenas (abertura/portão, garagem com terminal, zine "sobre", mesa de contatos).
 - `dist/style.css`: visual; blocos marcados por etapa (`etapa:hero`, `etapa:portao`, `etapa:arvore`, `etapa:mesa`).
-- `dist/js/portao.js`: animação do portão por rolagem, faixas de cinema na travessia e neblina se dissipando.
-- `dist/js/som.js`: som opcional (Web Audio, desligado por padrão): ruído mecânico do portão e chiado de rádio quando o terminal perde o sinal.
-- `dist/js/arvore.js`: árvore SVG (trilhas de PCB, graticula de osciloscópio, sincronia na tela), lista para celular e modal com glitch.
-- `dist/js/mesa.js`: inclinação da câmera para a mesa e aviso dourado "SINAL ACESO" (uma vez).
-- `scripts/arte/cenas.mjs` e `scripts/arte/simbolos.mjs`: a arte (portão, fachada, garagem, terminal, mesa, papel, neblina e selo) é desenhada em SVG com texturas procedurais e renderizada em **pixel art** por `npm run arte`: o Chromium do Playwright renderiza o SVG, a imagem é reduzida para uma grade de 640 px (a resolução nativa de Blasphemous) e mapeada para uma paleta fixa, sem anti-aliasing; a neblina usa transparência pontilhada. No site, as imagens são ampliadas com `image-rendering: pixelated`, nítidas até no zoom do portão. Silhuetas e símbolos são genéricos: sem marcas, logotipos ou pessoas reais.
+- `dist/js/portao.js`: o portão sobe com a rolagem; aberto, o palco se solta e a próxima tela já é o terminal. Só `transform` e `opacity` mudam por quadro, e o ouvinte de rolagem só trabalha com o portão na tela.
+- `dist/js/som.js`: som opcional (Web Audio, desligado por padrão): ruído mecânico do portão.
+- `dist/js/arvore.js`: árvore SVG (trilhas de PCB, graticula de osciloscópio, sincronia na tela), lista para celular e modal com glitch. Passar de um projeto para outro só acende outro caminho: a tela não pisca.
+- `dist/js/mesa.js`: LEDs que só piscam com a mesa na tela e aviso dourado "SINAL ACESO" (uma vez).
+- `scripts/arte/cenas.mjs` e `scripts/arte/simbolos.mjs`: a arte é desenhada em SVG e renderizada em **pixel art** por `npm run arte` (detalhes em "Direção de arte"). No site, as imagens são ampliadas com `image-rendering: pixelated`. Silhuetas e símbolos são genéricos: sem marcas, logotipos ou pessoas reais.
 - `dist/assets/screenshots/`: capturas reais otimizadas em WebP, mostradas no modal.
 
 Acessibilidade: tudo funciona por teclado (losangos da árvore são focáveis; Enter abre; Escape fecha e devolve o foco), foco visível em verde-ácido, rótulos ARIA e `prefers-reduced-motion` desliga portão animado, glitch, ruído de VHS e LEDs piscando. Em telas até 760 px a árvore vira lista vertical com os mesmos dados. O CSP do servidor bloqueia estilos inline, então valores dinâmicos são aplicados via CSSOM no JavaScript.
 
 As motivações dos projetos foram escritas a partir do problema que cada um trata; ajuste-as em `data.js` com a sua história real.
 
-Fontes tipográficas (em `dist/assets/fonts/`, licenças em `LICENSES.txt`), todas do repositório google/fonts: no site, só fontes de pixel: Silkscreen, VT323, Jersey 15 (títulos) e Jacquard 24 (gótica, nas mensagens dos soulslike), todas SIL OFL 1.1. Black Ops One, Cinzel (SIL OFL 1.1) e Permanent Marker (Apache 2.0) ficam só para o gerador de arte.
+Fontes tipográficas, todas do repositório google/fonts: no site (em `dist/assets/fonts/`, licenças em `LICENSES.txt`), só fontes de pixel: Silkscreen, VT323, Jersey 15 (títulos) e Jacquard 24 (gótica, nas mensagens dos soulslike), todas SIL OFL 1.1. O gerador de arte usa também Alfa Slab One (letreiro pintado), Anton (lambe-lambe), Black Ops One (estêncil), Cinzel (selo), todas SIL OFL 1.1, e Permanent Marker (Apache 2.0, escrita à mão); elas ficam em `scripts/arte/fontes/`, fora do que o site serve.
+
+## Direção de arte
+
+As cenas seguem os adventures japoneses de PC-98 (os cyberpunk dos anos 80 e 90): **640 × 400 pixels, uma paleta própria por cena (de 2 a 22 cores) e pontilhado ordenado no lugar de degradê**. O `npm run arte` renderiza o SVG no Chromium do Playwright, reduz por média de área para a grade e, para cada pixel, escolhe as duas cores da paleta que melhor o explicam e as mistura com uma matriz de Bayer 4 × 4: áreas chapadas continuam chapadas, e luz, sombra e neblina viram tramas de pontos. Nas cenas, os objetos são pintados com a cor-base e multiplicados por um mapa de luz; o que emite luz (lâmpadas, neon, tela, LEDs) vai por cima, sem escurecer.
+
+Cada imagem aparece **uma vez só** no site (o `npm test` acusa repetição), e cada cena tem uma fonte de luz:
+
+| Cena | Luz e referência gráfica |
+|---|---|
+| Fachada e portão | duas arandelas de sódio; letreiro pintado à mão ("GARAGEM 03", lan house), lambe-lambe de show colado no portão, pixação de letras altas e angulosas, estêncil gasto |
+| Interior (atrás do portão) | só o verde do terminal acende o cômodo; um resto de sódio entra pela porta |
+| Terminal | futurismo de fita cassete (consoles de Alien, de 1979, e painéis de Evangelion): chapa de grafite parafusada, faixa de perigo, etiquetas de rotuladora, VU de sinal |
+| Parede atrás do terminal | o brilho verde da tela em anéis pontilhados, eletrodutos e um esquema a giz |
+| Sobre | página de zine em xerox (toner, dobra, grampos, retícula) presa com fita isolante numa parede de azulejos sob luz fluorescente |
+| Contatos | mesa vista de cima sob luminária quente, com o reflexo frio de uma tela à direita |
+
+Animações: o portão é a única coisa ligada à rolagem; ruído do VHS, neblina e LEDs pausam fora da tela; as animações em CSS só mexem em `transform`, `opacity` ou recortes curtos (o `npm test` acusa `letter-spacing`, `box-shadow`, `filter` e afins em `@keyframes`), e `prefers-reduced-motion` desliga todas.
 
 ## Referências sutis
 
@@ -50,16 +67,16 @@ A estética é cyberpunk e meio sci-fi, com acenos discretos ao que inspira o au
 
 | Referência | Onde aparece |
 |---|---|
-| Soulslike / FromSoftware | dica do início como mensagem laranja no chão ("experimente rolar"); aviso dourado "SINAL ACESO" ao chegar no contato; motivação dos projetos como inscrição em serifa romana dourada |
-| Hollow Knight, Blasphemous | tom de lore nas inscrições e no rodapé ("toda garagem guarda um reino esquecido"); vermelho-carmim e dourado como acentos; toda a arte em pixel art na resolução de Blasphemous, com fonte gótica em pixel |
-| Silent Hill | neblina baixa no portão, ferrugem e chiado de rádio quando o terminal perde o sinal (com som ligado) |
-| Samurai Jack, Vagabond, Vinland Saga | faixas de cinema na travessia do portão; ronin de chapéu de palha no grafite; selo de tinta "G A"; adesivo de drakkar "RUMO A OESTE" no terminal |
-| BLAME! | cartaz MANAUS 2099 com megaestrutura sem fim e uma figura minúscula |
-| Godzilla | cartaz KAIJU NA ORLA |
-| Evangelion | nós hexagonais da árvore; "SINC." na tela (quanto das habilidades o projeto usa); adesivo "SINC. 400%" |
+| Soulslike / FromSoftware | dica do início como mensagem laranja no chão ("experimente rolar"); aviso dourado "SINAL ACESO" ao chegar no contato; motivação dos projetos como inscrição dourada |
+| Hollow Knight, Blasphemous | claro-escuro: uma luz forte por cena e o resto em sombra; vermelho-carmim e dourado como acentos; fonte gótica em pixel |
+| Silent Hill | neblina baixa no portão; parede de azulejos sob luz fluorescente no Sobre; interior iluminado só pela tela |
+| Samurai Jack, Vagabond, Vinland Saga | selo de tinta "G A"; decalque de drakkar "RUMO A OESTE" no terminal; pixação de letras rúnicas no portão |
+| BLAME! | cartaz MANAUS 2099 com a megaestrutura sem fim, dentro da garagem |
+| Godzilla | cartaz KAIJU NA ORLA, dentro da garagem |
+| Evangelion | nós hexagonais da árvore; "SINC." na tela (quanto das habilidades o projeto usa); console do terminal com faixa de perigo |
 | Dredge | cartão-postal "pesca noturna" na mesa, com uma luz que não devia estar ali |
-| Pós-punk, new wave, nu metal, rap metal, experimental | flyer com linhas de sinal de pulsar; fita cassete com os gêneros na mesa |
-| Engenharia Eletrônica e programação | ligações da árvore como trilhas de PCB (as dos projetos ficam como conexões não roteadas); graticula de osciloscópio na tela; esquema a giz (resistor 220R, LED, capacitor) na parede; protoboard na mesa; "VCC 5V" na abertura |
+| Pós-punk, new wave, nu metal, rap metal, experimental | lambe-lambe "SOM PESADO" no portão; flyer com linhas de sinal de pulsar na garagem; fita cassete com os gêneros na mesa |
+| Engenharia Eletrônica e programação | ligações da árvore como trilhas de PCB (as dos projetos ficam como conexões não roteadas); graticula de osciloscópio na tela; VU de sinal no terminal; esquema a giz (resistor 220R, LED, capacitor) na parede atrás dele; caixa de medição com aviso de alta tensão e placa da Zona Franca, onde fica o polo de eletrônicos de Manaus; protoboard na mesa; "VCC 5V" na abertura |
 
 
 ## Fontes e escopo
