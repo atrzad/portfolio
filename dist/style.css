@@ -3,12 +3,13 @@
 @font-face{font-family:Term;src:url('./assets/fonts/VT323-Regular.woff2') format('woff2');font-display:swap}
 @font-face{font-family:Stencil;src:url('./assets/fonts/BlackOpsOne-Regular.woff2') format('woff2');font-display:swap}
 @font-face{font-family:Marker;src:url('./assets/fonts/PermanentMarker-Regular.woff2') format('woff2');font-display:swap}
+@font-face{font-family:Gotica;src:url('./assets/fonts/Cinzel.woff2') format('woff2');font-weight:400 900;font-display:swap}
 
 :root{
   color-scheme:dark;
   --preto:#0a0a0a;--carvao:#141414;--cinza:#8d8f8c;--cinza-claro:#c9cbc4;--cinza-escuro:#2b2b2b;--ferrugem:#8a3f1d;
   --fosforo:#39ff6a;--acido:#b6ff00;--vermelho:#ff2a2a;--magenta:#ff2bd6;--ciano:#22e6ff;--papel:#d6cdb4;--tinta:#141414;
-  --f-pixel:Pixel,'Courier New',monospace;--f-term:Term,'Courier New',monospace;--f-stencil:Stencil,Impact,sans-serif;--f-mao:Marker,'Comic Sans MS',cursive;
+  --f-pixel:Pixel,'Courier New',monospace;--f-term:Term,'Courier New',monospace;--f-stencil:Stencil,Impact,sans-serif;--f-mao:Marker,'Comic Sans MS',cursive;--f-gotica:Gotica,'Times New Roman',serif;--ouro:#e0b95e;--brasa:#ff9a3c;
   --hud:56px;
 }
 *{box-sizing:border-box}
@@ -60,8 +61,14 @@ button{font:inherit;color:inherit;cursor:pointer}
 .glitch::after{color:var(--magenta);transform:translate(.05em,0);clip-path:inset(52% 0 0 0)}
 .hero-desc{margin:18px 0 22px;max-width:46ch;font-size:clamp(22px,2.3vw,28px);line-height:1.25;color:var(--fosforo)}
 .cursor{display:inline-block;width:.55em;height:1em;margin-left:4px;vertical-align:-.12em;background:var(--fosforo)}
-.hint{display:inline-block;font-family:var(--f-pixel);font-size:13px;color:var(--ciano);text-decoration:none;padding:6px 0}
-.hint:hover{color:#fff}
+/* dica no chão, como as mensagens deixadas por outros jogadores nos soulslike */
+.hint{display:inline-block;font-family:var(--f-gotica);font-weight:600;font-size:17px;letter-spacing:.14em;color:var(--brasa);text-decoration:none;padding:6px 0;text-shadow:0 0 8px rgba(255,140,40,.85),0 0 22px rgba(255,120,30,.35)}
+.hint:hover{color:#ffd29a}
+.seal{position:absolute;top:-30px;right:-18px;width:clamp(58px,9vw,96px);height:auto;transform:rotate(9deg);pointer-events:none}
+.fog{position:absolute;left:0;right:0;bottom:0;height:52%;z-index:2;pointer-events:none;overflow:hidden}
+.fog span{position:absolute;left:0;bottom:0;width:200%;height:100%;background:url('./assets/cena/neblina.webp') repeat-x;background-size:50% 100%;opacity:.34}
+.fog span+span{height:72%;opacity:.2;transform:translateX(-25%)}
+@media (max-width:760px){.fog span{background-image:url('./assets/cena/neblina-m.webp')}}
 
 /* camadas de VHS e CRT */
 .vhs{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
@@ -84,12 +91,17 @@ button{font:inherit;color:inherit;cursor:pointer}
   .is-glitching .glitch::before,.name:hover .glitch::before{animation:split-a .8s steps(1) both}
   .is-glitching .glitch::after,.name:hover .glitch::after{animation:split-b .8s steps(1) both}
   .is-glitching .glitch,.name:hover .glitch{animation:tremor .8s steps(1) both}
-  .is-idle .vhs *{animation-play-state:paused}
+  .hint{animation:brasa 3.2s ease-in-out infinite alternate}
+  .fog span{animation:deriva 120s linear infinite}
+  .fog span+span{animation-duration:190s;animation-direction:reverse}
+  .is-idle .vhs *,.is-idle .fog span,.is-idle .hint{animation-play-state:paused}
 }
 @keyframes ruido{0%{transform:translate(0,0)}25%{transform:translate(-7%,4%)}50%{transform:translate(5%,-6%)}75%{transform:translate(-3%,-9%)}100%{transform:translate(8%,3%)}}
 @keyframes tracking{from{transform:translateY(-10vh)}to{transform:translateY(110vh)}}
 @keyframes blocos{0%,100%{opacity:0}4%{opacity:.85;transform:translateX(18px)}6%{opacity:0}}
 @keyframes pisca{50%{opacity:0}}
+@keyframes brasa{from{opacity:.72}to{opacity:1}}
+@keyframes deriva{to{transform:translateX(-50%)}}
 @keyframes split-a{0%{clip-path:inset(8% 0 70% 0);transform:translate(-.14em,-.02em)}20%{clip-path:inset(58% 0 12% 0);transform:translate(.1em,.02em)}40%{clip-path:inset(28% 0 46% 0);transform:translate(-.18em,0)}60%{clip-path:inset(80% 0 2% 0);transform:translate(.06em,-.01em)}80%{clip-path:inset(4% 0 84% 0);transform:translate(-.1em,.01em)}100%{clip-path:inset(0 0 52% 0);transform:translate(-.05em,0)}}
 @keyframes split-b{0%{clip-path:inset(66% 0 6% 0);transform:translate(.14em,.02em)}20%{clip-path:inset(12% 0 64% 0);transform:translate(-.12em,0)}40%{clip-path:inset(44% 0 30% 0);transform:translate(.2em,-.02em)}60%{clip-path:inset(2% 0 82% 0);transform:translate(-.06em,.01em)}80%{clip-path:inset(72% 0 10% 0);transform:translate(.12em,0)}100%{clip-path:inset(52% 0 0 0);transform:translate(.05em,0)}}
 @keyframes tremor{0%,100%{transform:none}30%{transform:translateX(2px) skewX(-6deg)}55%{transform:translateX(-3px)}75%{transform:skewX(4deg)}}
@@ -100,6 +112,9 @@ button{font:inherit;color:inherit;cursor:pointer}
 .gate.is-scrolly .gate-stage{position:sticky;top:0}
 .gate.is-scrolly .plane,.gate.is-scrolly .door{will-change:transform}
 .lens{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;box-shadow:inset 34px 0 42px -10px rgba(255,43,214,.55),inset -34px 0 42px -10px rgba(34,230,255,.55),inset 0 0 160px 40px #000}
+.bars i{position:absolute;left:0;right:0;z-index:5;height:11vh;background:#000;transform:scaleY(0);pointer-events:none}
+.bars i:first-child{top:0;transform-origin:50% 0}
+.bars i:last-child{bottom:0;transform-origin:50% 100%}
 .power{position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;z-index:6;pointer-events:none;background:repeating-linear-gradient(180deg,#eafff0 0 1px,var(--fosforo) 1px 2px);opacity:0;transform:scaleX(0)}
 .sound{position:absolute;right:max(16px,3vw);bottom:20px;z-index:7;display:none;background:rgba(0,0,0,.82);border:1px solid #3a3a3a;padding:5px 9px;font-family:var(--f-pixel);font-size:11px;color:var(--cinza-claro);white-space:nowrap}
 .gate.is-scrolly .sound{display:block}
@@ -128,7 +143,12 @@ button{font:inherit;color:inherit;cursor:pointer}
 .roll{position:absolute;left:0;right:0;top:-20%;height:18%;opacity:0;background:repeating-linear-gradient(180deg,rgba(57,255,106,.16) 0 2px,rgba(255,255,255,.05) 2px 4px)}
 
 /* nós da árvore */
-.edge-skill{stroke:#6d706b;stroke-width:1.6}
+.graticula{pointer-events:none}
+.graticula line{stroke:var(--fosforo);stroke-width:1;opacity:.07}
+.graticula .eixo{opacity:.13}
+.graticula .tick{opacity:.17}
+.edge-skill path{fill:none;stroke:#6d706b;stroke-width:1.8}
+.edge-skill circle{fill:#020c05;stroke:#6d706b;stroke-width:1.6}
 .edge-proj{stroke:var(--vermelho);stroke-width:1.4;stroke-dasharray:6 6;opacity:.42}
 .skill polygon{fill:#06160b;stroke:#5c8f69;stroke-width:2.4}
 .skill text{fill:#d3ecd9;font-size:23px;text-anchor:middle;dominant-baseline:central;letter-spacing:.5px}
@@ -141,7 +161,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .tree .edge-skill,.tree .edge-proj,.tree .skill,.tree .proj{transition:opacity .15s}
 .tree.lit .edge-skill,.tree.lit .edge-proj,.tree.lit .skill,.tree.lit .proj{opacity:.18}
 .tree.lit .on{opacity:1}
-.edge-skill.on{stroke:var(--fosforo);stroke-width:3.4}
+.edge-skill.on path{stroke:var(--fosforo);stroke-width:3.4}
+.edge-skill.on circle{fill:#0b3a17;stroke:var(--fosforo)}
 .edge-proj.on{stroke:var(--fosforo);stroke-width:2.4;opacity:1}
 .skill.on polygon{fill:#0b3a17;stroke:var(--fosforo)}
 .skill.on text{fill:var(--fosforo)}
@@ -185,6 +206,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .shot img{width:100%;aspect-ratio:1.5;object-fit:cover;object-position:top}
 .shot:hover{border-color:var(--fosforo)}
 .caption{font-size:17px;color:var(--cinza)}
+.modal .inscricao{font-family:var(--f-gotica);font-size:18px;line-height:1.55;letter-spacing:.02em;color:var(--ouro);border-left:2px solid rgba(224,185,94,.45);padding-left:12px}
 .actions{margin-top:24px}
 .btn-repo{display:inline-block;padding:10px 16px;background:var(--fosforo);color:#000;text-decoration:none;font-family:var(--f-pixel);font-size:14px;box-shadow:5px 5px 0 var(--vermelho);transition:transform .1s,box-shadow .1s}
 .btn-repo:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--vermelho)}
@@ -217,7 +239,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 /* etapa:mesa ─────────────────────────────────────────── */
 .zine-wall{position:relative;padding:90px 16px;background:#120c09 url('./assets/cena/garagem-m.webp') center/cover;isolation:isolate}
 .zine-wall::before{content:"";position:absolute;inset:0;z-index:-1;background:rgba(0,0,0,.72)}
-.zine{position:relative;width:min(760px,100%);margin:0 auto;padding:clamp(34px,6vw,64px);background:var(--papel) url('./assets/cena/papel-m.webp') center/100% 100% no-repeat;color:var(--tinta);transform:rotate(-1.2deg);filter:drop-shadow(14px 16px 0 rgba(0,0,0,.7))}
+.zine{position:relative;width:min(760px,100%);margin:0 auto;padding:clamp(34px,6vw,64px);background:url('./assets/cena/papel-m.webp') center/100% 100% no-repeat,linear-gradient(var(--papel),var(--papel)) center/calc(100% - 64px) calc(100% - 64px) no-repeat;color:var(--tinta);transform:rotate(-1.2deg);filter:drop-shadow(14px 16px 0 rgba(0,0,0,.7))}
 .zine .kicker{color:var(--vermelho)}
 .zine h2{margin:0 0 14px;font-family:var(--f-stencil);font-weight:400;font-size:clamp(32px,5vw,52px);line-height:1}
 .zine p{font-size:22px;margin:0 0 12px}
@@ -226,7 +248,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .facts div{display:grid;grid-template-columns:110px 1fr;gap:12px;border-top:2px dashed #8a7f63;padding-top:8px}
 .facts dt{font-family:var(--f-pixel);font-size:12px;color:var(--vermelho);padding-top:4px}
 .facts dd{margin:0;font-size:21px}
-.scribble{font-family:var(--f-mao);font-size:24px;color:#b3001b;transform:rotate(-4deg);margin:28px 0 0;text-align:right}
+.scribble{font-family:var(--f-mao);font-size:24px;color:#b3001b;transform:rotate(-4deg);margin:42px 0 0;text-align:right}
 .tape{position:absolute;width:120px;height:30px;background:rgba(222,214,185,.72);box-shadow:0 1px 0 rgba(0,0,0,.2)}
 .tape-a{left:8%;top:-8px;transform:rotate(-8deg)}
 .tape-b{right:7%;top:-6px;transform:rotate(6deg)}
@@ -257,7 +279,12 @@ button{font:inherit;color:inherit;cursor:pointer}
 .note-links a:focus-visible{outline:3px dashed var(--tinta);outline-offset:3px}
 .stamp{position:absolute;font-family:var(--f-stencil);color:var(--vermelho);border:4px double var(--vermelho);padding:2px 10px;opacity:.72;mix-blend-mode:multiply;pointer-events:none}
 .stamp-a{right:7%;top:9%;font-size:clamp(16px,2.4vw,24px);transform:rotate(12deg)}
-.stamp-b{left:9%;bottom:6%;font-size:clamp(13px,1.8vw,18px);transform:rotate(-7deg);color:#1c3d9e;border-color:#1c3d9e}
+.seal-note{position:absolute;left:8%;bottom:5%;top:auto;right:auto;width:clamp(54px,8vw,78px);transform:rotate(-10deg);opacity:.9}
+/* aviso dourado ao chegar no contato, como o de fogueira acesa dos soulslike */
+.banner{position:absolute;left:0;right:0;top:11vh;z-index:3;margin:0;padding:12px 16px;text-align:center;font-family:var(--f-gotica);font-weight:600;font-size:clamp(22px,4vw,44px);letter-spacing:.32em;color:var(--ouro);text-shadow:0 0 18px rgba(224,185,94,.55);background:rgba(0,0,0,.74);border-block:1px solid rgba(224,185,94,.28);opacity:0;pointer-events:none}
+.banner.aceso{animation:aceso 3.8s ease both}
+@keyframes aceso{0%{opacity:0;letter-spacing:.5em}14%{opacity:1}72%{opacity:1;letter-spacing:.32em}100%{opacity:0;letter-spacing:.32em}}
+@media (prefers-reduced-motion:reduce){.banner{display:none}}
 .note .scribble{margin:16px 0 0;font-size:clamp(18px,2.6vw,26px);transform:rotate(-5deg)}
 @media (max-width:560px){.note-links a{grid-template-columns:1fr;gap:0}}
 /* /etapa:mesa */

@@ -110,6 +110,48 @@ function svg(w, h, corpo) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs>${filtros()}${simbolos}</defs>${corpo}</svg>`;
 }
 
+// Megaestrutura brutalista sem fim, com passarelas, cabos e uma figura minúscula para dar escala.
+function megaestrutura() {
+  let m = `<rect x="106" y="136" width="208" height="248" fill="#141414"/><polygon points="226,136 246,136 300,384 176,384" fill="#d8d8cc" opacity=".07"/>`;
+  for (const [x, y, w, c] of [[106, 150, 30, '#2a2a2a'], [140, 136, 20, '#3b3b3b'], [166, 168, 38, '#303030'], [214, 136, 16, '#454545'], [236, 158, 34, '#2c2c2c'], [276, 136, 38, '#383838']]) {
+    m += `<rect x="${x}" y="${y}" width="${w}" height="${384 - y}" fill="${c}"/>`;
+    for (let yy = y + 12; yy < 380; yy += 18) m += `<rect x="${x}" y="${yy}" width="${w}" height="2" fill="#1a1a1a"/>`;
+  }
+  m += `<rect x="106" y="252" width="208" height="5" fill="#5a5a5a"/><rect x="140" y="306" width="124" height="4" fill="#505050"/><rect x="200" y="214" width="114" height="3" fill="#4a4a4a"/>`;
+  m += `<path d="M120 150 C140 200 160 210 176 200 M230 176 C250 230 262 236 286 226 M150 320 C170 350 200 352 230 330" fill="none" stroke="#0a0a0a" stroke-width="1.6"/>`;
+  for (const [x, y] of [[150, 190], [250, 190], [290, 280], [180, 330], [120, 230]]) m += `<rect x="${x}" y="${y}" width="3" height="3" fill="${cor.fosforo}"/>`;
+  return m + `<rect x="208" y="243" width="3" height="9" fill="#050505"/><circle cx="209.5" cy="241.5" r="2" fill="#050505"/>`;
+}
+
+// Linhas empilhadas de sinal de pulsar (flyer pós-punk); cada linha tapa as de trás.
+function pulsar(r, x0, y0, largura, linhas, passo) {
+  let p = '';
+  const meio = x0 + largura / 2;
+  for (let i = 0; i < linhas; i++) {
+    const base = y0 + i * passo, pts = [];
+    for (let x = x0; x <= x0 + largura; x += 3) {
+      const env = Math.exp(-((x - meio) ** 2) / (2 * 20 ** 2));
+      pts.push(`${x},${(base - env * 24 * (.45 + r() * .55) - r() * 1.4).toFixed(1)}`);
+    }
+    p += `<polygon points="${x0},${base + 2} ${pts.join(' ')} ${x0 + largura},${base + 2}" fill="#0d0d0d"/><polyline points="${pts.join(' ')}" fill="none" stroke="#e9e9e2" stroke-width="1.1"/>`;
+  }
+  return p;
+}
+
+// Esquema de circuito a giz (fonte, resistor 220R, LED, capacitor e terra).
+function esquemaGiz(x, y) {
+  const t = (dx, dy) => `${x + dx} ${y + dy}`;
+  return `<g fill="none" stroke="#e8e6dc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity=".55" filter="url(#papelf)">
+    <path d="M${t(0, 40)} H${t(20, 40).split(' ')[0]} M${t(4, 48)} H${t(16, 48).split(' ')[0]}"/>
+    <path d="M${t(10, 40)} V${y + 15} H${x + 40} L${t(46, 7)} L${t(54, 23)} L${t(62, 7)} L${t(70, 23)} L${t(78, 7)} L${t(86, 23)} L${t(92, 15)} H${x + 130}"/>
+    <path d="M${t(130, 5)} V${y + 25} L${t(148, 15)} Z M${t(148, 5)} V${y + 25}"/>
+    <path d="M${t(150, 2)} L${t(160, -8)} M${t(156, -8)} L${t(160, -8)} L${t(160, -4)} M${t(157, 8)} L${t(167, -2)} M${t(163, -2)} L${t(167, -2)} L${t(167, 2)}"/>
+    <path d="M${t(148, 15)} H${x + 190} V${y + 40} M${t(178, 40)} H${x + 202} M${t(178, 48)} H${x + 202} M${t(190, 48)} V${y + 80}"/>
+    <path d="M${t(10, 48)} V${y + 80} H${x + 190} M${t(178, 86)} H${x + 202} M${t(183, 92)} H${x + 197} M${t(187, 98)} H${x + 193}"/>
+  </g>
+  <g opacity=".55">${texto('+5V', x - 26, y + 36, { fonte: 'Marker', tam: 14, fill: '#e8e6dc' })}${texto('R1 220R', x + 44, y - 4, { fonte: 'Marker', tam: 14, fill: '#e8e6dc' })}${texto('D1', x + 128, y + 44, { fonte: 'Marker', tam: 14, fill: '#e8e6dc' })}${texto('C1 10uF', x + 208, y + 50, { fonte: 'Marker', tam: 14, fill: '#e8e6dc' })}</g>`;
+}
+
 // ───────────────────────── Portão (encaixa no vão da fachada) ─────────────────────────
 export function portao() {
   const w = 1280, h = 860, r = sorteio(2003);
@@ -144,8 +186,8 @@ export function portao() {
     ${texto('HIGH TECH', 390, 205, { tam: 70, fill: cor.magenta, rot: -2 })}
     ${texto('LOW LIFE', 535, 270, { tam: 78, fill: cor.vermelho, rot: -2 })}
     ${escorrido(r, 545, 264, 400, cor.vermelho, 9)}${escorrido(r, 400, 205, 400, cor.magenta, 6)}</g>`;
-  // androide, parabólica e sinal à direita
-  g += `<g filter="url(#tinta)">${usar('robo', 970, 110, 200, 300, cor.fosforo, 'style="--corte:#3a3e41"')}
+  // ronin, parabólica e sinal à direita
+  g += `<g filter="url(#tinta)">${usar('ronin', 965, 100, 210, 315, cor.fosforo, 'style="--corte:#3a3e41"')}
     ${usar('estrela', 1150, 70, 60, 60, cor.vermelho)}${usar('raio', 920, 90, 46, 80, cor.ciano)}
     ${usar('parabolica', 1010, 430, 210, 176, cor.ciano, 'style="--corte:#3a3e41"')}
     ${usar('sinal', 1180, 350, 80, 72, cor.magenta)}
@@ -158,7 +200,7 @@ export function portao() {
     ${usar('cctv', 112, 580, 120, 80, cor.ciano, 'style="--corte:#3a3e41"')}
     ${texto('AYO', 1040, 790, { fonte: 'Marker', tam: 96, fill: cor.fosforo, rot: -8 })}
     ${texto('2099', 80, 760, { fonte: 'Marker', tam: 58, fill: '#d6d6cf', rot: 6 })}
-    ${texto('GLWYD 03', 1110, 300, { fonte: 'Marker', tam: 34, fill: cor.ciano, rot: -14 })}
+    ${texto('GLWYD 03', 820, 392, { fonte: 'Marker', tam: 34, fill: cor.ciano, rot: -8 })}
     ${texto('ROOT ≠ CRIME', 40, 590, { fonte: 'Pixel', tam: 18, fill: cor.vermelho, rot: -4 })}
     ${escorrido(r, 1040, 760, 220, cor.fosforo, 7)}</g>`;
   g += `<g filter="url(#tinta)" opacity=".92">${texto('ÁREA RESTRITA · NÍVEL 3', 640, 796, { tam: 30, fill: '#e2e2da', ancora: 'middle' })}</g>`;
@@ -243,33 +285,36 @@ export function garagem() {
   // cartazes
   s += papelRasgado(r, 90, 120, 240, 330, '#0e0e0e', -3,
     `<rect x="100" y="130" width="220" height="310" fill="none" stroke="${cor.magenta}" stroke-width="6"/>
-     <circle cx="210" cy="250" r="72" fill="${cor.magenta}"/>
-     <rect x="130" y="262" width="160" height="5" fill="#0e0e0e"/><rect x="130" y="276" width="160" height="7" fill="#0e0e0e"/><rect x="130" y="292" width="160" height="9" fill="#0e0e0e"/><rect x="130" y="310" width="160" height="12" fill="#0e0e0e"/>
-     ${usar('predios', 110, 262, 200, 120, cor.fosforo, 'style="--corte:#0e0e0e"')}
+     ${megaestrutura()}
      ${texto('MANAUS 2099', 210, 412, { tam: 32, fill: cor.ciano, ancora: 'middle' })}
-     ${texto('ZONA FRANCA DIGITAL', 210, 432, { fonte: 'Pixel', tam: 12, fill: '#e6e6dc', ancora: 'middle' })}`);
+     ${texto('MEGAESTRUTURA · -3000', 210, 432, { fonte: 'Pixel', tam: 12, fill: '#e6e6dc', ancora: 'middle' })}`);
   s += papelRasgado(r, 360, 400, 170, 240, cor.papel, 4,
     `<rect x="370" y="410" width="150" height="220" fill="url(#pontosV)" opacity=".45"/>
      ${usar('perigo', 395, 428, 100, 90, '#111', 'style="--corte:#cfc6ae"')}
      ${texto('PERIGO', 445, 568, { tam: 32, fill: '#111', ancora: 'middle' })}
      ${texto('ALTA TENSÃO', 445, 598, { tam: 19, fill: cor.vermelho, ancora: 'middle' })}`);
   s += papelRasgado(r, 1260, 110, 250, 340, '#101010', 2,
-    `${usar('robo', 1300, 130, 170, 255, cor.ciano, 'style="--corte:#101010"')}
-     ${texto('ANDROIDES', 1385, 400, { tam: 30, fill: cor.fosforo, ancora: 'middle' })}
-     ${texto('ENTRE NÓS', 1385, 432, { tam: 30, fill: cor.fosforo, ancora: 'middle' })}`);
-  s += papelRasgado(r, 1090, 450, 190, 260, cor.vermelho, -5,
-    `${usar('parabolica', 1115, 470, 140, 117, '#111', 'style="--corte:#ff2a2a"')}
-     ${texto('RÁDIO PIRATA', 1185, 630, { tam: 21, fill: '#111', ancora: 'middle' })}
-     ${texto('CANAL 03 · 24H', 1185, 658, { fonte: 'Pixel', tam: 13, fill: '#111', ancora: 'middle' })}
-     ${texto('SINAL ABERTO', 1185, 680, { fonte: 'Pixel', tam: 13, fill: '#111', ancora: 'middle' })}`);
+    `<polygon points="1344,198 1342,208 1268,152 1274,122" fill="${cor.magenta}" opacity=".85"/>
+     ${usar('kaiju', 1318, 168, 150, 160, cor.ciano, 'style="--corte:#101010"')}
+     ${usar('predios', 1270, 250, 230, 138, '#1c1c1c', 'style="--corte:#e8c45a"')}
+     ${texto('KAIJU', 1385, 416, { tam: 36, fill: cor.fosforo, ancora: 'middle' })}
+     ${texto('NA ORLA', 1385, 440, { tam: 22, fill: cor.fosforo, ancora: 'middle' })}`);
+  s += papelRasgado(r, 1090, 450, 190, 260, '#0d0d0d', -5,
+    `<rect x="1098" y="458" width="174" height="244" fill="none" stroke="${cor.vermelho}" stroke-width="3"/>
+     ${pulsar(r, 1110, 492, 150, 20, 5.6)}
+     ${texto('SEXTA · 23H', 1185, 624, { fonte: 'Pixel', tam: 12, fill: '#e9e9e2', ancora: 'middle' })}
+     ${texto('PÓS-PUNK', 1185, 654, { tam: 26, fill: cor.vermelho, ancora: 'middle' })}
+     ${texto('NEW WAVE · NU METAL', 1185, 676, { fonte: 'Pixel', tam: 11, fill: '#e9e9e2', ancora: 'middle' })}
+     ${texto('EXPERIMENTAL', 1185, 694, { fonte: 'Pixel', tam: 11, fill: cor.ciano, ancora: 'middle' })}`);
   s += papelRasgado(r, 40, 480, 150, 110, cor.papel, 7,
     `${texto('CONEXÃO', 115, 525, { tam: 22, fill: '#111', ancora: 'middle' })}${texto('56K', 115, 562, { tam: 34, fill: cor.vermelho, ancora: 'middle' })}`);
   s += papelRasgado(r, 1420, 500, 150, 100, cor.magenta, -6,
-    `${texto('NEON', 1495, 545, { tam: 30, fill: '#111', ancora: 'middle' })}${texto('NOITE', 1495, 580, { tam: 30, fill: '#111', ancora: 'middle' })}`);
+    `${texto('SINC.', 1495, 545, { tam: 26, fill: '#111', ancora: 'middle' })}${texto('400%', 1495, 584, { tam: 36, fill: '#111', ancora: 'middle' })}`);
   s += fita(150, 108, 80, -10) + fita(1340, 98, 90, 8) + fita(400, 390, 70, 12) + fita(1130, 440, 70, -14);
   // grafite direto no tijolo
   s += `<g filter="url(#tinta)">${usar('planeta', 560, 56, 120, 86, cor.ciano, 'style="--corte:#4e231b"')}${texto('AYO', 980, 130, { fonte: 'Marker', tam: 70, fill: cor.magenta, rot: -6 })}
     ${usar('estrela', 680, 90, 40, 40, cor.vermelho)}${texto('> sistema online_', 600, 220, { fonte: 'Pixel', tam: 22, fill: cor.fosforo, rot: -2 })}</g>`;
+  s += esquemaGiz(1000, 300);
   // prateleira e equipamentos à esquerda
   s += `<g filter="url(#sombra)"><rect x="30" y="640" width="330" height="14" fill="#3b2a1c"/>
     <rect x="44" y="590" width="150" height="50" fill="#1c1c1c"/><rect x="54" y="600" width="70" height="10" fill="#0a0a0a"/><circle cx="170" cy="615" r="9" fill="#2e2e2e"/><rect x="54" y="622" width="10" height="5" fill="${cor.vermelho}"/>
@@ -321,7 +366,7 @@ export function tv() {
   s += adesivo(48, 166, 230, 46, '#e9e4d2', -4, texto('SOFTWARE LIVRE', 163, 199, { tam: 26, fill: '#111', ancora: 'middle' }));
   s += `<g filter="url(#sombraP)"><circle cx="130" cy="900" r="62" fill="${cor.vermelho}"/>${usar('alien', 102, 862, 56, 70, '#111', 'style="--corte:#ff2a2a"')}</g>`;
   s += adesivo(270, 902, 230, 50, '#111', 3, texto('0xDEADBEEF', 385, 937, { fonte: 'Pixel', tam: 24, fill: cor.ciano, ancora: 'middle' }));
-  s += adesivo(560, 896, 200, 54, cor.magenta, -3, texto('NÃO RASTREIE', 660, 931, { tam: 21, fill: '#111', ancora: 'middle' }));
+  s += adesivo(560, 896, 210, 54, cor.magenta, -3, usar('drakkar', 566, 900, 66, 44, '#111', 'style="--corte:#ff2bd6"') + texto('RUMO A OESTE', 704, 930, { fonte: 'Pixel', tam: 13, fill: '#111', ancora: 'middle' }));
   s += adesivo(938, 280, 190, 44, cor.fosforo, 6, texto('SUDO JUSTIÇA', 1033, 310, { fonte: 'Pixel', tam: 18, fill: '#111', ancora: 'middle' }));
   s += adesivo(940, 860, 180, 50, '#111', -5, texto('</> ONLINE', 1030, 894, { fonte: 'Pixel', tam: 20, fill: cor.fosforo, ancora: 'middle' }));
   s += adesivo(700, 176, 210, 40, cor.ciano, 3, texto('ROOT ≠ CRIME', 805, 204, { fonte: 'Pixel', tam: 18, fill: '#111', ancora: 'middle' }));
@@ -368,14 +413,30 @@ export function mesa() {
     for (let i = 0; i < 26; i++) { const a = r() * 6.28, rr = r.entre(raio * .35, raio * .95); c += `<path d="M${(cx + Math.cos(a) * rr).toFixed(1)} ${(cy + Math.sin(a) * rr).toFixed(1)} l${r.entre(-30, 30).toFixed(1)} ${r.entre(-12, 12).toFixed(1)}" stroke="#fff" stroke-width="1" opacity=".55"/>`; }
     return c + '</g>';
   };
-  s += cd(1300, 300, 110) + cd(1160, 820, 86);
+  s += cd(1300, 300, 110);
+  // fita cassete com os gêneros de sempre
+  s += `<g transform="rotate(7 1260 830)" filter="url(#sombra)"><rect x="1150" y="760" width="220" height="140" rx="9" fill="#1b1b1b"/>
+    <rect x="1164" y="772" width="192" height="78" rx="3" fill="#e6e0cc"/><rect x="1164" y="772" width="192" height="12" fill="${cor.vermelho}"/>
+    ${texto('NU METAL · RAP METAL', 1260, 804, { fonte: 'Marker', tam: 15, fill: '#1a1a1a', ancora: 'middle' })}
+    ${texto('PÓS-PUNK · NEW WAVE', 1260, 824, { fonte: 'Marker', tam: 15, fill: '#1a1a1a', ancora: 'middle' })}
+    ${texto('+ experimental', 1260, 843, { fonte: 'Marker', tam: 13, fill: '#7a1010', ancora: 'middle' })}
+    <rect x="1208" y="856" width="104" height="30" rx="4" fill="#0c0c0c"/>
+    <circle cx="1232" cy="871" r="12" fill="#cfcfc8"/><circle cx="1288" cy="871" r="12" fill="#cfcfc8"/><circle cx="1232" cy="871" r="5" fill="#0c0c0c"/><circle cx="1288" cy="871" r="5" fill="#0c0c0c"/>
+    <path d="M1190 900 L1202 886 H1318 L1330 900 Z" fill="#262626"/></g>`;
   // placas de circuito
   let pcb = `<rect x="1180" y="540" width="300" height="200" rx="6" fill="#1d4a28"/>`;
   for (let i = 0; i < 18; i++) { const y = 556 + i * 10; pcb += `<path d="M1190 ${y} H${1220 + r() * 120} V${y + r.entre(-6, 16)} H${1300 + r() * 160}" stroke="#b47d3c" stroke-width="2" fill="none" opacity=".8"/>`; }
   pcb += `<rect x="1250" y="590" width="80" height="56" fill="#0e0e0e"/><rect x="1360" y="640" width="54" height="40" fill="#0e0e0e"/><circle cx="1450" cy="560" r="6" fill="${cor.vermelho}"/>`;
   for (let i = 0; i < 9; i++) pcb += `<rect x="${1252 + i * 9}" y="584" width="4" height="6" fill="#bbb"/><rect x="${1252 + i * 9}" y="646" width="4" height="6" fill="#bbb"/>`;
   s += `<g transform="rotate(8 1330 640)" filter="url(#sombra)">${pcb}</g>`;
-  s += `<g transform="rotate(-20 1440 860)" filter="url(#sombra)"><rect x="1380" y="820" width="140" height="80" fill="#1a3d22"/><rect x="1400" y="840" width="40" height="30" fill="#0e0e0e"/><circle cx="1490" cy="840" r="5" fill="${cor.fosforo}"/></g>`;
+  // protoboard: resistor 220R (vermelho, vermelho, marrom, dourado), LED e jumpers
+  let pb = `<rect x="1380" y="800" width="200" height="110" rx="5" fill="#e4e0d3"/><rect x="1386" y="806" width="188" height="2" fill="${cor.vermelho}"/><rect x="1386" y="902" width="188" height="2" fill="${cor.ciano}"/><rect x="1386" y="855" width="188" height="4" fill="#cfcabb"/>`;
+  for (let i = 0; i < 30; i++) for (let j = 0; j < 12; j++) pb += `<rect x="${1392 + i * 6}" y="${816 + j * 7 + (j > 5 ? 6 : 0)}" width="2" height="2" fill="#a9a497"/>`;
+  pb += `<path d="M1420 830 H1476" stroke="#9a9a9a" stroke-width="2"/><rect x="1436" y="825" width="26" height="10" rx="4" fill="#d9c08a"/>`;
+  for (const [dx, c] of [[1440, '#c81e1e'], [1445, '#c81e1e'], [1450, '#6b3a1e'], [1457, '#c9a227']]) pb += `<rect x="${dx}" y="825" width="2.5" height="10" fill="${c}"/>`;
+  pb += `<path d="M1508 844 V830 M1516 844 V830" stroke="#9a9a9a" stroke-width="2"/><circle cx="1512" cy="827" r="7" fill="${cor.vermelho}"/><circle cx="1510" cy="825" r="2" fill="#fff" opacity=".7"/>`;
+  pb += `<path d="M1404 886 C1420 860 1470 870 1490 844" fill="none" stroke="${cor.fosforo}" stroke-width="3" stroke-linecap="round"/><path d="M1530 886 C1540 866 1556 870 1564 840" fill="none" stroke="${cor.ciano}" stroke-width="3" stroke-linecap="round"/>`;
+  s += `<g transform="rotate(-12 1480 855)" filter="url(#sombra)">${pb}</g>`;
   // papéis amassados
   const bola = (cx, cy, raio) => {
     let pts = [];
@@ -384,7 +445,13 @@ export function mesa() {
     for (let i = 0; i < 9; i++) { const p1 = r.um(pts), p2 = r.um(pts); b += `<path d="M${p1[0].toFixed(1)} ${p1[1].toFixed(1)} L${(cx + r.entre(-10, 10)).toFixed(1)} ${(cy + r.entre(-10, 10)).toFixed(1)} L${p2[0].toFixed(1)} ${p2[1].toFixed(1)} Z" fill="#000" opacity="${r.entre(.04, .18).toFixed(2)}"/>`; }
     return b + '</g>';
   };
-  s += bola(440, 270, 52) + bola(1490, 420, 44) + bola(1040, 230, 38) + bola(560, 930, 46);
+  s += bola(1490, 420, 44) + bola(1040, 230, 38) + bola(560, 930, 46);
+  // cartão-postal de pesca noturna: barco na neblina e uma luz que não devia estar ali
+  s += `<g transform="rotate(-7 390 225)" filter="url(#sombra)"><rect x="300" y="160" width="180" height="130" fill="#e8e3d3"/>
+    <rect x="310" y="170" width="160" height="90" fill="#1a2326"/><rect x="310" y="222" width="160" height="38" fill="#0e1618"/><rect x="310" y="212" width="160" height="14" fill="#9aa3a6" opacity=".28"/>
+    <path d="M358 230 L398 230 L392 238 L362 238 Z M370 230 V220 H382 V230 M376 220 V210" fill="#05090a" stroke="#05090a" stroke-width="1.5"/>
+    <circle cx="432" cy="226" r="9" fill="${cor.fosforo}" opacity=".18"/><circle cx="432" cy="226" r="2.6" fill="${cor.fosforo}"/><path d="M432 226 q-6 -16 -16 -22" fill="none" stroke="#05090a" stroke-width="1"/>
+    ${texto('pesca noturna', 390, 280, { fonte: 'Marker', tam: 15, fill: '#1a1a1a', ancora: 'middle' })}</g>`;
   // post-its
   s += `<g transform="rotate(-8 1450 230)" filter="url(#sombraP)"><rect x="1390" y="190" width="120" height="110" fill="${cor.fosforo}"/>${texto('TODO:', 1402, 228, { fonte: 'Marker', tam: 22, fill: '#111' })}${texto('deploy', 1402, 258, { fonte: 'Marker', tam: 22, fill: '#111' })}</g>`;
   // cabos
@@ -435,4 +502,33 @@ export function papel() {
   return { nome: 'papel', w, h, alfa: true, svg: svg(w, h, s) };
 }
 
-export const cenas = [portao, fachada, garagem, tv, mesa, papel];
+// ───────────────────────── Neblina baixa (ladrilho horizontal sem emenda) ─────────────────────────
+export function neblina() {
+  const w = 1600, h = 420;
+  const s = `<defs><filter id="nevoa" filterUnits="userSpaceOnUse" x="0" y="0" width="${w}" height="${h}">
+      <feTurbulence type="fractalNoise" baseFrequency=".0028 .011" numOctaves="4" seed="8" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 .80  0 0 0 0 .83  0 0 0 0 .85  1.7 0 0 0 -.5"/></filter>
+    <linearGradient id="desce" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff"/></linearGradient>
+    <mask id="mn"><rect width="${w}" height="${h}" fill="url(#desce)"/></mask></defs>
+  <rect width="${w}" height="${h}" filter="url(#nevoa)" mask="url(#mn)"/>`;
+  return { nome: 'neblina', w, h, alfa: true, svg: svg(w, h, s) };
+}
+
+// ───────────────────────── Selo de tinta vermelho com as iniciais ─────────────────────────
+export function selo() {
+  const w = 220, h = 220;
+  const s = `<defs><mask id="letras"><rect width="${w}" height="${h}" fill="#fff"/>
+    <rect x="36" y="36" width="148" height="148" rx="8" fill="none" stroke="#000" stroke-width="5"/>
+    <text x="110" y="106" font-family="Cinzel" font-weight="900" font-size="72" text-anchor="middle" fill="#000">G</text>
+    <text x="110" y="172" font-family="Cinzel" font-weight="900" font-size="72" text-anchor="middle" fill="#000">A</text></mask></defs>
+  <filter id="carimbo" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="21" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="5" xChannelSelector="R" yChannelSelector="G" result="d"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".09" numOctaves="3" seed="3" result="s"/>
+    <feColorMatrix in="s" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -4 0 0 0 3.05" result="falhas"/>
+    <feComposite in="d" in2="falhas" operator="in"/></filter>
+  <g filter="url(#carimbo)"><rect x="22" y="22" width="176" height="176" rx="14" fill="#c4161c" mask="url(#letras)"/></g>`;
+  return { nome: 'selo', w, h, alfa: true, svg: svg(w, h, s) };
+}
+
+export const cenas = [portao, fachada, garagem, tv, mesa, papel, neblina, selo];

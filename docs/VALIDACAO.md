@@ -26,3 +26,9 @@ Instância Tailscale em userspace publicada em https://glaydson-porfolio.tail9ff
 - `npm run qa` (Chromium): portão se move e a câmera avança; 8 hexágonos e 16 losangos; hover e foco acendem habilidades, ligações tracejadas e caminho até a raiz LINUX; Enter abre o modal, Escape fecha e devolve o foco; captura ampliada com Escape empilhado; projeto privado sem botão de repositório; 19 itens na lista SEO; 4 contatos; 320, 390, 768 e 1440 px sem rolagem horizontal; texto a 200%; movimento reduzido sem portão em rolagem, sem glitch e sem animações rodando; nenhum erro de JavaScript, HTTP ou CSP.
 - Fontes trocadas: Inter removida; entram Silkscreen, VT323, Black Ops One e Permanent Marker (licenças em `dist/assets/fonts/LICENSES.txt`).
 - Imagens das cenas: entre 13 KB e 250 KB cada, com versões menores para celular via `srcset`.
+
+## Cyberpunk/sci-fi e referências — 10/10/2026
+
+- Removidos os símbolos de representatividade preta e os elementos de hip-hop da arte; entram motivos cyberpunk/sci-fi e referências sutis (tabela no README).
+- `npm run qa` ampliado: dica do início com nome acessível, botão de som alterna, faixas de cinema entram na travessia, tela mostra "SINC. 62,5%" ao passar no Sistema Financeiro, graticula presente, aviso "SINAL ACESO" acende ao chegar no contato e fica oculto com movimento reduzido. Tudo passou em 320, 390, 768 e 1440 px, sem erros de JavaScript, HTTP ou CSP.
+- Nova fonte: Cinzel (SIL OFL 1.1). Novas imagens: neblina (ladrilho horizontal sem emenda) e selo de tinta.

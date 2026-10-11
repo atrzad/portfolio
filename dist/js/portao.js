@@ -1,5 +1,8 @@
 // Portão da garagem: abre com a rolagem, vaza luz de CRT e a câmera avança para dentro.
+// Faixas de cinema entram durante a travessia e a neblina baixa se dissipa lá dentro.
 // Só transform e opacity são alterados por quadro; nada de layout durante o scroll.
+import { ligarBotao, ruidoPortao } from './som.js';
+
 const limitar = (v, min = 0, max = 1) => Math.min(max, Math.max(min, v));
 const suave = t => t * t * (3 - 2 * t);
 
@@ -12,8 +15,10 @@ export function iniciarPortao({ reduz }) {
   const texto = document.querySelector('#hero-copy');
   const lente = document.querySelector('#lens');
   const liga = document.querySelector('#power');
-  const tocar = criarSom(document.querySelector('#sound'));
-  const animados = [fundo, frente, porta, luz, texto, lente, liga];
+  const neblina = document.querySelector('#fog');
+  const barras = [document.querySelector('#bar-top'), document.querySelector('#bar-bottom')];
+  ligarBotao(document.querySelector('#sound'));
+  const animados = [fundo, frente, porta, luz, texto, lente, liga, neblina, ...barras];
   let pendente = false, anterior = 0;
 
   function quadro() {
@@ -38,7 +43,10 @@ export function iniciarPortao({ reduz }) {
     const pw = limitar((p - .9) / .1);
     liga.style.opacity = pw > 0 ? (pw < .6 ? 1 : (1 - pw) / .4 * .8).toFixed(3) : '0';
     liga.style.transform = `scale(${limitar(pw * 2.2).toFixed(3)}, ${(1 + Math.max(0, pw - .45) * 70).toFixed(2)})`;
-    tocar(delta, (abre > 0 && abre < 1) || (z > 0 && z < 1));
+    neblina.style.opacity = (1 - z * .85).toFixed(3);
+    const cinema = suave(limitar((p - .4) / .15)) * (1 - limitar((p - .94) / .06));
+    for (const barra of barras) barra.style.transform = `scaleY(${cinema.toFixed(3)})`;
+    ruidoPortao(delta, (abre > 0 && abre < 1) || (z > 0 && z < 1));
   }
   const agendar = () => { if (!pendente) { pendente = true; requestAnimationFrame(quadro); } };
 
@@ -59,41 +67,3 @@ export function iniciarPortao({ reduz }) {
   aplicarModo();
 }
 
-// Ruído mecânico opcional (desligado por padrão): corrente chacoalhando + motor, sintetizados no navegador.
-function criarSom(botao) {
-  let ctx, mestre, ligado = false, silencio;
-  function montar() {
-    ctx = new AudioContext();
-    mestre = ctx.createGain(); mestre.gain.value = 0; mestre.connect(ctx.destination);
-    const buffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
-    const dados = buffer.getChannelData(0);
-    let ultimo = 0;
-    for (let i = 0; i < dados.length; i++) { ultimo = (ultimo + .02 * (Math.random() * 2 - 1)) / 1.02; dados[i] = ultimo * 3.5; }
-    const ruido = ctx.createBufferSource(); ruido.buffer = buffer; ruido.loop = true;
-    const banda = ctx.createBiquadFilter(); banda.type = 'bandpass'; banda.frequency.value = 240; banda.Q.value = .9;
-    const chocalho = ctx.createGain(); chocalho.gain.value = .5;
-    const lfo = ctx.createOscillator(); lfo.type = 'square'; lfo.frequency.value = 17;
-    const prof = ctx.createGain(); prof.gain.value = .5;
-    lfo.connect(prof).connect(chocalho.gain);
-    ruido.connect(banda).connect(chocalho).connect(mestre);
-    const motor = ctx.createOscillator(); motor.type = 'sawtooth'; motor.frequency.value = 46;
-    const grave = ctx.createBiquadFilter(); grave.type = 'lowpass'; grave.frequency.value = 150;
-    const vol = ctx.createGain(); vol.gain.value = .35;
-    motor.connect(grave).connect(vol).connect(mestre);
-    ruido.start(); lfo.start(); motor.start();
-  }
-  botao?.addEventListener('click', () => {
-    ligado = !ligado;
-    botao.setAttribute('aria-pressed', String(ligado));
-    botao.textContent = ligado ? '[ SOM: LIG ]' : '[ SOM: DESL ]';
-    if (ligado && !ctx) montar();
-    if (ctx) ligado ? ctx.resume() : ctx.suspend();
-  });
-  return (delta, movendo) => {
-    if (!ligado || !ctx) return;
-    const alvo = movendo ? Math.min(.45, Math.abs(delta) * 40) : 0;
-    mestre.gain.setTargetAtTime(alvo, ctx.currentTime, .04);
-    clearTimeout(silencio);
-    silencio = setTimeout(() => mestre.gain.setTargetAtTime(0, ctx.currentTime, .12), 140);
-  };
-}

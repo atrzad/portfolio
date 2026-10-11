@@ -1,5 +1,5 @@
 // Símbolos do grafite digital: ícones cyberpunk e sci-fi desenhados à mão em SVG.
-// Sem marcas, logotipos ou personagens reais: androides, drones, chips, antenas, vigilância, OVNI e planetas genéricos.
+// Sem marcas, logotipos ou personagens reais: androides, ronin, kaiju, drakkar, drones, chips, antenas, vigilância, OVNI e planetas genéricos.
 const corte = 'style="fill:var(--corte,#111)"';
 const traco = 'style="stroke:var(--corte,#111)"';
 
@@ -107,6 +107,35 @@ export const simbolos = `
   <path d="M56 26 L36 58 L50 58 L44 80 L66 46 L52 46 Z" ${corte}/>
 </symbol>
 <symbol id="predios" viewBox="0 0 200 120">${predios()}</symbol>
+<symbol id="ronin" viewBox="0 0 100 150">
+  <path d="M46 58 C32 52 16 46 2 52 L6 60 C18 56 30 60 46 66 Z"/>
+  <path d="M0 40 L50 22 L100 40 L50 47 Z"/>
+  <rect x="43" y="44" width="15" height="14" rx="3"/>
+  <rect x="44" y="49" width="15" height="3" ${corte}/>
+  <path d="M33 60 L67 60 L71 100 L29 100 Z"/>
+  <path d="M29 100 L71 100 L88 147 L73 147 L56 114 L44 114 L27 147 L12 147 Z"/>
+  <path d="M30 100 H70" ${traco} stroke-width="3"/>
+  <path d="M64 66 L80 82" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>
+  <path d="M36 66 L27 92" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>
+  <path d="M80 82 L99 6" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M77 94 L81 80" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
+  <path d="M74 80 L88 84" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+</symbol>
+<symbol id="kaiju" viewBox="0 0 140 150">
+  <path d="M60 26 L70 12 L72 34 L82 26 L84 48 L96 40 L95 60 L108 58 L103 78 L117 80 L107 96 L121 100 L112 108 Z"/>
+  <path d="M34 22 L50 16 L60 24 L66 40 L84 50 L98 70 L104 92 L122 108 L138 128 L136 140 L118 128 L104 114 L104 146 L84 146 L86 120 L74 118 L74 146 L56 146 L58 112 L52 96 L46 78 L36 74 L30 66 L40 64 L44 56 L40 44 L30 46 L22 38 L34 34 L20 26 Z"/>
+  <circle cx="45" cy="25" r="2.6" ${corte}/>
+</symbol>
+<symbol id="drakkar" viewBox="0 0 120 80">
+  <path d="M60 10 V56" stroke="currentColor" stroke-width="4"/>
+  <rect x="36" y="12" width="48" height="32" rx="2"/>
+  <rect x="44" y="12" width="6" height="32" ${corte}/><rect x="56" y="12" width="6" height="32" ${corte}/><rect x="68" y="12" width="6" height="32" ${corte}/>
+  <path d="M8 50 Q60 72 112 50 L104 62 Q60 82 16 62 Z"/>
+  <path d="M10 52 C2 44 4 30 14 30 C12 26 20 24 20 30 C14 34 14 44 18 50 Z"/>
+  <path d="M110 52 C116 46 116 36 108 34 C112 40 110 46 104 50 Z"/>
+  <circle cx="34" cy="58" r="3.4" ${corte}/><circle cx="48" cy="61" r="3.4" ${corte}/><circle cx="62" cy="62" r="3.4" ${corte}/><circle cx="76" cy="61" r="3.4" ${corte}/><circle cx="90" cy="58" r="3.4" ${corte}/>
+  <path d="M30 68 L22 78 M50 72 L44 80 M70 72 L66 80 M90 68 L86 78" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+</symbol>
 <symbol id="lata" viewBox="0 0 60 120">
   <rect x="10" y="34" width="40" height="86" rx="5"/>
   <rect x="16" y="20" width="28" height="16" rx="3"/>

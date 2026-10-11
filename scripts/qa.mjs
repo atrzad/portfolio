@@ -27,6 +27,12 @@ try {
   await rolarPortao(page, .35); await page.waitForTimeout(150);
   const meio = await page.locator('#door').evaluate(d => getComputedStyle(d).transform);
   assert.notEqual(meio, 'none', 'portão não se moveu');
+  assert.equal(await page.getByRole('link', { name: /Experimente rolar/ }).count(), 1, 'dica do início sem nome acessível');
+  await page.locator('#sound').click();
+  assert.equal(await page.locator('#sound').getAttribute('aria-pressed'), 'true', 'botão de som não alternou');
+  await rolarPortao(page, .7); await page.waitForTimeout(150);
+  const barra = await page.locator('#bar-top').evaluate(b => new DOMMatrix(getComputedStyle(b).transform).d);
+  assert.ok(barra > .9, 'faixas de cinema não entraram: ' + barra);
   await rolarPortao(page, .99); await page.waitForTimeout(150);
   const escala = await page.locator('#plane-front').evaluate(d => new DOMMatrix(getComputedStyle(d).transform).a);
   assert.ok(escala > 3, 'câmera não avançou: escala ' + escala);
@@ -41,6 +47,8 @@ try {
   assert.equal(await page.locator('#skill-tree .skill.on').count(), 5);
   assert.equal(await page.locator('#skill-tree .edge-proj.on').count(), 5);
   assert.ok(await page.locator('#skill-tree .edge-skill.on').count() >= 3, 'caminho de habilidades não acendeu');
+  assert.ok((await page.locator('#osd-live').textContent()).includes('SINC. 62,5%'), 'tela sem a sincronia do projeto');
+  assert.ok(await page.locator('#skill-tree .graticula line').count() > 50, 'graticula do osciloscópio ausente');
   await page.waitForTimeout(450);
   await page.mouse.move(5, 300);
   assert.equal(await page.locator('#skill-tree.lit').count(), 0, 'árvore não apagou ao sair');
@@ -78,7 +86,9 @@ try {
   assert.equal(await page.locator('.seo-list li').count(), projects.length);
   assert.ok(await page.locator('.seo-list').evaluate(n => n.getBoundingClientRect().width <= 1), 'lista SEO deveria estar oculta visualmente');
   assert.equal(await page.locator('#contact-links a').count(), 4);
-  await page.locator('#contato').scrollIntoViewIfNeeded();
+  await page.locator('#note').evaluate(n => n.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await page.waitForTimeout(300);
+  assert.equal(await page.locator('#banner.aceso').count(), 1, 'aviso SINAL ACESO não acendeu');
   await page.waitForFunction(() => [...document.images].filter(i => i.currentSrc && i.loading !== 'lazy').every(i => i.complete && i.naturalWidth > 0));
   assert.ok(await semOverflow(page), 'overflow em 1440px');
   await page.evaluate(() => document.documentElement.style.fontSize = '200%');
@@ -116,11 +126,12 @@ try {
   assert.equal(await r.locator('#tv.glitching').count(), 0, 'glitch da TV com movimento reduzido');
   const animacoes = await r.evaluate(() => document.getAnimations().filter(a => a.playState === 'running').length);
   assert.equal(animacoes, 0, 'animações rodando com movimento reduzido');
+  assert.equal(await r.locator('#banner').evaluate(b => getComputedStyle(b).display), 'none', 'aviso dourado com movimento reduzido');
   await r.keyboard.press('Escape');
   assert.deepEqual(er, []);
   await ctx.close();
 
-  console.log(`PASS: portão (abre e avança), árvore ${naArvore.length}+${projects.length - naArvore.length} projetos, hover/foco acendem caminhos, modal (teclado, clique, captura, Escape, foco), SEO ${projects.length} itens, contatos, 320/390/768/1440px, texto 200%, movimento reduzido, sem erros JS/HTTP/CSP.`);
+  console.log(`PASS: portão (abre, avança, faixas de cinema, som), árvore ${naArvore.length}+${projects.length - naArvore.length} projetos com sincronia e graticula, hover/foco acendem caminhos, modal (teclado, clique, captura, Escape, foco), SEO ${projects.length} itens, contatos e aviso dourado, 320/390/768/1440px, texto 200%, movimento reduzido, sem erros JS/HTTP/CSP.`);
 } finally {
   await browser.close();
 }

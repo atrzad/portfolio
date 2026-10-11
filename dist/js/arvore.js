@@ -1,6 +1,9 @@
 // Árvore de habilidades na tela da TV (SVG), lista vertical no celular e modal de projeto com glitch.
+// Ligações entre habilidades são trilhas de PCB (reto + 45°, com via); as dos projetos ficam retas e
+// tracejadas, como conexões ainda não roteadas. Ao fundo, a graticula de um osciloscópio.
 // Tudo é desenhado uma vez; hover/foco só trocam classes nos elementos envolvidos.
 import { projects, skills, skillLinks } from '../data.js';
+import { chiado } from './som.js';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const imagem = nome => './assets/screenshots/' + encodeURIComponent(nome);
@@ -55,6 +58,25 @@ function caminho(de) {
 }
 const chave = (a, b) => [a, b].sort().join('|');
 
+// Trilha de placa de circuito: segmento reto e depois 45°, com uma via na dobra.
+function trilha(a, b) {
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const dobra = Math.abs(dx) > Math.abs(dy)
+    ? { x: b.x - Math.sign(dx) * Math.abs(dy), y: a.y }
+    : { x: a.x, y: b.y - Math.sign(dy) * Math.abs(dx) };
+  return { d: `M${a.x.toFixed(1)} ${a.y.toFixed(1)} L${dobra.x.toFixed(1)} ${dobra.y.toFixed(1)} L${b.x.toFixed(1)} ${b.y.toFixed(1)}`, dobra };
+}
+
+// Graticula de osciloscópio: 10 × 8 divisões, eixos centrais com subdivisões.
+function graticula() {
+  let g = '';
+  for (let i = 1; i < 10; i++) g += `<line x1="${i * 100}" y1="0" x2="${i * 100}" y2="770"${i === 5 ? ' class="eixo"' : ''}/>`;
+  for (let j = 1; j < 8; j++) { const y = (j * 770 / 8).toFixed(1); g += `<line x1="0" y1="${y}" x2="1000" y2="${y}"${j === 4 ? ' class="eixo"' : ''}/>`; }
+  for (let i = 0; i <= 50; i++) g += `<line class="tick" x1="${i * 20}" y1="379" x2="${i * 20}" y2="391"/>`;
+  for (let j = 0; j <= 40; j++) { const y = (j * 770 / 40).toFixed(1); g += `<line class="tick" x1="494" y1="${y}" x2="506" y2="${y}"/>`; }
+  return `<g class="graticula">${g}</g>`;
+}
+
 function hexagono(r) {
   return Array.from({ length: 6 }, (_, i) => { const a = Math.PI / 3 * i; return `${(Math.cos(a) * r).toFixed(1)},${(Math.sin(a) * r * .9).toFixed(1)}`; }).join(' ');
 }
@@ -68,8 +90,10 @@ export function iniciarArvore({ reduz }) {
   const dialogoImg = document.querySelector('#image-dialog');
   const { pos, naArvore } = layout();
 
-  const linhasSkill = skillLinks.map(([a, b]) =>
-    `<line class="edge-skill" data-k="${chave(a, b)}" x1="${pos[a].x}" y1="${pos[a].y}" x2="${pos[b].x}" y2="${pos[b].y}"/>`).join('');
+  const linhasSkill = skillLinks.map(([a, b]) => {
+    const { d, dobra } = trilha(pos[a], pos[b]);
+    return `<g class="edge-skill" data-k="${chave(a, b)}"><path d="${d}"/><circle cx="${dobra.x.toFixed(1)}" cy="${dobra.y.toFixed(1)}" r="4.5"/></g>`;
+  }).join('');
   const linhasProj = naArvore.flatMap(p => p.skills.map(s =>
     `<line class="edge-proj" data-k="${p.id}|${s}" x1="${pos[p.id].x.toFixed(1)}" y1="${pos[p.id].y.toFixed(1)}" x2="${pos[s].x.toFixed(1)}" y2="${pos[s].y.toFixed(1)}"/>`)).join('');
   const nosSkill = skills.map(s => `<g class="skill${s.id === RAIZ ? ' root' : ''}" data-skill="${s.id}" transform="translate(${pos[s.id].x.toFixed(1)} ${pos[s.id].y.toFixed(1)})"><polygon points="${hexagono(s.id === RAIZ ? 62 : 54)}"/><text>${esc(s.label)}</text></g>`).join('');
@@ -83,16 +107,18 @@ export function iniciarArvore({ reduz }) {
       <circle class="hit" r="24"/><rect class="ring" x="-17" y="-17" width="34" height="34" transform="rotate(45)"/><rect class="dia" x="-11" y="-11" width="22" height="22" transform="rotate(45)"/>
       <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${ancora}">${esc(p.short)}</text></g>`;
   }).join('');
-  svg.innerHTML = `<g>${linhasSkill}</g><g>${linhasProj}</g><g>${nosSkill}</g><g>${nosProj}</g>`;
+  svg.innerHTML = `${graticula()}<g>${linhasSkill}</g><g>${linhasProj}</g><g>${nosSkill}</g><g>${nosProj}</g>`;
 
   listaEl.innerHTML = naArvore.map(p => `<li><button class="tree-item" type="button" data-project="${p.id}"><strong>${esc(p.name)}</strong><span>${p.skills.map(s => esc(rotulo[s])).join(' · ')}</span></button></li>`).join('');
   foraEl.innerHTML = projects.filter(p => !p.skills.length).map(p => `<button class="term-btn" type="button" data-project="${p.id}">[ ${esc(p.name)} ]</button>`).join('');
 
-  // ── acender caminhos
+  // ── acender caminhos (a tela mostra a "sincronia": quantas das habilidades o projeto usa)
   const el = sel => svg.querySelector(sel);
+  const osd = document.querySelector('#osd-live');
+  const pct = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
   const acesos = new Set();
   const marcar = e => { if (e) { e.classList.add('on'); acesos.add(e); } };
-  function apagar() { for (const e of acesos) e.classList.remove('on'); acesos.clear(); svg.classList.remove('lit'); }
+  function apagar() { for (const e of acesos) e.classList.remove('on'); acesos.clear(); svg.classList.remove('lit'); osd.textContent = '● AO VIVO'; }
   function acenderProjeto(id) {
     const p = porId[id];
     apagar();
@@ -105,13 +131,16 @@ export function iniciarArvore({ reduz }) {
       for (const [a, b] of caminho(s)) marcar(el(`.edge-skill[data-k="${chave(a, b)}"]`));
     }
     for (const [a, b] of skillLinks) if (usadas.has(a) && usadas.has(b)) marcar(el(`.edge-skill[data-k="${chave(a, b)}"]`));
+    osd.textContent = `● SINC. ${pct.format(p.skills.length / skills.length * 100)}%`;
     glitch();
   }
   function acenderSkill(sid) {
     apagar();
     svg.classList.add('lit');
     marcar(el(`.skill[data-skill="${sid}"]`));
-    for (const p of naArvore) if (p.skills.includes(sid)) { marcar(el(`.proj[data-project="${p.id}"]`)); marcar(el(`.edge-proj[data-k="${p.id}|${sid}"]`)); }
+    let n = 0;
+    for (const p of naArvore) if (p.skills.includes(sid)) { n++; marcar(el(`.proj[data-project="${p.id}"]`)); marcar(el(`.edge-proj[data-k="${p.id}|${sid}"]`)); }
+    osd.textContent = `● ${n} PROJETOS`;
   }
 
   // ── glitch de sinal na TV, limitado a hover/abertura e com intervalo mínimo
@@ -122,6 +151,7 @@ export function iniciarArvore({ reduz }) {
     if (agora - ultimoGlitch < 280) return;
     ultimoGlitch = agora;
     tv.classList.add('glitching');
+    chiado();
   }
   tv.addEventListener('animationend', e => { if (e.animationName === 'sinal') tv.classList.remove('glitching'); });
 
@@ -154,7 +184,7 @@ export function iniciarArvore({ reduz }) {
       <h2 id="dialog-title"><span class="glitch" data-text="${esc(p.name)}">${esc(p.name)}</span></h2>
       ${habilidades}${tecnologias}
       <h3>// DESCRIÇÃO</h3><p>${esc(p.description)}</p><p>${esc(p.detail)}</p>
-      <h3>// MOTIVAÇÃO</h3><p>${esc(p.motivation)}</p>
+      <h3>// MOTIVAÇÃO</h3><p class="inscricao">${esc(p.motivation)}</p>
       <h3>// ${p.kind === 'Em preparação' ? 'ESTADO ATUAL' : 'O QUE TEM'}</h3><ul>${p.features.map(f => `<li>${esc(f)}</li>`).join('')}</ul>
       ${p.image ? `<button class="shot" type="button" data-expand="${esc(p.id)}" aria-label="Ampliar captura de ${esc(p.name)}"><img src="${imagem(p.image)}" alt="${esc(p.caption)}" width="1440" height="960" loading="lazy"></button>` : ''}
       <p class="caption">${esc(p.caption)}</p>

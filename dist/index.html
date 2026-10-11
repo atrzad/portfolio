@@ -35,11 +35,16 @@
         <img class="facade" src="./assets/cena/fachada-m.webp" srcset="./assets/cena/fachada-m.webp 960w, ./assets/cena/fachada.webp 1920w" sizes="max(100vw, 160vh)" alt="" width="1920" height="1200">
       </div>
     </div>
+    <div class="fog" id="fog" aria-hidden="true"><span></span><span></span></div>
+<!-- etapa:portao -->
+    <div class="bars" aria-hidden="true"><i id="bar-top"></i><i id="bar-bottom"></i></div>
+<!-- /etapa:portao -->
     <div class="hero-copy" id="hero-copy">
-      <p class="boot" aria-hidden="true"><span class="rec">● REC</span> GARAGEM_03 :: SINAL OK :: 10-2026</p>
+      <img class="seal" src="./assets/cena/selo-m.webp" srcset="./assets/cena/selo-m.webp 132w, ./assets/cena/selo.webp 264w" sizes="96px" alt="" width="264" height="264">
+      <p class="boot" aria-hidden="true"><span class="rec">● REC</span> GARAGEM_03 :: VCC 5V :: SINAL OK</p>
       <h1 id="hero-title" class="name"><span class="glitch" data-text="GLAYDSON">GLAYDSON</span> <span class="glitch" data-text="DE OLIVEIRA">DE OLIVEIRA</span></h1>
       <p class="hero-desc">Desenvolvedor full-stack. Python, TypeScript, C, Linux, automação, ML. Construindo sistemas, ferramentas e ideias.<span class="cursor" aria-hidden="true"></span></p>
-      <a class="hint" href="#projetos">[ ROLE PARA ABRIR O PORTÃO <span aria-hidden="true">↓</span> ]</a>
+      <a class="hint" href="#projetos" aria-label="Experimente rolar: ir para os projetos">experimente rolar <span aria-hidden="true">↓</span></a>
     </div>
     <div class="vhs" aria-hidden="true"><span class="vhs-noise"></span><span class="vhs-track"></span><span class="vhs-blocks"><i></i><i></i><i></i></span></div>
     <div class="lens" id="lens" aria-hidden="true"></div>
@@ -62,7 +67,7 @@
     <img class="tv-frame" src="./assets/cena/tv-m.webp" srcset="./assets/cena/tv-m.webp 720w, ./assets/cena/tv.webp 1440w" sizes="min(1100px, 94vw)" alt="" width="1440" height="1248" loading="lazy" decoding="async">
     <div class="tv-screen">
       <div class="tv-content" id="tv-content">
-        <p class="osd" aria-hidden="true"><span>CH 03</span><span>ÁRVORE.SYS</span><span class="osd-live">● AO VIVO</span></p>
+        <p class="osd" aria-hidden="true"><span>CH 03</span><span>ÁRVORE.SYS</span><span class="osd-live" id="osd-live">● AO VIVO</span></p>
         <svg class="tree" id="skill-tree" viewBox="0 0 1000 770" role="group" aria-labelledby="tree-title" aria-describedby="tree-help"></svg>
         <ul class="tree-list" id="tree-list" aria-label="Projetos e habilidades usadas"></ul>
       </div>
@@ -113,7 +118,7 @@
     <p>Tenho 23 anos, moro em Manaus e sou desenvolvedor full-stack júnior. Estudo Ciência da Computação na Anhanguera, na modalidade EAD.</p>
     <p>Meus projetos passam por sistemas de gestão, ferramentas de estudo, aplicativos para Linux e Android e jogos para a web. É nesse caminho entre construir, testar e melhorar que eu aprendo.</p>
     <dl class="facts">
-      <div><dt>FORMAÇÃO</dt><dd>Ciência da Computação · Anhanguera · cursando</dd></div>
+      <div><dt>FORMAÇÃO</dt><dd>Ciência da Computação · Anhanguera · cursando<br>Engenharia Eletrônica · 6 períodos</dd></div>
       <div><dt>BASE</dt><dd>Manaus, Amazonas · 03° S 60° O</dd></div>
       <div><dt>STACK</dt><dd>Python · FastAPI · TypeScript · React · Node.js · C · C# / .NET · GTK · Kotlin · PostgreSQL · SQLite · Docker · Linux</dd></div>
     </dl>
@@ -125,10 +130,11 @@
 <!-- etapa:mesa -->
 <section class="desk" id="contato" aria-labelledby="contact-title">
   <div class="desk-bg" id="desk-bg" aria-hidden="true"><img src="./assets/cena/mesa-m.webp" srcset="./assets/cena/mesa-m.webp 960w, ./assets/cena/mesa.webp 1920w" sizes="max(100vw, 160vh)" alt="" width="1920" height="1200" loading="lazy" decoding="async"></div>
+  <p class="banner" id="banner" aria-hidden="true">SINAL ACESO</p>
   <div class="leds" aria-hidden="true"><i class="g"></i><i class="r"></i><i class="g"></i><i class="g"></i><i class="r"></i><i class="g"></i><i class="r"></i></div>
   <article class="note" id="note">
     <span class="tape tape-a" aria-hidden="true"></span><span class="tape tape-b" aria-hidden="true"></span>
-    <span class="stamp stamp-a" aria-hidden="true">CONFIDENCIAL</span><span class="stamp stamp-b" aria-hidden="true">RECEBIDO 10/26</span>
+    <span class="stamp stamp-a" aria-hidden="true">CONFIDENCIAL</span><img class="seal seal-note" src="./assets/cena/selo-m.webp" alt="" width="132" height="132" loading="lazy">
     <p class="kicker">// 03 — MANDE UM SINAL</p>
     <h2 id="contact-title" class="note-title">CONTATO</h2>
     <ul class="note-links" id="contact-links">
@@ -143,7 +149,7 @@
 <!-- /etapa:mesa -->
 
 </main>
-<footer class="footer"><span>© 2026 Glaydson de Oliveira Araujo</span><span>Feito em Manaus, numa garagem imaginária.</span><a href="#inicio">[ VOLTAR AO INÍCIO ]</a></footer>
+<footer class="footer"><span>© 2026 Glaydson de Oliveira Araujo</span><span>Feito em Manaus. Toda garagem guarda um reino esquecido.</span><a href="#inicio">[ VOLTAR AO INÍCIO ]</a></footer>
 
 <!-- etapa:arvore -->
 <dialog class="modal" id="project-dialog" aria-labelledby="dialog-title">

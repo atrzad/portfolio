@@ -18,6 +18,7 @@ const html = cena => `<!doctype html><meta charset="utf-8"><style>
 @font-face{font-family:BlackOps;src:url('file://${fontes}BlackOpsOne-Regular.woff2')}
 @font-face{font-family:Marker;src:url('file://${fontes}PermanentMarker-Regular.woff2')}
 @font-face{font-family:Pixel;src:url('file://${fontes}Silkscreen-Bold.woff2')}
+@font-face{font-family:Cinzel;src:url('file://${fontes}Cinzel.woff2');font-weight:400 900}
 html,body{margin:0;background:transparent}svg{display:block;width:100vw;height:100vh}
 </style>${cena.svg}`;
 
