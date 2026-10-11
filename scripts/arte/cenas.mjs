@@ -201,7 +201,6 @@ export function portao() {
     ${texto('AYO', 1040, 790, { fonte: 'Marker', tam: 96, fill: cor.fosforo, rot: -8 })}
     ${texto('2099', 80, 760, { fonte: 'Marker', tam: 58, fill: '#d6d6cf', rot: 6 })}
     ${texto('GLWYD 03', 820, 392, { fonte: 'Marker', tam: 34, fill: cor.ciano, rot: -8 })}
-    ${texto('ROOT ≠ CRIME', 40, 590, { fonte: 'Pixel', tam: 18, fill: cor.vermelho, rot: -4 })}
     ${escorrido(r, 1040, 760, 220, cor.fosforo, 7)}</g>`;
   g += `<g filter="url(#tinta)" opacity=".92">${texto('ÁREA RESTRITA · NÍVEL 3', 640, 796, { tam: 30, fill: '#e2e2da', ancora: 'middle' })}</g>`;
   s += g;
@@ -356,8 +355,6 @@ export function terminal() {
   // adesivos hacker
   const adesivo = (x, y, w2, h2, fill, rot, conteudo) => `<g transform="rotate(${rot} ${x + w2 / 2} ${y + h2 / 2})" filter="url(#sombraP)"><rect x="${x}" y="${y}" width="${w2}" height="${h2}" rx="6" fill="${fill}"/>${conteudo}</g>`;
   s += adesivo(40, 26, 250, 46, '#e9e4d2', -3, texto('SOFTWARE LIVRE', 165, 59, { tam: 26, fill: '#111', ancora: 'middle' }));
-  s += adesivo(1120, 30, 220, 40, cor.ciano, 3, texto('ROOT ≠ CRIME', 1230, 58, { fonte: 'Pixel', tam: 18, fill: '#111', ancora: 'middle' }));
-  s += adesivo(1360, 24, 200, 44, cor.fosforo, -4, texto('SUDO JUSTIÇA', 1460, 54, { fonte: 'Pixel', tam: 18, fill: '#111', ancora: 'middle' }));
   s += `<g filter="url(#sombraP)"><circle cx="150" cy="948" r="42" fill="${cor.vermelho}"/>${usar('alien', 128, 917, 44, 55, '#111', 'style="--corte:#ff2a2a"')}</g>`;
   s += adesivo(330, 922, 230, 50, '#111', 2, texto('0xDEADBEEF', 445, 957, { fonte: 'Pixel', tam: 24, fill: cor.ciano, ancora: 'middle' }));
   s += adesivo(980, 920, 214, 54, cor.magenta, -3, usar('drakkar', 986, 924, 66, 44, '#111', 'style="--corte:#ff2bd6"') + texto('RUMO A OESTE', 1124, 954, { fonte: 'Pixel', tam: 13, fill: '#111', ancora: 'middle' }));
