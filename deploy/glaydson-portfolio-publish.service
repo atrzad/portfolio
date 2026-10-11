@@ -1,0 +1,16 @@
+[Unit]
+Description=Publicacao do portfolio pelo Tailscale dedicado
+Requires=glaydson-portfolio-tailscale.service glaydson-portfolio.service
+After=glaydson-portfolio-tailscale.service glaydson-portfolio.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/python3 /home/ayo/Projects/portfolio/scripts/tailscale-publish.py
+RemainAfterExit=yes
+TimeoutStartSec=150
+NoNewPrivileges=true
+PrivateTmp=true
+UMask=0077
+
+[Install]
+WantedBy=default.target

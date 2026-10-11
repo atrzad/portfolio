@@ -1,0 +1,405 @@
+[
+  {
+    "id": "duelo",
+    "name": "Duelo de Termos",
+    "category": "Web",
+    "description": "Um jogo de palavras com partidas solo e salas para até oito jogadores.",
+    "stack": [
+      "React",
+      "TypeScript",
+      "FastAPI",
+      "Socket.IO"
+    ],
+    "repo": "atrzad/duelo-de-termos",
+    "features": [
+      "Modo solo e salas multiplayer",
+      "Rodadas, placar e reconexão",
+      "Convites e modos de dificuldade"
+    ],
+    "detail": "O servidor controla as partidas online, enquanto o modo solo funciona no navegador. Regras, salas e persistência ficam separadas no backend.",
+    "image": "duelo.webp",
+    "kind": "Interface",
+    "caption": "Modo solo real do Duelo de Termos (Termox), capturado durante uma partida local."
+  },
+  {
+    "id": "financeiro",
+    "name": "Sistema Financeiro",
+    "category": "Web",
+    "description": "Comprovantes viram lançamentos com OCR e revisão humana.",
+    "stack": [
+      "React",
+      "FastAPI",
+      "PostgreSQL",
+      "Celery"
+    ],
+    "repo": "atrzad/Sistema-Financeiro",
+    "features": [
+      "Upload e processamento de comprovantes",
+      "OCR com confiança por campo",
+      "Isolamento de dados por empresa"
+    ],
+    "detail": "API, filas de processamento e armazenamento de arquivos trabalham em conjunto. O projeto está em desenvolvimento; relatórios completos e aprovação multinível fazem parte do planejamento.",
+    "image": "financeiro.webp",
+    "kind": "Interface",
+    "caption": "Tela real de autenticação do Sistema Financeiro. Nenhum dado financeiro pessoal foi utilizado."
+  },
+  {
+    "id": "musica",
+    "name": "Ayo Música",
+    "category": "Desktop",
+    "description": "Biblioteca musical, playlists e letras em aplicativos para Linux e Android.",
+    "stack": [
+      "Python",
+      "GTK4",
+      "Kotlin",
+      "GStreamer"
+    ],
+    "repo": "atrzad/ayo-musica",
+    "features": [
+      "Biblioteca local e playlists",
+      "Letras sincronizadas",
+      "Clientes Linux e Android com servidor de sincronização"
+    ],
+    "detail": "Evolução do player do Ayo Desk. Combina uma interface nativa GTK no Linux, Jetpack Compose no Android e um servidor Node.js.",
+    "image": "music.webp",
+    "kind": "Interface",
+    "caption": "Aplicativo Linux real, executado com biblioteca e banco de demonstração isolados."
+  },
+  {
+    "id": "rest",
+    "name": "Rest System",
+    "category": "Web",
+    "description": "Comandas e pedidos conectam o salão à cozinha em tempo real.",
+    "stack": [
+      "React",
+      "FastAPI",
+      "Redis",
+      "PostgreSQL"
+    ],
+    "repo": "atrzad/rest-system",
+    "features": [
+      "Mesas, produtos e comandas",
+      "Painel de pedidos da cozinha (KDS)",
+      "Perfis de administrador, salão e cozinha"
+    ],
+    "detail": "Eventos do domínio passam pelo Redis e chegam às interfaces via WebSocket. O núcleo acompanha as transições dos pedidos até a entrega.",
+    "image": "rest.webp",
+    "kind": "Interface",
+    "caption": "KDS real do Rest System. Os pedidos são fictícios, fornecidos apenas ao navegador para esta captura."
+  },
+  {
+    "id": "controle",
+    "name": "Sistema de Controle",
+    "category": "Web",
+    "description": "Grade de professores, frequência e acompanhamento da rotina escolar.",
+    "stack": [
+      "React",
+      "C#",
+      ".NET 8",
+      "PostgreSQL"
+    ],
+    "repo": "atrzad/Sistema-de-controle",
+    "features": [
+      "Grade semanal com validação de conflitos",
+      "Presenças, ausências e justificativas",
+      "Cadastros e relatórios de turmas afetadas"
+    ],
+    "detail": "API organizada em camadas com Entity Framework Core e FluentValidation. A aplicação possui frontend web e configuração para distribuição desktop.",
+    "image": "controle.webp",
+    "kind": "Interface",
+    "caption": "Dashboard real do sistema escolar. Nomes e números são dados fictícios fornecidos apenas ao navegador para esta captura."
+  },
+  {
+    "id": "std",
+    "name": "Ayo Std",
+    "category": "Web",
+    "description": "Um espaço de estudos com trilhas, notas e sessões de foco.",
+    "stack": [
+      "Node.js",
+      "Express",
+      "SQLite",
+      "Markdown"
+    ],
+    "repo": "atrzad/ayo-std",
+    "features": [
+      "Trilhas e progresso individual",
+      "Pomodoro e registro de questões",
+      "Contas, grupos e espaços de estudo"
+    ],
+    "detail": "O conteúdo se apoia em arquivos Markdown e CSV, enquanto SQLite guarda contas e progresso. O projeto integra leitura, prática e organização de estudos.",
+    "image": "std.webp",
+    "kind": "Interface",
+    "caption": "Página real de entrada do Ayo Std, renderizada pelo código original."
+  },
+  {
+    "id": "sketchbook",
+    "name": "Ayo Sketchbook",
+    "category": "Web",
+    "description": "Notas conectadas, desenhos e organização em um caderno no navegador.",
+    "stack": [
+      "JavaScript",
+      "Express",
+      "SQLite",
+      "Markdown"
+    ],
+    "repo": "atrzad/ayo-sketchbook",
+    "features": [
+      "Notas, pastas, tags e backlinks",
+      "Desenho com caneta no navegador",
+      "Grafo de notas e templates"
+    ],
+    "detail": "Os arquivos são a fonte do conteúdo. Um índice deriva busca e relações entre notas, e o login se integra às contas do Ayo Std.",
+    "image": "sketchbook.webp",
+    "kind": "Interface",
+    "caption": "Página real de entrada do Ayo Sketchbook, renderizada pelo código original."
+  },
+  {
+    "id": "desk",
+    "name": "Ayo Desk",
+    "category": "Desktop",
+    "description": "Ferramentas nativas para tornar o dia a dia no Linux mais prático.",
+    "stack": [
+      "Python",
+      "GTK4",
+      "C",
+      "SQLite"
+    ],
+    "repo": "atrzad/ayo-desk",
+    "features": [
+      "Controles de rede, áudio e Bluetooth",
+      "Calculadora científica e calendário",
+      "Integração com serviços do Linux"
+    ],
+    "detail": "A suíte combina Python e GTK com um parser matemático em C. Integrações do sistema e persistência ficam em módulos próprios.",
+    "image": "calculator.webp",
+    "kind": "Interface",
+    "caption": "Calculadora real do Ayo Desk, capturada pelo teste visual do projeto com dados temporários."
+  },
+  {
+    "id": "kanban",
+    "name": "Ayo Kanban",
+    "category": "Desktop",
+    "description": "Quadros e cartões para organizar tarefas diretamente no desktop.",
+    "stack": [
+      "Python",
+      "GTK4",
+      "SQLite"
+    ],
+    "repo": "atrzad/ayo-desk/tree/feat/kanban",
+    "features": [
+      "Quadros, colunas e cartões",
+      "Prioridades, prazos e checklists",
+      "Importação JSON e exportação Markdown"
+    ],
+    "detail": "Extensão do Ayo Desk desenvolvida na branch feat/kanban. Não é um repositório independente; regras do quadro são separadas da interface.",
+    "image": "kanban.webp",
+    "kind": "Interface",
+    "caption": "Quadro real do Ayo Kanban com cartões de demonstração, capturado pelo teste visual do projeto."
+  },
+  {
+    "id": "nossos",
+    "name": "Nossos Dias",
+    "category": "Web",
+    "description": "Memórias, datas especiais e comunicação em um espaço compartilhado.",
+    "stack": [
+      "Node.js",
+      "Express",
+      "SQLite",
+      "PWA"
+    ],
+    "repo": null,
+    "features": [
+      "Feed de lembranças e datas especiais",
+      "Chat, mídia e atualizações em tempo real",
+      "Sessões por aparelho e autenticação TOTP"
+    ],
+    "detail": "Aplicação web com backend e frontend próprios. Inclui persistência SQLite, notificações Web Push e rotinas de backup.",
+    "image": "nossos.webp",
+    "kind": "Interface",
+    "caption": "Tela real de entrada do Nossos Dias. Fotos e conversas pessoais não foram incluídas."
+  },
+  {
+    "id": "treinos",
+    "name": "Cronograma de Treinos",
+    "category": "Web",
+    "description": "Planejamento de exercícios, histórico e círculos de amigos.",
+    "stack": [
+      "React",
+      "Node.js",
+      "MongoDB",
+      "Docker"
+    ],
+    "repo": "glwydson/cronograma-treinos",
+    "features": [
+      "Exercícios, séries e cronômetro",
+      "Histórico de sessões",
+      "Grupos e ranking de frequência"
+    ],
+    "detail": "Aplicação fullstack com Express e MongoDB. Autenticação JWT vincula planos e histórico a cada usuário.",
+    "image": "treinos.webp",
+    "kind": "Documentação",
+    "caption": "Captura do README público do projeto no GitHub."
+  },
+  {
+    "id": "livraria",
+    "name": "LivrariaOnline API",
+    "category": "Backend",
+    "description": "API de livraria com catálogo, autenticação e pedidos.",
+    "stack": [
+      "C#",
+      ".NET 8",
+      "EF Core",
+      "PostgreSQL"
+    ],
+    "repo": "glwydson/LivrariaOnlineAPI",
+    "features": [
+      "Catálogo de livros, autores e categorias",
+      "Autenticação JWT e pedidos",
+      "Swagger e relatório de vendas"
+    ],
+    "detail": "Projeto acadêmico em equipe do módulo de C# da UEA, desenvolvido com Thiago Serra Andrade Leite, Daniel Oliveira da Silva e Leandro Henrique de Souza Carrascosa. Arquitetura em camadas, DTOs, services e repositories.",
+    "image": "livraria.webp",
+    "kind": "Documentação",
+    "caption": "Captura da documentação pública da API no GitHub. Projeto desenvolvido em equipe."
+  },
+  {
+    "id": "repo",
+    "name": "Repo Manager",
+    "category": "Desktop",
+    "description": "Gerenciador gráfico de repositórios Git e GitHub no Linux.",
+    "stack": [
+      "C",
+      "GTK4",
+      "Git",
+      "GitHub CLI"
+    ],
+    "repo": "glwydson/repo-manager",
+    "features": [
+      "Gerenciamento gráfico de repositórios",
+      "Integração com Git e GitHub",
+      "Interface nativa GTK4"
+    ],
+    "detail": "Uma ferramenta desktop escrita em C para centralizar o trabalho com repositórios. O código e as instruções de uso estão disponíveis no GitHub.",
+    "image": "repo.webp",
+    "kind": "Documentação",
+    "caption": "Captura do repositório público do Repo Manager no GitHub."
+  },
+  {
+    "id": "landing",
+    "name": "Landing MVP",
+    "category": "Web",
+    "description": "Página institucional responsiva com navegação e apresentação pessoal.",
+    "stack": [
+      "React",
+      "TypeScript",
+      "Vite"
+    ],
+    "repo": "glwydson/landind-mvp",
+    "features": [
+      "Página inicial e apresentação",
+      "Carrossel de conteúdo",
+      "Formulário com validação no navegador"
+    ],
+    "detail": "Projeto de demonstração publicado no GitHub Pages. O formulário faz validação no cliente; não é apresentado como serviço de envio de mensagens.",
+    "image": "landing-live.webp",
+    "kind": "Interface",
+    "caption": "Captura da página real publicada em https://glwydson.github.io/landind-mvp/."
+  },
+  {
+    "id": "agent",
+    "name": "Agent Sandbox",
+    "category": "Backend",
+    "description": "Ambiente de terminal e painel para acompanhar agentes de desenvolvimento.",
+    "stack": [
+      "Node.js",
+      "Docker",
+      "tmux",
+      "ttyd"
+    ],
+    "repo": "atrzad/agent-sandbox",
+    "features": [
+      "Terminal acessível pelo navegador",
+      "Painel de acompanhamento das sessões",
+      "Ambiente configurado com Docker Compose"
+    ],
+    "detail": "O painel consulta o estado das sessões tmux. O terminal é disponibilizado por ttyd, com um servidor Node.js dedicado ao acompanhamento.",
+    "image": "agent.webp",
+    "kind": "Interface",
+    "caption": "Painel real com sessões fictícias de demonstração e terminal ilustrativo, sem conexão com terminais pessoais."
+  },
+  {
+    "id": "monitor",
+    "name": "Monitor de Concursos",
+    "category": "Backend",
+    "description": "Automação para consultar concursos e preparar resumos diários.",
+    "stack": [
+      "Python",
+      "JSON-RPC",
+      "TOML",
+      "systemd"
+    ],
+    "repo": "atrzad/monitor-concursos",
+    "features": [
+      "Filtros de interesse e deduplicação",
+      "Resumo de novidades e falhas",
+      "Modo de simulação e notificações"
+    ],
+    "detail": "Script Python que integra um serviço de consulta via JSON-RPC, controla resultados já vistos e prepara notificações. O agendamento é externo ao script.",
+    "image": "monitor.webp",
+    "kind": "Documentação",
+    "caption": "Captura do README público do script no GitHub. O projeto não possui interface gráfica própria."
+  },
+  {
+    "id": "stooq",
+    "name": "Stooq Manager",
+    "category": "Backend",
+    "description": "Projeto de estudo em Java para praticar sintaxe e organização de código.",
+    "stack": [
+      "Java"
+    ],
+    "repo": "glwydson/stooqmanager",
+    "features": [
+      "Prática de Java",
+      "Organização de arquitetura",
+      "Desenvolvimento contínuo"
+    ],
+    "detail": "Repositório de aprendizado. A descrição reflete o escopo declarado pelo autor, sem presumir funcionalidades não documentadas.",
+    "image": "stooq.webp",
+    "kind": "Documentação",
+    "caption": "Captura do repositório público no GitHub."
+  },
+  {
+    "id": "audio",
+    "name": "AudioBridge",
+    "category": "Backend",
+    "description": "Repositório criado; ainda sem código público.",
+    "stack": [
+      "Em preparação"
+    ],
+    "repo": "glwydson/AudioBridge",
+    "features": [
+      "Repositório disponível no GitHub"
+    ],
+    "detail": "Na consulta de 8 de outubro de 2026, este repositório estava vazio. Ainda não há interface ou implementação pública para apresentar.",
+    "image": null,
+    "kind": "Em preparação",
+    "caption": "Repositório vazio na consulta ao GitHub; não há tela para capturar."
+  },
+  {
+    "id": "comandas",
+    "name": "Gerenciador de Comandas KDS",
+    "category": "Backend",
+    "description": "Repositório criado; ainda sem código público.",
+    "stack": [
+      "Em preparação"
+    ],
+    "repo": "glwydson/gerenciador-de-comandas-kds",
+    "features": [
+      "Repositório disponível no GitHub"
+    ],
+    "detail": "Na consulta de 8 de outubro de 2026, este repositório estava vazio. Ainda não há interface ou implementação pública para apresentar.",
+    "image": null,
+    "kind": "Em preparação",
+    "caption": "Repositório vazio na consulta ao GitHub; não há tela para capturar."
+  }
+]

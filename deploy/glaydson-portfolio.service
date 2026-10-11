@@ -1,0 +1,18 @@
+[Unit]
+Description=Portfolio de Glaydson Araujo
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/ayo/Projects/portfolio
+ExecStart=/usr/sbin/node /home/ayo/Projects/portfolio/server.mjs
+Environment=NODE_ENV=production
+Environment=PORT=4321
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+UMask=0077
+
+[Install]
+WantedBy=default.target

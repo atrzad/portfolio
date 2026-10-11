@@ -1,0 +1,20 @@
+[Unit]
+Description=Tailscale dedicado ao portfolio de Glaydson
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+RuntimeDirectory=portfolio-tailscale
+RuntimeDirectoryMode=0700
+StateDirectory=portfolio-tailscale
+StateDirectoryMode=0700
+ExecStart=/usr/sbin/tailscaled --tun=userspace-networking --statedir=%S/portfolio-tailscale --socket=%t/portfolio-tailscale/tailscaled.sock --port=0
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+UMask=0077
+
+[Install]
+WantedBy=default.target

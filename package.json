@@ -1,0 +1,1 @@
+{"name":"glaydson-portfolio","version":"1.0.0","private":true,"type":"module","scripts":{"start":"node server.mjs","check":"node --check server.mjs && node --check dist/app.js","test":"node scripts/check.mjs"},"engines":{"node":">=22"}}
